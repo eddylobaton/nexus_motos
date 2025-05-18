@@ -104,10 +104,12 @@
   
     const igvInput = document.getElementById("entrada_igv");
     const igvPercent = parseFloat(igvInput.value) || 0;
-    const igvMonto = subtotal * (igvPercent / 100);
-    const total = subtotal + igvMonto;
+
+    const subtotalOK = subtotal / (1 + (igvPercent / 100));
+    const igvMonto = subtotalOK * (igvPercent / 100);
+    const total = subtotal;
   
-    document.getElementById("subtotalEntrada").innerText = subtotal.toFixed(2);
+    document.getElementById("subtotalEntrada").innerText = subtotalOK.toFixed(2);
     document.getElementById("igvValorEntrada").innerText = igvPercent.toFixed(2);
     document.getElementById("igvEntrada").innerText = igvMonto.toFixed(2);
     document.getElementById("totalEntrada").innerText = total.toFixed(2);
@@ -149,11 +151,16 @@
       }))
     );
   
-    // También pasar subtotal y total como inputs ocultos
+    // También pasar subtotal, monto_igv y total como inputs ocultos
     const inputSubtotal = document.createElement("input");
     inputSubtotal.type = "hidden";
     inputSubtotal.name = "subtotal_entrada";
     inputSubtotal.value = parseFloat(document.getElementById("subtotalEntrada").innerText);
+
+    const inputMontoIgv = document.createElement("input");
+    inputMontoIgv.type = "hidden";
+    inputMontoIgv.name = "montoIgv_entrada";
+    inputMontoIgv.value = parseFloat(document.getElementById("igvEntrada").innerText);
   
     const inputTotal = document.createElement("input");
     inputTotal.type = "hidden";
@@ -162,6 +169,7 @@
   
     this.appendChild(inputHidden);
     this.appendChild(inputSubtotal);
+    this.appendChild(inputMontoIgv);
     this.appendChild(inputTotal);
   
     this.submit();

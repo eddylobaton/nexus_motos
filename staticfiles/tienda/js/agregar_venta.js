@@ -15,10 +15,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const financiamientoSeccion = document.getElementById('financiamiento_seccion');
     const errorSpan = document.getElementById('error_efectivo');
   
-    igvInput.addEventListener('input', function () {
+    /*igvInput.addEventListener('input', function () {
       igvPorcentaje = parseFloat(this.value) || 0;
       actualizarTotales();
-    });
+    });*/
   
     metodoPagoSelect.addEventListener('change', function () {
       const metodo = this.options[this.selectedIndex].text.toLowerCase();
@@ -193,19 +193,20 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   
     function actualizarTotales() {
-      let subtotal = 0;
+      let subtotal = 0; //incluye IGV
       for (const id in articulosSeleccionados) {
         subtotal += articulosSeleccionados[id].subtotal;
       }
+
+      const subtotalOK = subtotal / (1 + (igvPorcentaje / 100));
+      const igv = subtotalOK * (igvPorcentaje / 100);
+      const total = subtotal;
   
-      const igv = subtotal * (igvPorcentaje / 100);
-      const total = subtotal + igv;
-  
-      ventaSubtotalSpan.textContent = subtotal.toFixed(2);
+      ventaSubtotalSpan.textContent = subtotalOK.toFixed(2);
       ventaIGVSpan.textContent = igv.toFixed(2);
       ventaTotalSpan.textContent = total.toFixed(2);
 
-      document.getElementById('venta_subtotal').value = subtotal.toFixed(2);
+      document.getElementById('venta_subtotal').value = subtotalOK.toFixed(2);
       document.getElementById('venta_igv').value = igv.toFixed(2);
       document.getElementById('venta_total').value = total.toFixed(2);
   
