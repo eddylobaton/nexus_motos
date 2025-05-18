@@ -1,0 +1,114 @@
+.card {
+    background: #fff;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.table thead th {
+    background-color: #e1f0ff;
+    color: #6c757d;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-align: center !important;
+    vertical-align: middle;
+}
+
+table {
+    width: 100%;
+}
+
+.table tbody td {
+    font-size: 0.875rem; /* equivale a 14px si el root es 16px */
+}
+
+#productos-table th,
+#productos-table td {
+    vertical-align: middle !important;
+    text-align: center !important;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    /* antes 80px */
+    height: 18px;
+    /* antes 34px */
+    cursor: pointer;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #dc3545;
+    border-radius: 18px;
+    transition: background-color 0.4s;
+}
+
+.slider::before {
+    content: "";
+    position: absolute;
+    height: 12px;
+    /* antes 26px */
+    width: 12px;
+    left: 3px;
+    top: 3px;
+    border-radius: 50%;
+    background-color: white;
+    transition: transform 0.4s;
+}
+
+/* Textos */
+.slider .text-on,
+.slider .text-off {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 9px;
+    /* antes 14px */
+    font-weight: bold;
+    color: white;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+
+.slider .text-on {
+    left: 5px;
+    /* ajustado para el nuevo tamaño */
+    opacity: 0;
+}
+
+.slider .text-off {
+    right: 5px;
+    opacity: 1;
+}
+
+/* Cuando está activado */
+.switch input:checked+.slider {
+    background-color: #28a745;
+}
+
+.switch input:checked+.slider::before {
+    transform: translateX(22px);
+    /* antes 46px */
+}
+
+.switch input:checked+.slider .text-on {
+    opacity: 1;
+}
+
+.switch input:checked+.slider .text-off {
+    opacity: 0;
+}

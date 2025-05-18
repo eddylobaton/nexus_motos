@@ -1,0 +1,62 @@
+{% extends 'tienda/base_tres.html'%}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'tienda/css/agregar_articulo_estilos.css' %}"> 
+{% endblock %} 
+
+{% block content %}
+
+<div class="card shadow-lg">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="card-title mb-0">Editar artículo: {{ producto.prod_nombre }}</h5>
+            <div>
+                <a href="{% url 'lista_articulos' %}" class="btn btn-secondary ">
+                    <i class="bi bi-arrow-left"></i> Volver
+                </a>
+            </div>
+        </div>
+        <hr size="3px" color="black">
+        <!-- Mostrar errores de formulario si existen -->
+        {% if form.errors %}
+        <div class="alert alert-danger mt-3">
+            <ul>
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-md-6">{{ form.prod_nombre.label_tag }}{{ form.prod_nombre }}</div>
+                <div class="col-md-6">{{ form.prod_marca.label_tag }}{{ form.prod_marca }}</div>
+                <div class="col-md-6">{{ form.prod_modelo.label_tag }}{{ form.prod_modelo }}</div>
+                <div class="col-md-6">{{ form.prod_motor.label_tag }}{{ form.prod_motor }}</div>
+                <div class="col-md-6">{{ form.prod_categoria.label_tag }}{{ form.prod_categoria }}</div>
+                <div class="col-md-6">{{ form.prod_porcenta_dcto.label_tag }}{{ form.prod_porcenta_dcto }}</div>
+                <div class="col-md-6">{{ form.prod_descripcion.label_tag }}{{ form.prod_descripcion }}</div>
+                <div class="col-md-6">
+                    {{ form.imagen_archivo.label_tag }}
+                    {{ form.imagen_archivo }}
+                    {% if producto.prod_imagen %}
+                        <div class="mt-2">
+                            <img src="{% static 'tienda/img/' %}{{ producto.prod_imagen }}" class="img-thumbnail" width="150" alt="Imagen actual">
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="mt-4 text-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save"></i> Guardar cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

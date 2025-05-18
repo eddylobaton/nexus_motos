@@ -1,0 +1,59 @@
+{% extends 'tienda/base_tres.html'%}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'tienda/css/agregar_usuario_estilos.css' %}"> 
+{% endblock %} 
+
+{% block content %}
+
+<div class="card shadow-lg">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="card-title mb-0">Editar usuario: {{ usuario.usuario_nombre }} {{ usuario.usuario_paterno }} {{ usuario.usuario_materno }}</h5>
+            <div>
+                <a href="{% url 'lista_usuarios' %}" class="btn btn-secondary ">
+                    <i class="bi bi-arrow-left"></i> Volver
+                </a>
+            </div>
+        </div>
+        <hr size="3px" color="black">
+        <!-- Mostrar errores de formulario si existen -->
+        {% if form.errors %}
+        <div class="alert alert-danger mt-3">
+            <ul>
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-md-6">{{ form.usuario_tipodocumento.label_tag }}{{ form.usuario_tipodocumento }}</div>
+                <div class="col-md-6">{{ form.usuario_nrodocumento.label_tag }}{{ form.usuario_nrodocumento }}</div>
+                <div class="col-md-6">{{ form.usuario_nombre.label_tag }}{{ form.usuario_nombre }}</div>
+                <div class="col-md-6">{{ form.usuario_paterno.label_tag }}{{ form.usuario_paterno }}</div>
+                <div class="col-md-6">{{ form.usuario_materno.label_tag }}{{ form.usuario_materno }}</div>
+                <div class="col-md-6">{{ form.usuario_direccion.label_tag }}{{ form.usuario_direccion }}</div>
+                <div class="col-md-6">{{ form.usuario_fechanac.label_tag }}{{ form.usuario_fechanac }}</div>
+                <div class="col-md-6">{{ form.usuario_sexo.label_tag }}{{ form.usuario_sexo }}</div>
+                <div class="col-md-6">{{ form.usuario_email.label_tag }}{{ form.usuario_email }}</div>
+                <div class="col-md-6">{{ form.cargo.label_tag }}{{ form.cargo }}</div>
+                <div class="col-md-6">{{ form.tipo_usuario.label_tag }}{{ form.tipo_usuario }}</div>
+                <div class="col-md-6">{{ form.username.label_tag }}{{ form.username }}</div>
+                <div class="col-md-6">{{ form.password.label_tag }}{{ form.password }}</div>
+            </div>
+            <div class="mt-4 text-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save"></i> Guardar cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

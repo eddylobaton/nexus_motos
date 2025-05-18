@@ -1,0 +1,36 @@
+{% extends 'tienda/base_tres.html'%} 
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'tienda/css/detalle_proveedor_estilos.css' %}"> 
+{% endblock %} 
+
+{% block content %}
+
+
+<div class="card shadow-lg">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="card-title mb-0">Detalle de proveedor</h5>
+            <div>
+                <a href="{% url 'lista_proveedores' %}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver
+                </a>
+            </div>
+        </div>
+        <hr size="3px" color="black">
+        <div class="row">
+            <!-- Columna de datos -->
+            <div class="col-md-6 col-12 mb-4">
+                <h3>{{ proveedor.proveedor_nombre }}</h3>
+                <p><strong>RUC:</strong> {{ proveedor.proveedor_ruc }}</p>
+                <p><strong>Teléfono:</strong> {{ proveedor.proveedor_telefono }}</p>
+                <p><strong>Dirección:</strong> {{ proveedor.proveedor_direccion }}</p>
+                <p><strong>Email:</strong> {{ proveedor.proveedor_email }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock%}
+

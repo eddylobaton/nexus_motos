@@ -1,0 +1,71 @@
+{% extends 'tienda/base_tres.html'%}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'tienda/css/agregar_proveedor_estilos.css' %}"> 
+{% endblock %} 
+
+{% block content %}
+
+    <div class="card shadow-lg">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="card-title mb-0">Registrar nuevo proveedor</h5>
+                <div>
+                    <a href="{% url 'lista_proveedores' %}" class="btn btn-secondary ">
+                        <i class="bi bi-arrow-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+            <hr size="3px" color="black">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <!-- Mostrar errores de formulario si existen -->
+                    {% if form.errors %}
+                        <div class="alert alert-danger mt-3">
+                            <ul>
+                                {% for field in form %}
+                                    {% for error in field.errors %}
+                                        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                    <div class="col-md-6">
+                        {{ form.proveedor_nombre.label_tag }}
+                        {{ form.proveedor_nombre }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.proveedor_ruc.label_tag }}
+                        {{ form.proveedor_ruc }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.proveedor_telefono.label_tag }}
+                        {{ form.proveedor_telefono }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.proveedor_direccion.label_tag }}
+                        {{ form.proveedor_direccion }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.proveedor_email.label_tag }}
+                        {{ form.proveedor_email }}
+                    </div>
+                </div>
+                <div class="mt-4 text-end">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-save"></i> Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+{% endblock%}
+
+{% block extra_js %}
+<!-- <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script> -->
+<!--<script src="{% static 'tienda/js/agregar_articulo.js' %}"></script> -->
+{% endblock %}

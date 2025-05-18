@@ -1,0 +1,99 @@
+{% extends 'tienda/base_tres.html'%} 
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'tienda/css/lista_articulos_estilos.css' %}" />
+<!-- Bootstrap 5 -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+<!-- DataTables Bootstrap 5 -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="card-title mb-0">Lista de Artículos</h5>
+                <div>
+                    <a href="{% url 'agregar_articulos' %}" class="btn btn-primary me-2">
+                        <i class="bi bi-plus-circle"></i> Agregar
+                    </a>
+                    <a href="#" class="btn btn-success">
+                        <i class="bi bi-file-earmark-text"></i> Reporte
+                    </a>
+                </div>
+            </div>
+            <hr size="3px" color="black">
+            <table id="productos-table" class="table table-bordered table-hover text-center" style="width:100%">
+                <thead class="table table-striped responsive nowrap">
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Marca</th>
+                        <th>Modelo</th>
+                        <th>Motor</th>
+                        <th>Categoría</th>
+                        <th>Descuento</th>
+                        <th>Fecha Registro</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for producto in productos %}
+                    <tr>
+                        <td>{{ producto.prod_nombre }}</td>
+                        <td>{{ producto.prod_marca }}</td>
+                        <td>{{ producto.prod_modelo }}</td>
+                        <td>{{ producto.prod_motor }}</td>
+                        <td>{{ producto.prod_categoria }}</td>
+                        <td>{{ producto.descuento_porcentaje }}%</td>
+                        <td>{{ producto.prod_fecha_registro|date:"Y-m-d H:i:s" }}</td>
+                        <td>
+                            <label class="switch">
+                                <input type="checkbox"
+                                    class="toggle-estado"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#confirmarCambioEstadoModal"
+                                    data-producto-id="{{ producto.prod_id }}"
+                                    data-producto-nombre="{{ producto.prod_nombre }}"
+                                    data-producto-estado="{{ producto.prod_estado }}"
+                                    {% if producto.prod_estado %}checked{% endif %}>
+                                <span class="slider">
+                                    <span class="text-on">ON</span>
+                                    <span class="text-off">OFF</span>
+                                </span>
+                            </label>
+                        </td>
+                        <td>
+                            <a href="{% url 'detalle_articulo' producto.prod_id %}" class="btn btn-sm btn-outline-primary" title="Ver"><i class="bi bi-eye"></i></a>
+                            <a href="{% url 'editar_articulo' producto.prod_id %}" class="btn btn-sm btn-outline-success" title="Editar"><i class="bi bi-pencil-square"></i></a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+{% endblock%}
+
+{% block extra_js %}
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<!-- Bootstrap 5 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- DataTables core -->
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<!-- DataTables Bootstrap 5 -->
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{% static 'tienda/js/lista_articulos.js' %}"></script>
+{% endblock %}

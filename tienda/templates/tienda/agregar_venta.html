@@ -1,0 +1,220 @@
+{% extends 'tienda/base_tres.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'tienda/css/agregar_venta_estilos.css' %}">
+{% endblock %}
+
+{% block content %}
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.level_tag }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="card shadow-lg">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="card-title mb-0">Registrar nueva entrada</h5>
+      </div>
+      <hr size="3px" color="black">
+      <form method="post" id="formularioVenta">
+        {% csrf_token %}
+        <div class="container">
+          <!-- <h3>Registrar Venta</h3> -->
+
+          <!-- Datos del cliente y comprobante -->
+          <div class="row">
+            <div class="col-md-6">
+              <label for="cliente">Cliente</label>
+              <select class="form-select" id="cliente" name="cliente" required>
+                <option value="">-- Seleccione --</option>
+                {% for cliente in clientes %}
+                <option value="{{ cliente.cliente_id }}">{{ cliente.cliente_nombre }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label for="comprobante">Tipo de Comprobante</label>
+              <select class="form-select" id="comprobante" name="tipo_doc_almacen_id"  data-descripcion-select required>
+                <option value="">-- Seleccione --</option>
+                {% for comp in comprobantes %}
+                <option value="{{ comp.tipo_doc_almacen_id }}" data-descripcion="{{ comp.tipo_doc_almacen_descripcion }}">{{ comp.tipo_doc_almacen_descripcion }}</option>
+                {% endfor %}
+              </select>
+              <input type="hidden" id="venta_tipo_comprobante" name="venta_tipo_comprobante">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mt-3">
+              <label for="venta_nro_documento">N° Documento</label>
+              <input type="text" class="form-control" id="venta_nro_documento" name="venta_nro_documento"
+                    value="{{ nro_documento }}" readonly>
+            </div>
+          </div>
+
+          <!-- Botón para agregar productos -->
+          <div class="mt-3">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalProductos">Agregar Artículo</button>
+          </div>
+
+          <!-- Tabla de productos seleccionados -->
+          <div class="table-responsive mt-3">
+            <table class="table" id="tablaArticulos">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Modelo</th>
+                  <th>Marca</th>
+                  <th>Categoría</th>
+                  <th>Cantidad</th>
+                  <th>Precio</th>
+                  <th>Costo</th>
+                  <th>Descuento</th>
+                  <th>Total</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <!-- IGV y Totales -->
+          <div class="row mt-3">
+            <div class="col-md-2">
+              <label for="igv">IGV (%)</label>
+              <input type="number" id="igv" name="igv" class="form-control" value="18" required>
+            </div>
+            <div class="col-md-3 offset-md-7">
+              <p>Subtotal: S/ <span id="venta_subtotal_span">0.00</span></p>
+              <input type="hidden" name="venta_subtotal" id="venta_subtotal">
+              <p>IGV: S/ <span id="venta_igv_span">0.00</span></p>
+              <input type="hidden" name="venta_igv" id="venta_igv">
+              <p><strong>Total Venta: S/ <span id="venta_total_span">0.00</span></strong></p>
+              <input type="hidden" id="venta_total" name="venta_total">
+            </div>
+          </div>
+
+          <!-- Método de Pago -->
+          <div class="row mt-3">
+            <div class="col-md-4">
+              <label for="metodo_pago">Método de Pago</label>
+              <select class="form-select" id="metodo_pago" name="metodo_pago">
+                {% for metodo in metodos_pago %}
+                <option value="{{ metodo.metodo_pago_id }}">{{ metodo.metodo_pago_descrip }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label for="monto_efectivo">Monto Efectivo</label>
+              <input type="number" step="0.01" class="form-control" id="monto_efectivo" name="monto_efectivo" readonly>
+              <span id="error_efectivo">Efectivo no puede ser igual o mayor que total de venta</span>
+            </div>
+          </div>
+
+          <!-- Financiamiento -->
+          <div id="financiamiento_seccion" class="mt-3" style="display: none;">
+            <div class="row">
+              <div class="col-md-12">
+                <label>Monto a Financiar</label>
+                <p>S/ <span id="monto_financiar_span">0.00</span></p>
+                <input type="hidden" name="monto_financiar" id="monto_financiar">
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-4">
+                <label for="num_cuotas">N° Cuotas</label>
+                <input type="number" min="1" class="form-control" id="num_cuotas" name="num_cuotas">
+              </div>
+              <div class="col-md-4">
+                <label for="tasa_interes">Tasa Interés (%)</label>
+                <input type="number" step="0.01" class="form-control" id="tasa_interes" name="tasa_interes">
+              </div>
+              <div class="col-md-4">
+                <label for="fecha_pago">Fecha de pago</label>
+                <select class="form-select" id="fecha_pago" name="fecha_pago">
+                  <option value="5">Cada 05 del mes</option>
+                  <option value="15">Cada 15 del mes</option>
+                  <option value="28">Cada 28 del mes</option>
+                </select>
+              </div>
+            </div>
+            <div class="row mt-2">
+              <div class="col-md-4">
+                <label>Total Interés</label>
+                <input type="text" class="form-control" id="total_interes" name="total_interes" readonly>
+              </div>
+              <div class="col-md-4">
+                <label>Total a Pagar</label>
+                <input type="text" class="form-control" id="total_financiamiento" name="total_financiamiento" readonly>
+              </div>
+              <div class="col-md-4">
+                <label>Pago Mensual</label>
+                <input type="text" class="form-control" id="pago_mensual" name="pago_mensual" readonly>
+              </div>
+            </div>
+          </div>
+
+          <input type="hidden" name="productos_json" id="productos_json">
+
+          <!-- Botón de guardar -->
+          <div class="mt-4">
+            <button type="submit" class="btn btn-success">Registrar Venta</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal de Productos -->
+  <div class="modal fade" id="modalProductos" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Seleccionar artículos</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <table id="tablaProductosDT" class="display nowrap table table-hover">
+            <thead>
+              <tr>
+                <th>Imagen</th>
+                <th>Nombre</th>
+                <th>Modelo</th>
+                <th>Marca</th>
+                <th>Categoría</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="listaProductos">
+              {% for p in productos %}
+              <tr id="prod_{{ p.prod_id }}">
+                <td><img src="{% static 'tienda/img/' %}{{ p.prod_imagen }}" width="50"></td>
+                <td>{{ p.prod_nombre }}</td>
+                <td>{{ p.prod_modelo }}</td>
+                <td>{{ p.prod_marca }}</td>
+                <td>{{ p.prod_categoria }}</td>
+                <td>
+                  <button type="button" class="btn btn-sm btn-success"
+                    onclick="agregarArticulo({{ p.prod_id }}, '{{ p.prod_nombre|escapejs }}', '{{ p.prod_modelo|escapejs }}', '{{ p.prod_marca|escapejs }}', '{{ p.prod_categoria|escapejs }}', {{ p.prod_porcenta_dcto|default:0 }})">
+                    +
+                  </button>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'tienda/js/agregar_venta.js' %}"></script>
+{% endblock %}

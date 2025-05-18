@@ -1,0 +1,13 @@
+.card {
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.modal-dialog-altura {
+  height: 80vh;
+}
+
+#tablaProductosDT {
+  width: 100% !important;
+  table-layout: fixed;
+}

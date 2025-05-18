@@ -1,0 +1,169 @@
+{% extends 'tienda/base_tres.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.4.0/css/fixedHeader.dataTables.min.css">
+<link rel="stylesheet" href="{% static 'tienda/css/agregar_ingresos_estilos.css' %}">
+{% endblock %}
+
+{% block content %}
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.level_tag }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="card shadow-lg">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="card-title mb-0">Registrar nueva entrada</h5>
+      </div>
+      <hr size="3px" color="black">
+      <form id="formEntrada" method="post">
+        {% csrf_token %}
+        <div class="row">
+          <div class="col-sm-12 col-md-12 col-lg-12 mb-3">
+          <div class="form-group">
+            <label for="proveedor">Proveedor:</label>
+            <select class="form-control"  id="proveedor" name="proveedor_id"  required>
+              <option value="">-- Seleccione --</option>
+              {% for prov in proveedores %}
+                <option value="{{ prov.proveedor_id }}">{{ prov.proveedor_nombre }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-sm-12 col-md-4 col-lg-4 mb-3">
+            <div class="form-group">
+              <label for="tipo_doc">Tipo Documento</label>
+              <select class="form-control" id="tipo_doc" name="tipo_doc_almacen_id" required onchange="actualizarNumeroDoc()">
+                <option value="">-- Seleccione --</option>
+                {% for tipo in tipos_doc %}
+                  <option value="{{ tipo.tipo_doc_almacen_id }}">{{ tipo.tipo_doc_almacen_descripcion }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="col-sm-12 col-md-4 col-lg-4 mb-3">
+            <div class="form-group">
+              <label for="entrada_num_doc">N° Documento</label>
+              <input type="text" class="form-control" id="entrada_num_doc" name="entrada_num_doc" readonly>
+            </div>
+          </div>
+          <div class="col-sm-12 col-md-4 col-lg-4 mb-3">
+            <div class="form-group">
+              <label for="entrada_igv">IGV (%)</label>
+              <input type="number" class="form-control" id="entrada_igv" name="entrada_igv"
+                    value="18" min="0" max="100" step="0.01" oninput="calcularTotal()">
+            </div>
+          </div>
+        </div>
+
+        <!--<div class="row">
+          <div class="col-sm-12 col-md-6 col-lg-6 mb-3">
+            <div class="form-group">
+              <label for="entrada_fecha">Fecha de Entrada</label>
+              <input type="date" class="form-control" id="entrada_fecha" name="entrada_fecha"
+                    min="{{ fecha_min }}" max="{{ fecha_hoy }}" value="{{ fecha_hoy }}" required
+                    onkeydown="return false">
+            </div>
+          </div> 
+        </div> -->
+
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalProductos">
+          <i class="bi bi-plus-lg"></i> Agregar Artículos
+        </button>
+
+        <!-- Tabla de artículos seleccionados -->
+        <div class="mt-4">
+          <h5>Artículos seleccionados</h5>
+          <table class="table table-bordered" id="tablaArticulos">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Modelo</th>
+                <th>Marca</th>
+                <th>Categoría</th>
+                <th>Cantidad</th>
+                <th>Precio</th>
+                <th>Subtotal</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+          <div class="text-end">
+            <p><strong>Sub Total: S/ <span id="subtotalEntrada">0.00</span></strong></p>
+            <p><strong>IGV (<span id="igvValorEntrada">18</span>%): S/ <span id="igvEntrada">0.00</span></strong></p>
+            <p><strong>Total: S/ <span id="totalEntrada">0.00</span></strong></p>
+          </div>
+        </div>
+
+        <div class="mt-3">
+          <button type="submit" class="btn btn-success"><i class="bi bi-save"></i> Guardar</button>
+          <a href="{% url 'lista_ingresos' %}" class="btn btn-secondary">Cancelar</a>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- Modal de productos -->
+  <div class="modal fade" id="modalProductos" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-altura modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Seleccionar artículos</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <table id="tablaProductosDT" class="display nowrap table table-hover">
+            <thead>
+              <tr>
+                <th>Imagen</th>
+                <th>Nombre</th>
+                <th>Modelo</th>
+                <th>Marca</th>
+                <th>Categoría</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="listaProductos">
+              {% for p in productos %}
+              <tr id="prod_{{ p.prod_id }}">
+                <td><img src="{% static 'tienda/img/' %}{{ p.prod_imagen }}" width="50"></td>
+                <td>{{ p.prod_nombre }}</td>
+                <td>{{ p.prod_modelo }}</td>
+                <td>{{ p.prod_marca }}</td>
+                <td>{{ p.prod_categoria }}</td>
+                <td>
+                  <button type="button" class="btn btn-sm btn-success"
+                    onclick="agregarArticulo({{ p.prod_id }}, '{{ p.prod_nombre|escapejs }}', '{{ p.prod_modelo|escapejs }}', '{{ p.prod_marca|escapejs }}', '{{ p.prod_categoria|escapejs }}')">
+                    +
+                  </button>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/fixedheader/3.4.0/js/dataTables.fixedHeader.min.js"></script>
+<script src="{% static 'tienda/js/agregar_ingreso.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends 'tienda/base_tres.html'%}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'tienda/css/agregar_cliente_estilos.css' %}"> 
+{% endblock %} 
+
+{% block content %}
+
+<div class="card shadow-lg">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="card-title mb-0">Editar cliente: {{ cliente.cliente_nombre }} {{ cliente.cliente_paterno }} {{ cliente.cliente_materno }}</h5>
+            <div>
+                <a href="{% url 'lista_clientes' %}" class="btn btn-secondary ">
+                    <i class="bi bi-arrow-left"></i> Volver
+                </a>
+            </div>
+        </div>
+        <hr size="3px" color="black">
+        <!-- Mostrar errores de formulario si existen -->
+        {% if form.errors %}
+        <div class="alert alert-danger mt-3">
+            <ul>
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-md-6">{{ form.cliente_tipodocumento.label_tag }}{{ form.cliente_tipodocumento }}</div>
+                <div class="col-md-6">{{ form.cliente_nrodocumento.label_tag }}{{ form.cliente_nrodocumento }}</div>
+                <div class="col-md-6">{{ form.cliente_nombre.label_tag }}{{ form.cliente_nombre }}</div>
+                <div class="col-md-6">{{ form.cliente_paterno.label_tag }}{{ form.cliente_paterno }}</div>
+                <div class="col-md-6">{{ form.cliente_materno.label_tag }}{{ form.cliente_materno }}</div>
+                <div class="col-md-6">{{ form.cliente_fechanac.label_tag }}{{ form.cliente_fechanac }}</div>
+                <div class="col-md-6">{{ form.cliente_telefono.label_tag }}{{ form.cliente_telefono }}</div>
+                <div class="col-md-6">{{ form.cliente_email.label_tag }}{{ form.cliente_email }}</div>
+                <div class="col-md-6">{{ form.cliente_sexo.label_tag }}{{ form.cliente_sexo }}</div>
+                <div class="col-md-6">{{ form.cliente_direccion.label_tag }}{{ form.cliente_direccion }}</div>
+
+            </div>
+            <div class="mt-4 text-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save"></i> Guardar cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

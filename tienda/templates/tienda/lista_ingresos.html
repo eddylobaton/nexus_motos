@@ -1,0 +1,93 @@
+{% extends 'tienda/base_tres.html'%} 
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'tienda/css/lista_ingresos_estilos.css' %}" />
+<!-- Bootstrap 5 -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+<!-- DataTables Bootstrap 5 -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+
+{% endblock %}
+
+{% block content %}
+
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.level_tag }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    {% endif %}
+    
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="card-title mb-0">Lista de ingresos</h5>
+                <div>
+                    <a href="{% url 'agregar_ingresos' %}" class="btn btn-primary me-2">
+                        <i class="bi bi-plus-circle"></i> Agregar
+                    </a>
+                    <a href="#" class="btn btn-success">
+                        <i class="bi bi-file-earmark-text"></i> Reporte
+                    </a>
+                </div>
+            </div>
+            <hr size="3px" color="black">
+            <table id="ingresos-table" class="table table-bordered table-hover text-center" style="width:100%">
+                <thead class="table table-striped responsive nowrap">
+                    <tr>
+                        <th>Proveedor</th>
+                        <th>Tipo Documento</th>
+                        <th>N° Documento</th>
+                        <th>Subtotal</th>
+                        <th>IGV</th>
+                        <th>Total</th>
+                        <th>Usuario</th>
+                        <th>Fecha</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ingreso in ingresos %}
+                    <tr>
+                        <td>{{ ingreso.proveedor.proveedor_nombre }}</td>
+                        <td>{{ ingreso.tipo_doc_almacen.tipo_doc_almacen_descripcion }}</td>
+                        <td>{{ ingreso.entrada_num_doc }}</td>
+                        <td>{{ ingreso.entrada_subtotal }}</td>
+                        <td>{{ ingreso.entrada_igv }}</td>
+                        <td>{{ ingreso.entrada_costo_total }}</td>
+                        <td>{{ ingreso.usuario.usuario_nombre }} {{ ingreso.usuario.usuario_paterno }} {{ ingreso.usuario.usuario_materno }}</td>
+                        <td>{{ ingreso.entrada_fecha|date:"d/m/Y H:i:s" }}</td>
+                        <td>
+                            <a href="#" class="btn btn-sm btn-outline-primary" title="Ver"><i class="bi bi-eye"></i></a>
+                            <a href="#" class="btn btn-sm btn-outline-success" title="Editar"><i class="bi bi-pencil-square"></i></a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+{% endblock%}
+
+{% block extra_js %}
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<!-- Bootstrap 5 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- DataTables core -->
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<!-- DataTables Bootstrap 5 -->
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{% static 'tienda/js/lista_ingresos.js' %}"></script>
+{% endblock %}
