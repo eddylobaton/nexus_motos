@@ -236,9 +236,9 @@ class TblFinanciamiento(models.Model):
 class TblKardex(models.Model):
     kardex_fecha_mov = models.DateTimeField()
     kardex_cantidad_total_entrada = models.IntegerField(blank=True, null=True)
-    kardex_ultimo_precio_costo = models.DecimalField(max_digits=7, decimal_places=2, blank=True, null=True)
+    kardex_ultimo_precio_entrada = models.DecimalField(max_digits=7, decimal_places=2, blank=True, null=True)
     kardex_cantidad_total_salida = models.IntegerField(blank=True, null=True)
-    kardex_ultimo_precio_venta = models.DecimalField(db_column='kardex_ultimo_ precio_venta', max_digits=7, decimal_places=2, blank=True, null=True)  # Field renamed to remove unsuitable characters.
+    kardex_ultimo_precio_salida = models.DecimalField(max_digits=7, decimal_places=2, blank=True, null=True)  # Field renamed to remove unsuitable characters.
     kardex_stock_actual = models.IntegerField()
     kardex_precio_vigente = models.DecimalField(max_digits=7, decimal_places=2)
     kardex_costo_total_saldo = models.DecimalField(max_digits=8, decimal_places=2)
