@@ -14,37 +14,35 @@
   </head>
   <body>
 
-{% if messages %}
-  {% for message in messages %}
-  <section class="col-md-4 offset-md-4 mt-5">
-    <div class="d-flex justify-content-center alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-      {{ message }}
-    </div>
-  </section>
-  {% endfor %}
-{% endif %}
-
-{# Errores generales #}
-{% if form.non_field_errors %}
-    {% for error in form.non_field_errors %}
-        <div class="alert alert-danger">{{ error }}</div>
-    {% endfor %}
-{% endif %}
-
-{# Errores específicos de cada campo #}
-{% for field in form %}
-    {% for error in field.errors %}
-        <div class="alert alert-danger">{{ error }}</div>
-    {% endfor %}
-{% endfor %}
-
 <main class="container">
   <div class="row">
     <section class="col-md-4 offset-md-4 mt-5">
       <form action="/login/" method="POST" class="card card-body">
+        {% csrf_token %}
+
+        {# Mostrar errores generales encima del título #}
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        {% if error %}
+          <div class="alert alert-danger">
+            {{ error }}
+          </div>
+        {% endif %}
+
+        {% if form.non_field_errors %}
+          {% for error in form.non_field_errors %}
+            <div class="alert alert-danger">{{ error }}</div>
+          {% endfor %}
+        {% endif %}
+
         <h1 class="text-center">Login</h1>
 
-        {{error}}   {% csrf_token %}
         <div class="mb-3">
           <label for="usuario">Usuario</label>
           <input
@@ -55,6 +53,7 @@
             placeholder="escribe tu usuario" required
           />
         </div>
+
         <div class="mb-3">
           <label for="password">Password</label>
           <input
@@ -65,7 +64,15 @@
             placeholder="escribe tu password" required
           />
         </div>
-        <button class="btn btn-primary">Login</button>
+
+        {# Errores específicos de campos individuales #}
+        {% for field in form %}
+          {% for error in field.errors %}
+            <div class="alert alert-danger">{{ error }}</div>
+          {% endfor %}
+        {% endfor %}
+
+        <button class="btn btn-primary">Ingresar</button>
       </form>
     </section>
   </div>
