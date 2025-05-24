@@ -18,7 +18,7 @@
                 </div>
             </div>
             <hr size="3px" color="black">
-            <form method="post" enctype="multipart/form-data">
+            <form  id="formArticulo" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="row g-3">
                     <!-- Mostrar errores de formulario si existen -->
@@ -70,6 +70,7 @@
                     </div>
                 </div>
                 <div class="mt-4 text-end">
+                    <div id="articuloFeedback"></div>
                     <button type="submit" class="btn btn-success">
                         <i class="bi bi-save"></i> Guardar
                     </button>

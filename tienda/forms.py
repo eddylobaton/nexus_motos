@@ -23,6 +23,40 @@ TIPO_DOCUMENTO_OPCIONES = [
     ('CE', 'Carnet de extranjería'),
 ]
 
+MARCA_VEHICULO = [
+    ('', 'Seleccionar...'),
+    ('Bajaj', 'Bajaj'),
+    ('Honda', 'Honda'),
+    ('Lifan', 'Lifan'),
+    ('Nexus', 'Nexus'),
+    ('Ronco', 'Ronco'),
+    ('Susuki', 'Susuki'),
+    ('Wanxin', 'Wanxin'),
+    ('Yamaha', 'Yamaha'),
+    ('Zongshen', 'Zongshen')
+]
+
+MOTOR_CILINDRADA = [
+    ('', 'Seleccionar...'),
+    ('110', '110'),
+    ('150', '150'),
+    ('200', '200'),
+    ('250', '250'),
+    ('300', '300'),
+]
+
+MOTO_CLASIFICACION = [
+    ('', 'Seleccionar...'),
+    ('Aventura', 'Aventura'),
+    ('Carga', 'Carga'),
+    ('Deportiva', 'Deportiva'),
+    ('Electria', 'Eléctrica'),
+    ('Naked', 'Naked'),
+    ('Scooter', 'Scooter'),
+    ('Semideportiva', 'Semideportiva'),
+    ('Urbana', 'Urbana'),
+]
+
 class RegistroUsuarioForm(forms.ModelForm):
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={'class': 'form-control'}),
@@ -137,12 +171,12 @@ class ArticuloForm(forms.ModelForm):
             'prod_descripcion': 'Descripción',
         }
         widgets = {
-            'prod_nombre': forms.TextInput(attrs={'class': 'form-control'}),
-            'prod_marca': forms.TextInput(attrs={'class': 'form-control'}),
-            'prod_modelo': forms.TextInput(attrs={'class': 'form-control'}),
-            'prod_motor': forms.TextInput(attrs={'class': 'form-control'}),
-            'prod_categoria': forms.TextInput(attrs={'class': 'form-control'}),
-            'prod_descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'prod_nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del vehículo'}),
+            'prod_marca': forms.Select(choices=MARCA_VEHICULO, attrs={'class': 'form-control'}),
+            'prod_modelo': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Modelo del vehículo'}),
+            'prod_motor': forms.Select(choices=MOTOR_CILINDRADA, attrs={'class': 'form-control'}),
+            'prod_categoria': forms.Select(choices=MOTO_CLASIFICACION, attrs={'class': 'form-control'}),
+            'prod_descripcion': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Descripción del producto', 'rows': 3}),
         }
 
     def __init__(self, *args, **kwargs):

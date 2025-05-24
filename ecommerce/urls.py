@@ -35,7 +35,6 @@ urlpatterns = [
     path('lista_ingresos/',views.lista_ingresos, name= 'lista_ingresos'),
     path('agregar_ingresos/',views.agregar_ingresos, name= 'agregar_ingresos'),
 
-
     # PROVEEDOR-------------------
     path('lista_proveedores/',views.lista_proveedores, name= 'lista_proveedores'),
     path('agregar_proveedor/',views.agregar_proveedor, name= 'agregar_proveedor'),
@@ -65,10 +64,6 @@ urlpatterns = [
     path('registrar/verificar-username/', views.verificar_username, name='verificar_username'),
     path('registrar/verificar-datos-bd/', views.verificar_datos, name='verificar_datos'),
 
-
-
-
-
-
+    path('verificar-articulo-existe/', views.verificar_articulo_existe, name='verificar_articulo'),
 
 ]

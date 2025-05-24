@@ -710,3 +710,11 @@ def agregar_usuario(request):
 def detalle_usuario(request, id):
     usuario = get_object_or_404(TblUsuario, pk=id)
     return render(request, 'tienda/detalle_usuario.html', {'usuario': usuario})
+
+
+def verificar_articulo_existe(request):
+    marca = request.GET.get('marca')
+    modelo = request.GET.get('modelo')
+
+    existe = TblProducto.objects.filter(prod_marca=marca, prod_modelo=modelo).exists()
+    return JsonResponse({'existe': existe})
