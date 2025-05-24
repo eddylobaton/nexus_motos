@@ -2,6 +2,8 @@
 {% load static %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.4.0/css/fixedHeader.dataTables.min.css">
 <link rel="stylesheet" href="{% static 'tienda/css/agregar_venta_estilos.css' %}">
 {% endblock %}
 
@@ -19,13 +21,12 @@
   <div class="card shadow-lg">
     <div class="card-body">
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="card-title mb-0">Registrar nueva entrada</h5>
+        <h5 class="card-title mb-0">Registrar nueva venta</h5>
       </div>
       <hr size="3px" color="black">
       <form method="post" id="formularioVenta">
         {% csrf_token %}
         <div class="container">
-          <!-- <h3>Registrar Venta</h3> -->
 
           <!-- Datos del cliente y comprobante -->
           <div class="row">
@@ -172,7 +173,7 @@
 
   <!-- Modal de Productos -->
   <div class="modal fade" id="modalProductos" tabindex="-1">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-dialog modal-xl modal-dialog-altura modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Seleccionar artículos</h5>
@@ -187,6 +188,7 @@
                 <th>Modelo</th>
                 <th>Marca</th>
                 <th>Categoría</th>
+                <th>Stock</th>
                 <th></th>
               </tr>
             </thead>
@@ -198,11 +200,22 @@
                 <td>{{ p.prod_modelo }}</td>
                 <td>{{ p.prod_marca }}</td>
                 <td>{{ p.prod_categoria }}</td>
+                <td>{{ p.tblkardex.kardex_stock_actual|default:"0" }}</td>
                 <td>
                   <button type="button" class="btn btn-sm btn-success"
-                    onclick="agregarArticulo({{ p.prod_id }}, '{{ p.prod_nombre|escapejs }}', '{{ p.prod_modelo|escapejs }}', '{{ p.prod_marca|escapejs }}', '{{ p.prod_categoria|escapejs }}', {{ p.prod_porcenta_dcto|default:0 }})">
-                    +
-                  </button>
+                    onclick="agregarArticulo(
+                      {{ p.prod_id }},
+                      '{{ p.prod_nombre|escapejs }}',
+                      '{{ p.prod_modelo|escapejs }}',
+                      '{{ p.prod_marca|escapejs }}',
+                      '{{ p.prod_categoria|escapejs }}',
+                      {{ p.prod_porcenta_dcto|default:0 }},
+                      {{ p.tblkardex.kardex_stock_actual|default:0 }},
+                      {{ p.tblkardex.kardex_precio_vigente|default:"0.00" }},
+                      {{ p.tblkardex.kardex_porcentaje_utilidad|default:"0.00" }}
+                    )"
+                    {% if p.tblkardex.kardex_stock_actual|default:0 <= 0 %} disabled {% endif %}
+                  >+</button>
                 </td>
               </tr>
               {% endfor %}
@@ -216,5 +229,8 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/fixedheader/3.4.0/js/dataTables.fixedHeader.min.js"></script>
 <script src="{% static 'tienda/js/agregar_venta.js' %}"></script>
 {% endblock %}

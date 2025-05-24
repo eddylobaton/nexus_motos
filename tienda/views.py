@@ -12,7 +12,7 @@ from django.utils import timezone
 from datetime import date, timedelta
 from django.db.models import Max
 from django.contrib.auth.decorators import login_required
-from django.db import transaction
+from django.db import transaction, connection, InternalError
 from decimal import Decimal
 from django.template.loader import render_to_string
 from django.template.loader import get_template
@@ -141,7 +141,7 @@ def lista_articulos(request):
     
     for producto in productos:
         if producto.prod_porcenta_dcto:
-            producto.descuento_porcentaje = int(Decimal(producto.prod_porcenta_dcto) * 100)
+            producto.descuento_porcentaje = int(producto.prod_porcenta_dcto)
         else:
             producto.descuento_porcentaje = 0
 
@@ -180,13 +180,57 @@ def agregar_articulos(request):
     return render(request, 'tienda/agregar_articulos.html', {'form': form})
 
 @login_required
+def editar_articulo(request, producto_id):
+    producto = get_object_or_404(TblProducto, prod_id=producto_id)
+
+    # Verificamos si el producto tiene una imagen
+    tiene_imagen = bool(producto.prod_imagen)
+
+    if request.method == 'POST':
+        form = ArticuloForm(request.POST, request.FILES, instance=producto, tiene_imagen=tiene_imagen)
+        
+        if form.is_valid():
+            producto = form.save(commit=False)
+            imagen = request.FILES.get('imagen_archivo')
+
+            if imagen:
+                ruta_destino = os.path.join(os.path.dirname(__file__), '..', 'staticfiles', 'tienda', 'img')
+                os.makedirs(ruta_destino, exist_ok=True)
+                path_final = os.path.join(ruta_destino, imagen.name)
+                with open(path_final, 'wb+') as destino:
+                    for chunk in imagen.chunks():
+                        destino.write(chunk)
+                producto.prod_imagen = imagen.name
+
+            producto.save()
+            print("Producto editado exitosamente")
+            return redirect('lista_articulos')
+        else:
+            print("Formulario inválido:")
+            print(form.errors)
+    else:
+        form = ArticuloForm(instance=producto, tiene_imagen=tiene_imagen)
+
+    return render(request, 'tienda/editar_articulo.html', {'form': form, 'producto': producto})
+
+@login_required
 def detalle_articulo(request, producto_id):
     producto = get_object_or_404(TblProducto, pk=producto_id)
-    descuento_porcentaje = int(Decimal(producto.prod_porcenta_dcto) * 100)
+    descuento_porcentaje = int(producto.prod_porcenta_dcto)
     return render(request, 'tienda/detalle_articulo.html', {
         'producto': producto,
         'descuento_porcentaje': descuento_porcentaje
     })
+
+@require_POST
+@login_required
+def cambiar_estado_articulo(request, producto_id):
+    producto = get_object_or_404(TblProducto, prod_id=producto_id)
+    producto.prod_estado = not producto.prod_estado
+    producto.save()
+
+    estado = "activado" if producto.prod_estado else "desactivado"
+    return JsonResponse({"message": f'Artículo "{producto.prod_nombre}" ha sido {estado} correctamente.'})
 
 @login_required
 def editar_proveedor(request, prov_id):
@@ -238,50 +282,6 @@ def editar_usuario(request, id):
         form = RegistroUsuarioForm(instance=usuario)
 
     return render(request, 'tienda/editar_usuario.html', {'form': form, 'usuario': usuario})
-
-@login_required
-def editar_articulo(request, producto_id):
-    producto = get_object_or_404(TblProducto, prod_id=producto_id)
-
-    # Verificamos si el producto tiene una imagen
-    tiene_imagen = bool(producto.prod_imagen)
-
-    if request.method == 'POST':
-        form = ArticuloForm(request.POST, request.FILES, instance=producto, tiene_imagen=tiene_imagen)
-        
-        if form.is_valid():
-            producto = form.save(commit=False)
-            imagen = request.FILES.get('imagen_archivo')
-
-            if imagen:
-                ruta_destino = os.path.join(os.path.dirname(__file__), '..', 'staticfiles', 'tienda', 'img')
-                os.makedirs(ruta_destino, exist_ok=True)
-                path_final = os.path.join(ruta_destino, imagen.name)
-                with open(path_final, 'wb+') as destino:
-                    for chunk in imagen.chunks():
-                        destino.write(chunk)
-                producto.prod_imagen = imagen.name
-
-            producto.save()
-            print("Producto editado exitosamente")
-            return redirect('lista_articulos')
-        else:
-            print("Formulario inválido:")
-            print(form.errors)
-    else:
-        form = ArticuloForm(instance=producto, tiene_imagen=tiene_imagen)
-
-    return render(request, 'tienda/editar_articulo.html', {'form': form, 'producto': producto})
-
-@require_POST
-@login_required
-def cambiar_estado_articulo(request, producto_id):
-    producto = get_object_or_404(TblProducto, prod_id=producto_id)
-    producto.prod_estado = not producto.prod_estado
-    producto.save()
-
-    estado = "activado" if producto.prod_estado else "desactivado"
-    return JsonResponse({"message": f'Artículo "{producto.prod_nombre}" ha sido {estado} correctamente.'})
 
 @login_required
 def lista_proveedores(request):
@@ -372,17 +372,34 @@ def agregar_ingresos(request):
                     det_entrada_sub_total=art["subtotal"]
                 )
 
+                # Llamar al procedimiento almacenado
+                with connection.cursor() as cursor:
+                    cursor.callproc("sp_actualizar_kardex", [
+                        'ENTRADA',
+                        art["id"],
+                        art["cantidad"],
+                        art["precio"],
+                        0  # cantidad_salida
+                    ])
+
             messages.success(request, "Entrada registrada correctamente.")
             return redirect("lista_ingresos")  # Puedes cambiar a la vista de listado
 
         except Exception as e:
+            # Marcar rollback si ocurre error
             transaction.set_rollback(True)
-            messages.error(request, f"Ocurrió un error: {str(e)}")
+
+            # Extraer mensaje SQL si viene de procedimiento
+            mensaje_mysql = str(e)
+            if hasattr(e, 'args') and len(e.args) > 1:
+                mensaje_mysql = e.args[1]
+
+            messages.error(request, f"Ocurrió un error: {mensaje_mysql}")
             return redirect("agregar_ingresos")
 
     proveedores = TblProveedor.objects.all()
     tipos_doc = TblTipoDocAlmacen.objects.filter(tipo_doc_almacen_tipo__in=['ES', 'E', 'EI'])
-    productos = TblProducto.objects.all()
+    productos = TblProducto.objects.filter(prod_estado=True)
 
     tipo_seleccionado_id = request.GET.get('tipo_doc_id')
 
@@ -609,7 +626,7 @@ def agregar_venta(request):
         clientes = TblCliente.objects.all()
         comprobantes = TblTipoDocAlmacen.objects.filter(tipo_doc_almacen_tipo='ES')
         metodos_pago = TblMetodoPago.objects.all()
-        productos = TblProducto.objects.filter(prod_estado=True)
+        productos = TblProducto.objects.filter(prod_estado=True).select_related('tblkardex')
         nro_documento = f"V-{TblVenta.objects.count() + 1:05d}"
         
         context = {

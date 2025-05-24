@@ -1,6 +1,28 @@
 document.addEventListener('DOMContentLoaded', function () {
     const articulosSeleccionados = {};
     let igvPorcentaje = 18;
+
+    var tablaPrd = $('#tablaProductosDT').DataTable({
+      paging: false,
+      scrollY: '50vh',
+      scrollCollapse: true,
+      fixedHeader: true,
+      autoWidth: false,
+      language: {
+        search: "Buscar:",
+        info: "Mostrando _TOTAL_ articulos",
+        infoEmpty: "No hay articulos disponibles",
+        zeroRecords: "No se encontraron articulos",
+        emptyTable: "No hay articulos en la tabla",
+      }
+    });
+
+    // Al abrir el modal, reajusta columnas
+    $('#modalProductos').on('shown.bs.modal', function () {
+      setTimeout(function () {
+        tablaPrd.columns.adjust().draw();
+      }, 100);
+    });
   
     const tablaArticulosBody = document.querySelector('#tablaArticulos tbody');
     const igvInput = document.getElementById('igv');
@@ -69,9 +91,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
         for (let id in articulosSeleccionados) {
             const art = articulosSeleccionados[id];
-            if (art.cantidad <= 0 || art.precio <= 0) {
-              alert("La cantidad y el precio deben ser mayores a cero.");
-              return;
+            const inputCantidad = document.getElementById(`cant_${id}`);
+            const cantidad = parseInt(inputCantidad.value);
+            const stock = art.stock;
+
+            if (isNaN(cantidad) || cantidad <= 0 || art.precio <= 0) {
+                alert("La cantidad y el precio deben ser mayores a cero.");
+                return;
+            }
+
+            // VALIDACIÓN DE STOCK
+            if (cantidad > stock) {
+                alert(`La cantidad del producto con ID ${id} supera el stock disponible (${stock}).`);
+                inputCantidad.classList.add('is-invalid'); // Marca el input en rojo
+                return;
+            } else {
+                inputCantidad.classList.remove('is-invalid');
             }
         }
 
@@ -139,19 +174,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
   
-    window.agregarArticulo = function (id, nombre, modelo, marca, categoria, descuento) {
+    window.agregarArticulo = function (id, nombre, modelo, marca, categoria, descuento, stock, precioVigente, utilidad) {
       if (articulosSeleccionados[id]) return;
   
-      articulosSeleccionados[id] = { cantidad: 1, precio: 0, descuento: descuento };
-  
+      const stockFinal = parseInt(stock);
+      articulosSeleccionados[id] = { cantidad: 1, precio: 0, descuento: descuento, stock: stockFinal };
+      
+      let precioFinal = parseFloat(precioVigente) + (parseFloat(precioVigente) * (parseFloat(utilidad) / 100));
+      precioFinal = precioFinal.toFixed(2);
+
       const fila = `
         <tr id="fila_${id}">
           <td>${nombre}</td>
           <td>${modelo}</td>
           <td>${marca}</td>
           <td>${categoria}</td>
-          <td><input type="number" min="1" class="form-control" value="1" onchange="actualizarSubtotal(${id})" id="cant_${id}"></td>
-          <td><input type="number" min="0" class="form-control" value="0" onchange="actualizarSubtotal(${id})" id="precio_${id}"></td>
+          <td><input type="number" class="form-control cantidad" value="1" min="1" max="${stockFinal}" step="1" id="cant_${id}" required></td>
+          <td><input type="number" min="0" class="form-control" value="${precioFinal}" id="precio_${id}" readonly></td>
           <td><span id="costo_${id}">0.00</span></td>
           <td><span id="desc_${id}">0.00</span></td>
           <td><span id="total_${id}">0.00</span></td>
@@ -162,6 +201,27 @@ document.addEventListener('DOMContentLoaded', function () {
   
       actualizarSubtotal(id);
     }
+
+    $(document).on('input', '.cantidad', function () {
+        const $input = $(this);
+        const cantidad = parseInt($input.val());
+        const max = parseInt($input.attr('max'));
+        const id = $input.attr('id').split('_')[1];
+
+        if (isNaN(cantidad) || cantidad < 1 || cantidad > max) {
+            $input.addClass('is-invalid');
+        } else {
+            $input.removeClass('is-invalid');
+        }
+
+        actualizarSubtotal(id);
+    });
+
+    $(document).on('keydown', '.cantidad', function (e) {
+        if (["e", "E", "+", "-", "."].includes(e.key)) {
+            e.preventDefault();
+        }
+    });
   
     window.actualizarSubtotal = function (id) {
       const cantidad = parseFloat(document.getElementById(`cant_${id}`).value) || 0;
@@ -169,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const dcto = articulosSeleccionados[id].descuento || 0;
   
       const costo = cantidad * precio;
-      const descuento = costo * dcto; // el dcto ya esta como 0.xx en la bd ya no va --> dcto / 100
+      const descuento = costo * (dcto / 100);
       const total = costo - descuento;
   
       document.getElementById(`costo_${id}`).textContent = costo.toFixed(2);

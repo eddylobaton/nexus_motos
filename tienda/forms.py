@@ -152,7 +152,7 @@ class ArticuloForm(forms.ModelForm):
 
         # Mostrar porcentaje como entero si ya hay valor en el modelo
         if self.instance and self.instance.prod_porcenta_dcto is not None:
-            self.initial['prod_porcenta_dcto'] = int(self.instance.prod_porcenta_dcto * 100)
+            self.initial['prod_porcenta_dcto'] = int(self.instance.prod_porcenta_dcto)
 
     def clean_prod_porcenta_dcto(self):
         valor = self.cleaned_data.get('prod_porcenta_dcto')
@@ -162,10 +162,7 @@ class ArticuloForm(forms.ModelForm):
         if valor < 0 or valor > 99:
             raise forms.ValidationError("Ingresa un número entre 0 y 99.")
 
-        resultado = (Decimal(valor) / Decimal(100)).quantize(Decimal('0.01'), rounding=ROUND_DOWN)
-        print("resultadooooooo")
-        print(resultado)
-        # Convertir a decimal (por ejemplo: 10 -> 0.10)
+        resultado = int(valor)
         return resultado
     
     def clean(self):

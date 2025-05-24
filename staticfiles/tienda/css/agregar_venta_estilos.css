@@ -1,5 +1,23 @@
+.card {
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.modal-dialog-altura {
+  height: 80vh;
+}
+
+#tablaProductosDT {
+  width: 100% !important;
+  table-layout: fixed;
+}
+
 #error_efectivo {
   color:red;
   font-size: 12px;
   display:none;
+}
+
+.is-invalid {
+  border-color: red;
 }
