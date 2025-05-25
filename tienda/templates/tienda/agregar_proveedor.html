@@ -36,10 +36,12 @@
                     <div class="col-md-6">
                         {{ form.proveedor_nombre.label_tag }}
                         {{ form.proveedor_nombre }}
+                        <div class="invalid-feedback" id="error_nombre"></div>
                     </div>
                     <div class="col-md-6">
                         {{ form.proveedor_ruc.label_tag }}
                         {{ form.proveedor_ruc }}
+                        <div class="invalid-feedback" id="error_ruc"></div>
                     </div>
                     <div class="col-md-6">
                         {{ form.proveedor_telefono.label_tag }}
@@ -52,10 +54,11 @@
                     <div class="col-md-6">
                         {{ form.proveedor_email.label_tag }}
                         {{ form.proveedor_email }}
+                        <div class="invalid-feedback" id="error_email"></div>
                     </div>
                 </div>
                 <div class="mt-4 text-end">
-                    <button type="submit" class="btn btn-success">
+                    <button type="submit" id="btnSubmit" class="btn btn-success">
                         <i class="bi bi-save"></i> Guardar
                     </button>
                 </div>
@@ -63,9 +66,16 @@
         </div>
     </div>
 
+    <div id="loadingOverlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <div>Cargando, por favor espere...</div>
+        </div>
+    </div>
+
+
 {% endblock%}
 
 {% block extra_js %}
-<!-- <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script> -->
-<!--<script src="{% static 'tienda/js/agregar_articulo.js' %}"></script> -->
+<script src="{% static 'tienda/js/agregar_proveedor.js' %}"></script>
 {% endblock %}

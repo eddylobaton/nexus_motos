@@ -197,27 +197,33 @@ document.addEventListener('DOMContentLoaded', function () {
         const username = usernameInput.value.trim();
 
         if (username.length > 0) {
-            fetch(`/registrar/verificar-username/?username=${username}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.existe) {
-                        feedbackDiv.textContent = "El nombre de usuario \""+ username +"\" está en uso.";
-                        usernameInput.classList.add('is-invalid');
-                        usernameInput.value = "";
-                    } else {
-                        feedbackDiv.textContent = "";
-                        usernameInput.classList.remove('is-invalid');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error al verificar el usuario:', error);
-                });
+            document.getElementById('loadingOverlay').style.display = 'flex';
+                fetch(`/registrar/verificar-username/?username=${username}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.existe) {
+                            feedbackDiv.textContent = "El nombre de usuario \""+ username +"\" está en uso.";
+                            usernameInput.classList.add('is-invalid');
+                            usernameInput.value = "";
+                        } else {
+                            feedbackDiv.textContent = "";
+                            usernameInput.classList.remove('is-invalid');
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error al verificar email:", error);
+                        feedbackDivEmail.textContent = "Ocurrió un error al verificar el email.";
+                        emailInput.classList.add('is-invalid');
+                    })
+                    .finally(() => {
+                        document.getElementById('loadingOverlay').style.display = 'none';
+            });
+           
         } else {
             feedbackDiv.textContent = "";
             usernameInput.classList.remove('is-invalid');
         }
     });
-
     //**** Validar usuario antes de registrar
     document.getElementById('formRegistro').addEventListener('submit', function (event) {
         event.preventDefault();  // Detiene el envío por defecto

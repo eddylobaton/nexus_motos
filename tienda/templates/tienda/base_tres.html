@@ -30,6 +30,7 @@
       </button>
 
       <!-- Almacén -->
+      {% if request.user.tipo_usuario_id == 1 or request.user.tipo_usuario_id == 2 %}
       <button class="btn" data-bs-toggle="collapse" data-bs-target="#almacenMenu" aria-expanded="false" aria-controls="almacenMenu">
         <div><i class="bi bi-box-seam menu-icon"></i> Almacén</div>
         <i class="bi bi-chevron-down arrow-icon"></i>
@@ -38,8 +39,10 @@
         <a href="/lista_articulos">- artículos</a>
         <a href="/lista_salidas">- salidas</a>
       </div>
+      {% endif %}
 
       <!-- Compras -->
+      {% if request.user.tipo_usuario_id == 1 %}
       <button class="btn" data-bs-toggle="collapse" data-bs-target="#comprasMenu" aria-expanded="false" aria-controls="comprasMenu">
         <div><i class="bi bi-cart-plus menu-icon"></i> Compras</div>
         <i class="bi bi-chevron-down arrow-icon"></i>
@@ -48,8 +51,11 @@
         <a href="/lista_ingresos">- ingresos</a>
         <a href="/lista_proveedores">- proveedores</a>
       </div>
+      {% endif %}
+
 
       <!-- Ventas -->
+      {% if request.user.tipo_usuario_id == 1 or request.user.tipo_usuario_id == 3 %}
       <button class="btn" data-bs-toggle="collapse" data-bs-target="#ventasMenu" aria-expanded="false" aria-controls="ventasMenu">
         <div><i class="bi bi-currency-dollar menu-icon"></i> Ventas</div>
         <i class="bi bi-chevron-down arrow-icon"></i>
@@ -58,8 +64,10 @@
         <a href="/lista_clientes">- clientes</a>
         <a href="/lista_ventas">- ventas</a>
       </div>
+      {% endif %}
 
       <!-- Acceso -->
+      {% if request.user.tipo_usuario_id == 1%}
       <button class="btn" data-bs-toggle="collapse" data-bs-target="#accesoMenu" aria-expanded="false" aria-controls="accesoMenu">
         <div><i class="bi bi-person-lock menu-icon"></i> Acceso</div>
         <i class="bi bi-chevron-down arrow-icon"></i>
@@ -68,8 +76,10 @@
         <a href="/lista_usuarios">- usuario</a>
         <a href="#">- permisos</a>
       </div>
+      {% endif %}
 
       <!-- Consulta Compras -->
+      {% if request.user.tipo_usuario_id == 1 or request.user.tipo_usuario_id == 2 %}
       <button class="btn" data-bs-toggle="collapse" data-bs-target="#consultaComprasMenu" aria-expanded="false" aria-controls="consultaComprasMenu">
         <div><i class="bi bi-search menu-icon"></i> Consulta compras</div>
         <i class="bi bi-chevron-down arrow-icon"></i>
@@ -77,8 +87,11 @@
       <div class="collapse submenu" id="consultaComprasMenu">
         <a href="#">- compras por fechas</a>
       </div>
+      {% endif %}
+
 
       <!-- Consulta Ventas -->
+      {% if request.user.tipo_usuario_id == 1 or request.user.tipo_usuario_id == 3 %}
       <button class="btn" data-bs-toggle="collapse" data-bs-target="#consultaVentasMenu" aria-expanded="false" aria-controls="consultaVentasMenu">
         <div><i class="bi bi-search menu-icon"></i> Consulta ventas</div>
         <i class="bi bi-chevron-down arrow-icon"></i>
@@ -86,7 +99,7 @@
       <div class="collapse submenu" id="consultaVentasMenu">
         <a href="#">- ventas por fechas</a>
       </div>
-
+      {% endif %}
     </div>
 
     <div class="main-content">

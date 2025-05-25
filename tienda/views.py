@@ -10,7 +10,8 @@ from django.core.paginator import Paginator
 from datetime import datetime
 from django.utils import timezone
 from datetime import date, timedelta
-from django.db.models import Max
+from django.db.models import Max, Sum, Q, F, Value
+from django.db.models.functions import Concat
 from django.contrib.auth.decorators import login_required
 from django.db import transaction, connection, InternalError
 from decimal import Decimal
@@ -32,7 +33,77 @@ User = get_user_model()
 
 # Create your views here.
 def home(request):
-    return render(request, 'tienda/home.html')
+    today = timezone.now()
+    last_week = today - timedelta(days=7)
+
+    # Total compras
+    total_compras = TblEntrada.objects.aggregate(total=Sum('entrada_costo_total'))['total'] or 0
+    compras_semana = TblEntrada.objects.filter(entrada_fecha__gte=last_week).aggregate(total=Sum('entrada_costo_total'))['total'] or 0
+
+    # Total ventas (no eliminadas)
+    total_ventas = TblSalida.objects.filter(salida_eliminado=False).aggregate(total=Sum('salida_costo_total'))['total'] or 0
+    ventas_semana = TblSalida.objects.filter(salida_eliminado=False, salida_fecha__gte=last_week).aggregate(total=Sum('salida_costo_total'))['total'] or 0
+
+    # Clientes
+    total_clientes = TblCliente.objects.count()
+    clientes_semana = TblCliente.objects.filter(cliente_fecha_registro__gte=last_week).count()
+
+    # Proveedores
+    total_proveedores = TblProveedor.objects.count()
+    proveedores_semana = TblProveedor.objects.filter(proveedor_fecha_registro__gte=last_week).count()
+
+    # Top 5 productos más vendidos
+    top_productos = (
+        TblDetSalida.objects
+        .filter(salida_id__salida_eliminado=False)
+        .values('producto_id__producto_nombre', 'producto_id__producto_foto')
+        .annotate(total_ventas=Sum('det_salida_sub_total'))
+        .order_by('-total_ventas')[:5]
+    )
+
+    # Top 5 vendedores
+    vendedores_ids = TblTipoUsuario.objects.filter(tipo_usuario_descrip='Vendedor').values_list('id', flat=True)
+    top_vendedores = (
+        TblSalida.objects
+        .filter(salida_usuario__tipo_usuario_id__in=vendedores_ids)
+        .values('salida_usuario__usuario_nombre', 'salida_usuario__usuario_apellido')
+        .annotate(total_vendido=Sum('salida_costo_total'))
+        .order_by('-total_vendido')[:5]
+    )
+
+    # Top 5 clientes
+    top_clientes = (
+        TblSalida.objects
+        .filter(salida_eliminado=False)
+        .values('salida_venta__venta_cliente__cliente_nombre', 'salida_venta__venta_cliente__cliente_apellido')
+        .annotate(total_compras=Sum('salida_costo_total'))
+        .order_by('-total_compras')[:5]
+    )
+
+    # Artículos por agotar (stock <= stock mínimo)
+    articulos_agotar = (
+        TblKardex.objects
+        .filter(kardex_stock_actual__lte=F('kardex_stock_minimo'))
+        .select_related('producto_id')
+        .values('producto_id__producto_nombre', 'producto_id__producto_foto', 'kardex_stock_actual')
+    )
+
+    context = {
+        'total_compras': total_compras,
+        'compras_semana': compras_semana,
+        'total_ventas': total_ventas,
+        'ventas_semana': ventas_semana,
+        'total_clientes': total_clientes,
+        'clientes_semana': clientes_semana,
+        'total_proveedores': total_proveedores,
+        'proveedores_semana': proveedores_semana,
+        'top_productos': top_productos,
+        'top_vendedores': top_vendedores,
+        'top_clientes': top_clientes,
+        'articulos_agotar': articulos_agotar,
+    }
+
+    return render(request, 'tienda/home.html', context)
 
 def login_view(request):
     if request.method == 'POST':
@@ -838,3 +909,17 @@ def verificar_articulo_existe(request):
 
     existe = TblProducto.objects.filter(prod_marca=marca, prod_modelo=modelo).exists()
     return JsonResponse({'existe': existe})
+
+@login_required
+def verificar_proveedor(request):
+    nombre = request.GET.get('nombre', '').strip()
+    ruc = request.GET.get('ruc', '').strip()
+    email = request.GET.get('email', '').strip()
+
+    data = {
+        'existeNombre': TblProveedor.objects.filter(proveedor_nombre__iexact=nombre).exists(),
+        'existeRuc': TblProveedor.objects.filter(proveedor_ruc=ruc).exists(),
+        'existeEmail': TblProveedor.objects.filter(proveedor_email__iexact=email).exists()
+    }
+
+    return JsonResponse(data)
