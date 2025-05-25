@@ -78,8 +78,8 @@
         <td>${modelo}</td>
         <td>${marca}</td>
         <td>${categoria}</td>
-        <td><input type="number" class="form-control" min="1" value="1" onchange="actualizarSubtotal(${id})" id="cant_${id}"></td>
-        <td><input type="number" class="form-control" min="0" value="0" onchange="actualizarSubtotal(${id})" id="precio_${id}"></td>
+        <td><input type="number" class="form-control" min="1" value="1" step="1" onchange="actualizarSubtotal(${id})" id="cant_${id}"></td>
+        <td><input type="number" class="form-control" min="0" value="0" step="0.01" onchange="actualizarSubtotal(${id})" id="precio_${id}"></td>
         <td><span id="sub_${id}">0.00</span></td>
         <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarArticulo(${id})"><i class="bi bi-x-lg"></i></button></td>
       </tr>`;

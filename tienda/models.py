@@ -295,7 +295,7 @@ class TblProveedor(models.Model):
 
 class TblSalida(models.Model):
     salida_id = models.AutoField(primary_key=True)
-    salida_fecha = models.DateField()
+    salida_fecha = models.DateTimeField()
     salida_subtotal = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
     salida_costo_igv = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
     salida_igv = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)

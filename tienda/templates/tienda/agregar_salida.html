@@ -4,7 +4,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.4.0/css/fixedHeader.dataTables.min.css">
-<link rel="stylesheet" href="{% static 'tienda/css/agregar_ingresos_estilos.css' %}">
+<link rel="stylesheet" href="{% static 'tienda/css/agregar_salida_estilos.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -21,51 +21,41 @@
   <div class="card shadow-lg">
     <div class="card-body">
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="card-title mb-0">Registrar nueva entrada</h5>
+        <h5 class="card-title mb-0">Registrar nueva salida</h5>
       </div>
       <hr size="3px" color="black">
-      <form id="formEntrada" method="post">
+      <form id="formSalida" method="post">
         {% csrf_token %}
-        <div class="row">
-          <div class="col-sm-12 col-md-12 col-lg-12 mb-3">
-          <div class="form-group">
-            <label for="proveedor">Proveedor:</label>
-            <select class="form-control"  id="proveedor" name="proveedor_id"  required>
-              <option value="">-- Seleccione --</option>
-              {% for prov in proveedores %}
-                <option value="{{ prov.proveedor_id }}">{{ prov.proveedor_nombre }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          </div>
-        </div>
-
         <div class="row">
           <div class="col-sm-12 col-md-4 col-lg-4 mb-3">
             <div class="form-group">
               <label for="tipo_doc">Tipo Documento</label>
-              <select class="form-control" id="tipo_doc" name="tipo_doc_almacen_id" required onchange="actualizarNumeroDoc()">
-                <option value="">-- Seleccione --</option>
-                {% for tipo in tipos_doc %}
-                  <option value="{{ tipo.tipo_doc_almacen_id }}">{{ tipo.tipo_doc_almacen_descripcion }}</option>
-                {% endfor %}
-              </select>
+              <input type="text" class="form-control" id="tipo_doc" name="tipo_doc" value="{{ tipo_doc_des }}" readonly>
             </div>
           </div>
           <div class="col-sm-12 col-md-4 col-lg-4 mb-3">
             <div class="form-group">
-              <label for="entrada_num_doc">N° Documento</label>
-              <input type="text" class="form-control" id="entrada_num_doc" name="entrada_num_doc" readonly>
+              <label for="salida_num_doc">N° Documento</label>
+              <input type="text" class="form-control" id="salida_num_doc" name="salida_num_doc" value="{{ nro_documento }}" readonly>
             </div>
           </div>
           <div class="col-sm-12 col-md-4 col-lg-4 mb-3">
             <div class="form-group">
-              <label for="entrada_igv">IGV (%)</label>
-              <input type="number" class="form-control" id="entrada_igv" name="entrada_igv"
-                    value="18" readonly> <!-- min="0" max="100" step="0.01" oninput="calcularTotal()" --> 
+              <label for="salida_igv">IGV (%)</label>
+              <input type="number" class="form-control" id="salida_igv" name="salida_igv" value="18" readonly> 
             </div>
           </div>
         </div>
+
+        <div class="row">
+          <div class="col-sm-12 col-md-12 col-lg-12 mb-3">
+            <div class="form-group">
+                <label for="salida_motivo">Motivo Salida</label>
+                <textarea class="form-control" id="salida_motivo" name="salida_motivo" maxlength="200" rows="3" placeholder="Escribe motivo de salida" required></textarea>
+            </div>
+          </div>
+        </div>
+
 
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalProductos">
           <i class="bi bi-plus-lg"></i> Agregar Artículos
@@ -90,15 +80,15 @@
             <tbody></tbody>
           </table>
           <div class="text-end">
-            <p><strong>Sub Total: S/ <span id="subtotalEntrada">0.00</span></strong></p>
-            <p><strong>IGV (<span id="igvValorEntrada">18</span>%): S/ <span id="igvEntrada">0.00</span></strong></p>
-            <p><strong>Total: S/ <span id="totalEntrada">0.00</span></strong></p>
+            <p><strong>Sub Total: S/ <span id="subtotalSalida">0.00</span></strong></p>
+            <p><strong>IGV (<span id="igvValorSalida">18</span>%): S/ <span id="igvSalida">0.00</span></strong></p>
+            <p><strong>Total: S/ <span id="totalSalida">0.00</span></strong></p>
           </div>
         </div>
 
         <div class="mt-3">
           <button type="submit" class="btn btn-success"><i class="bi bi-save"></i> Guardar</button>
-          <a href="{% url 'lista_ingresos' %}" class="btn btn-secondary">Cancelar</a>
+          <a href="{% url 'lista_salidas' %}" class="btn btn-secondary">Cancelar</a>
         </div>
       </form>
 
@@ -122,6 +112,7 @@
                 <th>Modelo</th>
                 <th>Marca</th>
                 <th>Categoría</th>
+                <th>Stock</th>
                 <th></th>
               </tr>
             </thead>
@@ -133,11 +124,20 @@
                 <td>{{ p.prod_modelo }}</td>
                 <td>{{ p.prod_marca }}</td>
                 <td>{{ p.prod_categoria }}</td>
+                <td>{{ p.tblkardex.kardex_stock_actual|default:"0" }}</td>
                 <td>
                   <button type="button" class="btn btn-sm btn-success"
-                    onclick="agregarArticulo({{ p.prod_id }}, '{{ p.prod_nombre|escapejs }}', '{{ p.prod_modelo|escapejs }}', '{{ p.prod_marca|escapejs }}', '{{ p.prod_categoria|escapejs }}')">
-                    +
-                  </button>
+                    onclick="agregarArticulo(
+                    {{ p.prod_id }},
+                    '{{ p.prod_nombre|escapejs }}',
+                    '{{ p.prod_modelo|escapejs }}',
+                    '{{ p.prod_marca|escapejs }}',
+                    '{{ p.prod_categoria|escapejs }}',
+                    {{ p.tblkardex.kardex_stock_actual|default:0 }},
+                    {{ p.tblkardex.kardex_precio_vigente|default:"0.00" }}
+                    )"
+                    {% if p.tblkardex.kardex_stock_actual|default:0 <= 0 %} disabled {% endif %}
+                  >+</button>
                 </td>
               </tr>
               {% endfor %}
@@ -154,5 +154,5 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/fixedheader/3.4.0/js/dataTables.fixedHeader.min.js"></script>
-<script src="{% static 'tienda/js/agregar_ingreso.js' %}"></script>
+<script src="{% static 'tienda/js/agregar_salida.js' %}"></script>
 {% endblock %}

@@ -417,7 +417,7 @@ def agregar_ingresos(request):
         else:
             return JsonResponse({'numero': ''})  # En caso de un tipo inesperado
 
-        # Obtener los tipos que tienen ese tipo_cod_prefijo
+        # Obtener las entradas que tienen ese tipo_cod_prefijo
         entradas = TblEntrada.objects.filter(
             tipo_doc_almacen__tipo_doc_almacen_tipo__in=tipos_a_contar
         )
@@ -704,6 +704,104 @@ def detalle_venta(request, venta_id):
 def lista_salidas(request):
     salidas = TblSalida.objects.select_related('tipo_doc_almacen', 'usuario').all()
     return render(request, 'tienda/lista_salidas.html', {'salidas': salidas})
+
+@transaction.atomic
+@login_required
+def agregar_salida(request):
+    if request.method == "POST":
+        try:
+            tipo_doc_des = request.POST.get("tipo_doc")
+            salida_num_doc = request.POST.get("salida_num_doc")
+            salida_igv = float(request.POST.get("salida_igv", 0))
+            salida_subtotal = float(request.POST.get("subtotal_salida") or 0)
+            salida_monto_igv = float(request.POST.get("montoIgv_salida") or 0)
+            salida_total = float(request.POST.get("total_salida") or 0)
+            salida_motivo = request.POST.get("salida_motivo")
+
+            articulos_json = request.POST.get("articulos")  # Este es un JSON con los productos
+            articulos = json.loads(articulos_json)
+
+            # Buscar el tipo de documento
+            tipo_doc_alm = TblTipoDocAlmacen.objects.filter(tipo_doc_almacen_descripcion__iexact=tipo_doc_des).first()
+            if not tipo_doc_alm:
+                messages.error(request, "No existe tipo documento.")
+                return redirect("agregar_salida")
+            tipo_doc_id = tipo_doc_alm.tipo_doc_almacen_id
+
+            if not articulos:
+                messages.error(request, "Debe agregar al menos un producto.")
+                return redirect("agregar_salida")
+
+            for art in articulos:
+                if art["cantidad"] <= 0:
+                    messages.error(request, "Cantidad debe ser mayor a cero.")
+                    return redirect("agregar_salida")
+                if art["precio"] < 0:
+                    messages.error(request, "Precio deben ser mayor o igual a cero.")
+                    return redirect("agregar_salida")
+
+            # Guardar salida
+            salida = TblSalida.objects.create(
+                salida_fecha=timezone.now(),  #salida_fecha,
+                salida_num_doc=salida_num_doc,
+                salida_subtotal=salida_subtotal,
+                salida_costo_igv=salida_monto_igv,
+                salida_igv=salida_igv,
+                salida_costo_total=salida_total,
+                salida_motivo=salida_motivo,
+                tipo_doc_almacen_id=tipo_doc_id,
+                usuario_id=request.user.id
+            )
+
+            # Guardar detalle por producto
+            for art in articulos:
+                TblDetSalida.objects.create(
+                    salida=salida,
+                    prod_id=art["id"],
+                    det_salida_cantidad=art["cantidad"],
+                    det_salida_precio_salida=art["precio"],
+                    det_salida_sub_total=art["subtotal"]
+                )
+
+                # Llamar al procedimiento almacenado
+                with connection.cursor() as cursor:
+                    cursor.callproc("sp_actualizar_kardex", [
+                        'SALIDA',
+                        art["id"],
+                        0,
+                        0,
+                        art["cantidad"]  # cantidad_salida
+                    ])
+
+            messages.success(request, "Salida registrada correctamente.")
+            return redirect("lista_salidas")  # Ccambia a la vista de listado
+
+        except Exception as e:
+            # Marcar rollback si ocurre error
+            transaction.set_rollback(True)
+
+            # Extraer mensaje SQL si viene de procedimiento
+            mensaje_mysql = str(e)
+            if hasattr(e, 'args') and len(e.args) > 1:
+                mensaje_mysql = e.args[1]
+
+            messages.error(request, f"Ocurrió un error: {mensaje_mysql}")
+            return redirect("agregar_salida")
+
+    tipo_doc = TblTipoDocAlmacen.objects.filter(tipo_doc_almacen_tipo='SI').first()
+    if tipo_doc:
+        tipo_doc_des=tipo_doc.tipo_doc_almacen_descripcion
+    else:
+        tipo_doc_des = 'Salida interna'
+    productos = TblProducto.objects.filter(prod_estado=True).select_related('tblkardex')
+    # Obtener las salidas que tienen ese tipo_cod_prefijo
+    salidas = TblSalida.objects.filter(tipo_doc_almacen__tipo_doc_almacen_tipo='SI')
+    nro_documento = f"SI-{salidas.count() + 1:05d}"
+    return render(request, 'tienda/agregar_salida.html', {
+        'tipo_doc_des': tipo_doc_des,
+        'productos': productos,
+	    'nro_documento': nro_documento,
+    })
 
 @login_required
 def lista_usuarios(request):
