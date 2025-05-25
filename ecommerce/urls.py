@@ -50,6 +50,8 @@ urlpatterns = [
     path('agregar_venta/',views.agregar_venta, name= 'agregar_venta'),
     path('venta/pdf/<int:venta_id>/', views.generar_pdf_venta, name='generar_pdf_venta'),
     path('venta/<int:venta_id>/', views.detalle_venta, name='detalle_venta'),
+    # SALIDAS-------------------
+    path('lista_salidas/',views.lista_salidas, name= 'lista_salidas'),
     # USUARIO-------------------
     path('lista_usuarios/',views.lista_usuarios, name= 'lista_usuarios'),
     path('agregar_usuario/',views.agregar_usuario, name= 'agregar_usuario'),

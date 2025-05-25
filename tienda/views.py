@@ -563,6 +563,17 @@ def agregar_venta(request):
                         det_salida_sub_total=subtotal_item,
                         det_salida_precio_salida=precio_salida
                     )
+                    
+                    # Llamar al procedimiento almacenado
+                    with connection.cursor() as cursor:
+                        cursor.callproc("sp_actualizar_kardex", [
+                            'SALIDA',
+                            item["id"],
+                            0,
+                            0,
+                            cantidad  # cantidad_salida
+                        ])
+
             except Exception as e:
                 print("Error al guardar TblDetSalida:", e)
                 raise
@@ -618,7 +629,13 @@ def agregar_venta(request):
         except Exception as e:
             print("ERROR AL GUARDAR VENTA:", e)
             transaction.set_rollback(True)
-            messages.error(request, f"Ocurrió un error: {str(e)}")
+
+            # Extraer mensaje SQL si viene de procedimiento
+            mensaje_mysql = str(e)
+            if hasattr(e, 'args') and len(e.args) > 1:
+                mensaje_mysql = e.args[1]
+
+            messages.error(request, f"Ocurrió un error: {mensaje_mysql}")
             return redirect("agregar_venta")
             
     else:
@@ -684,6 +701,11 @@ def detalle_venta(request, venta_id):
     return render(request, 'tienda/detalle_venta.html', {'venta': venta})
 
 @login_required
+def lista_salidas(request):
+    salidas = TblSalida.objects.select_related('tipo_doc_almacen', 'usuario').all()
+    return render(request, 'tienda/lista_salidas.html', {'salidas': salidas})
+
+@login_required
 def lista_usuarios(request):
     usuarios  = TblUsuario.objects.all()
     return render(request, 'tienda/lista_usuarios.html', {'usuarios': usuarios})
@@ -711,7 +733,7 @@ def detalle_usuario(request, id):
     usuario = get_object_or_404(TblUsuario, pk=id)
     return render(request, 'tienda/detalle_usuario.html', {'usuario': usuario})
 
-
+@login_required
 def verificar_articulo_existe(request):
     marca = request.GET.get('marca')
     modelo = request.GET.get('modelo')
