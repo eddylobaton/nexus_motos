@@ -11,3 +11,7 @@
   width: 100% !important;
   table-layout: fixed;
 }
+
+.is-invalid {
+  border-color: red;
+}

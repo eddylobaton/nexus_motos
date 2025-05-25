@@ -72,7 +72,15 @@
 
   $(document).on('input', '.precio', function () {
     const $input = $(this);
-    const precio = parseFloat($input.val());
+    const valor = $input.val();
+
+    // Permitir solo hasta 2 decimales
+    if (!/^\d*(\.\d{0,2})?$/.test(valor)) {
+        $input.val(valor.slice(0, -1));  // eliminar el último carácter ingresado
+        return;
+    }
+
+    const precio = parseFloat(valor);
     const max = parseFloat($input.attr('max'));
     const id = $input.attr('id').split('_')[1];
 

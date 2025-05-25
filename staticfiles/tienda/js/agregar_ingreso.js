@@ -78,14 +78,62 @@
         <td>${modelo}</td>
         <td>${marca}</td>
         <td>${categoria}</td>
-        <td><input type="number" class="form-control" min="1" value="1" step="1" onchange="actualizarSubtotal(${id})" id="cant_${id}"></td>
-        <td><input type="number" class="form-control" min="0" value="0" step="0.01" onchange="actualizarSubtotal(${id})" id="precio_${id}"></td>
+        <td><input type="number" class="form-control cantidad" min="1" value="1" step="1" id="cant_${id}" required></td>
+        <td><input type="number" class="form-control precio" min="0" value="0" step="0.01" id="precio_${id}" required></td>
         <td><span id="sub_${id}">0.00</span></td>
         <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarArticulo(${id})"><i class="bi bi-x-lg"></i></button></td>
       </tr>`;
     document.querySelector("#tablaArticulos tbody").insertAdjacentHTML("beforeend", fila);
     document.querySelector(`#prod_${id} button`).disabled = true;
   }
+
+  $(document).on('input', '.cantidad', function () {
+    const $input = $(this);
+    const cantidad = parseInt($input.val());
+    const id = $input.attr('id').split('_')[1];
+
+    if (isNaN(cantidad) || cantidad < 1) {
+        $input.addClass('is-invalid');
+    } else {
+        $input.removeClass('is-invalid');
+    }
+
+    actualizarSubtotal(id);
+  });
+
+  $(document).on('keydown', '.cantidad', function (e) {
+    if (["e", "E", "+", "-", "."].includes(e.key)) {
+        e.preventDefault();
+    }
+  });
+
+  $(document).on('input', '.precio', function () {
+    const $input = $(this);
+    const valor = $input.val();
+
+    // Permitir solo hasta 2 decimales
+    if (!/^\d*(\.\d{0,2})?$/.test(valor)) {
+        $input.val(valor.slice(0, -1));  // eliminar el último carácter ingresado
+        return;
+    }
+
+    const precio = parseFloat(valor);
+    const id = $input.attr('id').split('_')[1];
+
+    if (isNaN(precio) || precio <= 0) {
+        $input.addClass('is-invalid');
+    } else {
+        $input.removeClass('is-invalid');
+    }
+
+    actualizarSubtotal(id);
+  });
+
+  $(document).on('keydown', '.precio', function (e) {
+    if (["e", "E", "+", "-"].includes(e.key)) {
+        e.preventDefault();
+    }
+  });
 
   function actualizarSubtotal(id) {
     let cant = parseFloat(document.getElementById(`cant_${id}`).value) || 0;
