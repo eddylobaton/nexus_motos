@@ -66,6 +66,7 @@ urlpatterns = [
     path('registrar/api/consultar-dni/', views.consultar_dni, name='consultar_dni'),
     path('registrar/verificar-username/', views.verificar_username, name='verificar_username'),
     path('registrar/verificar-datos-bd/', views.verificar_datos, name='verificar_datos'),
+    path('registrar/verificar-datos-cliente-bd/', views.verificar_datos_cliente, name='verificar_datos_cliente'),
     path('verificar-articulo-existe/', views.verificar_articulo_existe, name='verificar_articulo'),
     path('verificar-proveedor/', views.verificar_proveedor, name='verificar_proveedor'),
 

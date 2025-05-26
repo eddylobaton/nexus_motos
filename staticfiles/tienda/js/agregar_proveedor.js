@@ -76,4 +76,63 @@ document.addEventListener('DOMContentLoaded', function () {
     nombreInput.addEventListener('blur', verificarProveedor);
     rucInput.addEventListener('blur', verificarProveedor);
     emailInput.addEventListener('blur', verificarProveedor);
+
+
+    //**** Validar telefono
+    const proveedorInput = document.querySelector('#id_proveedor_telefono');
+    const feedbackDivproveedor = document.createElement('div');
+
+    proveedorInput.parentNode.appendChild(feedbackDivproveedor);
+
+    // Solo permitir números y máximo 9 dígitos mientras se escribe
+    proveedorInput.addEventListener('input', function () {
+        this.value = this.value.replace(/\D/g, '').slice(0, 9);
+    });
+
+    proveedorInput.addEventListener('blur', function () {
+        const telefono = proveedorInput.value.trim();
+
+         // Si está vacío, limpiar feedback y salir sin mostrar error
+        if (telefono === "") {
+            feedbackDivproveedor.textContent = "";
+            feedbackDivproveedor.classList.remove('text-danger', 'small');
+            proveedorInput.classList.remove('is-invalid');
+            return;
+        }
+
+        const telfRegex = /^\d{9}$/;
+
+        if (!telfRegex.test(telefono)) {
+            feedbackDivproveedor.textContent = "Ingrese un teléfono correcto (9 dígitos).";
+            feedbackDivproveedor.classList.add('text-danger', 'small');
+            proveedorInput.classList.add('is-invalid');
+            return;
+        }
+
+        document.getElementById('loadingOverlay').style.display = 'flex';
+
+        fetch(`/verificar-proveedor/?telefono=${telefono}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.existeTelefono) {
+                    feedbackDivproveedor.textContent = "Email ya ha sido registrado.";
+                    proveedorInput.classList.add('is-invalid');
+                    feedbackDivproveedor.classList.add('text-danger');
+                } else {
+                    feedbackDivproveedor.textContent = "";
+                    proveedorInput.classList.remove('is-invalid');
+                    feedbackDivproveedor.classList.remove('text-danger');
+                }
+            })
+            .catch(error => {
+                console.error("Error al verificar email:", error);
+                feedbackDivproveedor.textContent = "Ocurrió un error al verificar el email.";
+                proveedorInput.classList.add('is-invalid');
+            })
+            .finally(() => {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            });
+    });
+
+    
 });

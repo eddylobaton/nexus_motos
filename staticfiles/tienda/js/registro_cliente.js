@@ -50,10 +50,10 @@ document.addEventListener('DOMContentLoaded', function () {
             // Mostrar el overlay antes de la consulta
             document.getElementById('loadingOverlay').style.display = 'flex';
             
-            fetch(`/registrar/verificar-datos-bd/?numDoc=${dni}`)
+            fetch(`/registrar/verificar-datos-cliente-bd/?numDocClien=${dni}`)
                 .then(response => response.json())
                 .then(data => {
-                    if (data.existsDoc) {
+                    if (data.existeDocCliente) {
                         limpiarCampos();
                         feedbackDivDni.textContent = "Este DNI ya está registrado en el sistema.";
                         dniInput.classList.add('is-invalid');
@@ -106,7 +106,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 feedbackDivDni.classList.add('text-danger', 'small');
             } else {
                 limpiarCampos();
-                feedbackDivDni.textContent = "El DNI debe contener exactamente 8 dígitos numéricos.";
+                feedbackDivDni.textContent = "";
+                feedbackDivDni.classList.remove('text-danger', 'small');
+                dniInput.classList.remove('is-invalid');
             }
         } 
     });
@@ -154,6 +156,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     emailInput.addEventListener('blur', function () {
         const email = emailInput.value.trim();
+
+        if (email === "") {
+            feedbackDivEmail.textContent = "";
+            feedbackDivEmail.classList.remove('text-danger', 'small');
+            emailInput.classList.remove('is-invalid');
+            return;
+        }
+
+
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
             feedbackDivEmail.textContent = "Ingrese un email correcto.";
@@ -164,10 +175,10 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('loadingOverlay').style.display = 'flex';
 
 
-        fetch(`/registrar/verificar-datos-bd/?email=${email}`)
+        fetch(`/registrar/verificar-datos-cliente-bd/?emailClien=${email}`)
             .then(response => response.json())
             .then(data => {
-                if (data.existsEmail) {
+                if (data.existsEmailCliente) {
                     feedbackDivEmail.textContent = "Email ya ha sido registrado.";
                     emailInput.classList.add('is-invalid');
                     feedbackDivEmail.classList.add('text-danger');
@@ -187,53 +198,60 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     });
 
-    //**** Validar usuario antes de registrar
-    document.getElementById('formRegistro').addEventListener('submit', function (event) {
-        event.preventDefault();  // Detiene el envío por defecto
-    
-        const numDocInput = document.getElementById('id_usuario_nrodocumento');
-        const numDoc = numDocInput.value.trim();
+    //**** Validar telefono
+    const telfInput = document.querySelector('#id_cliente_telefono');
+    const feedbackDivTelf = document.createElement('div');
 
-        const emailInput = document.getElementById('id_usuario_email');
-        const email = emailInput.value.trim();
+    telfInput.parentNode.appendChild(feedbackDivTelf);
 
-        const feedback = document.getElementById('regFeedback'); //div que muestra el error, invocado desde el registro.html
-        feedback.classList.add('text-danger', 'small'); //añade las clases al div invocado previamente
-    
-        let continuar = true; //para validar si existe numero documento o email
-        let msjError = "";
+    // Solo permitir números y máximo 9 dígitos mientras se escribe
+    telfInput.addEventListener('input', function () {
+        this.value = this.value.replace(/\D/g, '').slice(0, 9);
+    });
 
-        // Validar si ya existe en el sistema usando fetch
-        fetch(`/registrar/verificar-datos-bd/?numDoc=${numDoc}&email=${email}`)
+    telfInput.addEventListener('blur', function () {
+        const telefono = telfInput.value.trim();
+
+         // Si está vacío, limpiar feedback y salir sin mostrar error
+        if (telefono === "") {
+            feedbackDivTelf.textContent = "";
+            feedbackDivTelf.classList.remove('text-danger', 'small');
+            telfInput.classList.remove('is-invalid');
+            return;
+        }
+
+        const telfRegex = /^\d{9}$/;
+
+        if (!telfRegex.test(telefono)) {
+            feedbackDivTelf.textContent = "Ingrese un teléfono correcto (9 dígitos).";
+            feedbackDivTelf.classList.add('text-danger', 'small');
+            telfInput.classList.add('is-invalid');
+            return;
+        }
+
+        document.getElementById('loadingOverlay').style.display = 'flex';
+
+        fetch(`/registrar/verificar-datos-cliente-bd/?telefo=${telefono}`)
             .then(response => response.json())
             .then(data => {
-                if (data.existsDoc) {
-                    numDocInput.classList.add('is-invalid');
-                    msjError = 'Este número de documento ya ha sido registrado.';
-                    continuar = false;
-                }
-
-                if (data.existsEmail) {
-                    emailInput.classList.add('is-invalid');
-                    msjError+= (continuar ? "" : " / " ) + 'Este email ya ha sido registrado.';
-                    continuar = false;
-                }
-
-                if (continuar) {
-                    numDocInput.classList.remove('is-invalid');
-                    feedback.textContent = '';
-                    // Enviar el formulario manualmente si todo está OK
-                    document.getElementById('formRegistro').submit();
-                }else{
-                    feedback.textContent = msjError;
+                if (data.existsTelefCliente) {
+                    feedbackDivTelf.textContent = "Email ya ha sido registrado.";
+                    telfInput.classList.add('is-invalid');
+                    feedbackDivTelf.classList.add('text-danger');
+                } else {
+                    feedbackDivTelf.textContent = "";
+                    telfInput.classList.remove('is-invalid');
+                    feedbackDivTelf.classList.remove('text-danger');
                 }
             })
             .catch(error => {
-                console.error('Error al verificar datos:', error);
-                numDocInput.classList.add('is-invalid');
-                emailInput.classList.add('is-invalid');
-                feedback.textContent = 'Ocurrió un error al verificar los datos.';
+                console.error("Error al verificar email:", error);
+                feedbackDivTelf.textContent = "Ocurrió un error al verificar el email.";
+                telfInput.classList.add('is-invalid');
+            })
+            .finally(() => {
+                document.getElementById('loadingOverlay').style.display = 'none';
             });
     });
-    
+
 });

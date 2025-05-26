@@ -198,6 +198,17 @@ def verificar_datos(request):
     return JsonResponse({'existsDoc': existeDoc, 'existsEmail': existeEmail})
 
 @login_required
+def verificar_datos_cliente(request):
+    numDocClie = request.GET.get('numDocClien')
+    emailClie = request.GET.get('emailClien')
+    telefClie = request.GET.get('telefo')
+    existeDocClie = TblCliente.objects.filter(cliente_nrodocumento=numDocClie).exists() if numDocClie else False
+    existeEmailClie = TblCliente.objects.filter(cliente_email=emailClie).exists() if emailClie else False
+    existeTelefClie = TblCliente.objects.filter(cliente_telefono=telefClie).exists() if telefClie else False
+
+    return JsonResponse({'existeDocCliente': existeDocClie, 'existsEmailCliente': existeEmailClie, 'existsTelefCliente': existeTelefClie})
+
+@login_required
 def registrar_usuario(request):
     if request.method == 'POST':
         form = RegistroUsuarioForm(request.POST)
@@ -934,11 +945,14 @@ def verificar_proveedor(request):
     nombre = request.GET.get('nombre', '').strip()
     ruc = request.GET.get('ruc', '').strip()
     email = request.GET.get('email', '').strip()
+    telefono = request.GET.get('telefono', '').strip()
 
     data = {
         'existeNombre': TblProveedor.objects.filter(proveedor_nombre__iexact=nombre).exists(),
         'existeRuc': TblProveedor.objects.filter(proveedor_ruc=ruc).exists(),
-        'existeEmail': TblProveedor.objects.filter(proveedor_email__iexact=email).exists()
+        'existeEmail': TblProveedor.objects.filter(proveedor_email__iexact=email).exists(),
+        'existeTelefono': TblProveedor.objects.filter(proveedor_telefono__iexact=telefono).exists()
+
     }
 
     return JsonResponse(data)
