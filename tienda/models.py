@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.utils import timezone
 
 
 class AuthGroup(models.Model):
@@ -139,6 +140,7 @@ class TblCliente(models.Model):
     cliente_email = models.CharField(max_length=45, blank=True, null=True)
     cliente_sexo = models.CharField(max_length=45, blank=True, null=True)
     cliente_direccion = models.CharField(max_length=245, blank=True, null=True)
+    cliente_fecha = models.DateTimeField(default=timezone.now)
 
     class Meta:
         managed = False
@@ -287,6 +289,7 @@ class TblProveedor(models.Model):
     proveedor_direccion = models.CharField(max_length=45)
     proveedor_email = models.CharField(max_length=45)
     proveedor_prueba = models.CharField(max_length=45, blank=True, null=True)
+    proveedor_fecha = models.DateTimeField(default=timezone.now)
 
     class Meta:
         managed = False

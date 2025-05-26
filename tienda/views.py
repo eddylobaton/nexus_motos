@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 
 from django.conf import settings
 from .forms import LoginForm, RegistroUsuarioForm, ArticuloForm, ProveedorForm, ClienteForm
-from .models import TblUsuario, TblProducto, TblProveedor, TblCliente, TblVenta, TblDetVenta, TblEntrada,TblTipoDocAlmacen, TblDetEntrada, TblMetodoPago, TblSalida, TblDetSalida, TblFinanciamiento, TblDetFinanciamiento
+from .models import TblUsuario, TblProducto, TblProveedor, TblCliente, TblVenta, TblDetVenta, TblEntrada,TblTipoDocAlmacen, TblDetEntrada, TblMetodoPago, TblSalida, TblDetSalida, TblFinanciamiento, TblDetFinanciamiento, TblTipoUsuario, TblKardex
 from django.contrib import messages
 from django.core.paginator import Paginator
 from datetime import datetime
@@ -40,53 +40,72 @@ def home(request):
     total_compras = TblEntrada.objects.aggregate(total=Sum('entrada_costo_total'))['total'] or 0
     compras_semana = TblEntrada.objects.filter(entrada_fecha__gte=last_week).aggregate(total=Sum('entrada_costo_total'))['total'] or 0
 
+    
     # Total ventas (no eliminadas)
     total_ventas = TblSalida.objects.filter(salida_eliminado=False).aggregate(total=Sum('salida_costo_total'))['total'] or 0
     ventas_semana = TblSalida.objects.filter(salida_eliminado=False, salida_fecha__gte=last_week).aggregate(total=Sum('salida_costo_total'))['total'] or 0
 
+    
     # Clientes
     total_clientes = TblCliente.objects.count()
-    clientes_semana = TblCliente.objects.filter(cliente_fecha_registro__gte=last_week).count()
+    clientes_semana = TblCliente.objects.filter(cliente_fecha__gte=last_week).count()
 
+    
     # Proveedores
     total_proveedores = TblProveedor.objects.count()
-    proveedores_semana = TblProveedor.objects.filter(proveedor_fecha_registro__gte=last_week).count()
+    proveedores_semana = TblProveedor.objects.filter(proveedor_fecha__gte=last_week).count()
 
     # Top 5 productos más vendidos
     top_productos = (
         TblDetSalida.objects
         .filter(salida_id__salida_eliminado=False)
-        .values('producto_id__producto_nombre', 'producto_id__producto_foto')
+        .values('prod_id__prod_nombre', 'prod_id__prod_modelo', 'prod_id__prod_imagen')
         .annotate(total_ventas=Sum('det_salida_sub_total'))
         .order_by('-total_ventas')[:5]
     )
 
     # Top 5 vendedores
-    vendedores_ids = TblTipoUsuario.objects.filter(tipo_usuario_descrip='Vendedor').values_list('id', flat=True)
-    top_vendedores = (
-        TblSalida.objects
-        .filter(salida_usuario__tipo_usuario_id__in=vendedores_ids)
-        .values('salida_usuario__usuario_nombre', 'salida_usuario__usuario_apellido')
-        .annotate(total_vendido=Sum('salida_costo_total'))
-        .order_by('-total_vendido')[:5]
-    )
+    try:
+        vendedores_ids = TblTipoUsuario.objects.filter(tipo_usuario_descrip='Vendedor').values_list('tipo_usuario_id', flat=True)
+    except Exception as e:
+        print("ERROR obteniendo vendedores_ids:", e)
+
+    try:
+        top_vendedores = (
+            TblSalida.objects
+            .filter(usuario__tipo_usuario_id__in=vendedores_ids)
+            .values('usuario__usuario_nombre', 'usuario__usuario_paterno')
+            .annotate(total_vendido=Sum('salida_costo_total'))
+            .order_by('-total_vendido')[:5]
+        )
+    except Exception as e:
+        print("ERROR obteniendo top_vendedores:", e)
+
 
     # Top 5 clientes
-    top_clientes = (
-        TblSalida.objects
-        .filter(salida_eliminado=False)
-        .values('salida_venta__venta_cliente__cliente_nombre', 'salida_venta__venta_cliente__cliente_apellido')
-        .annotate(total_compras=Sum('salida_costo_total'))
-        .order_by('-total_compras')[:5]
-    )
+    
+    #try:
+    #    top_clientes = (
+    #        TblSalida.objects
+    #        .filter(salida_eliminado=False)
+    #        .values('salida_venta__venta_cliente__cliente_nombre', 'salida_venta__venta_cliente__cliente_paterno')
+    #        .annotate(total_compras=Sum('salida_costo_total'))
+    #        .order_by('-total_compras')[:5]
+    #    )
+    #except Exception as e:
+    #    print("ERROR obteniendo top_clientes:", e)
+    
 
     # Artículos por agotar (stock <= stock mínimo)
-    articulos_agotar = (
-        TblKardex.objects
-        .filter(kardex_stock_actual__lte=F('kardex_stock_minimo'))
-        .select_related('producto_id')
-        .values('producto_id__producto_nombre', 'producto_id__producto_foto', 'kardex_stock_actual')
-    )
+    try:
+        articulos_agotar = (
+            TblKardex.objects
+            .filter(kardex_stock_actual__lte=F('kardex_stock_minimo'))
+            .select_related('prod_id')
+            .values('prod_id__prod_nombre', 'prod_id__prod_modelo', 'prod_id__prod_imagen', 'kardex_stock_actual')
+        )
+    except Exception as e:
+        print("ERROR obteniendo articulos_agotar:", e)
 
     context = {
         'total_compras': total_compras,
@@ -99,7 +118,7 @@ def home(request):
         'proveedores_semana': proveedores_semana,
         'top_productos': top_productos,
         'top_vendedores': top_vendedores,
-        'top_clientes': top_clientes,
+        #'top_clientes': top_clientes,
         'articulos_agotar': articulos_agotar,
     }
 
