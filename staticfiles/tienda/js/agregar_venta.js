@@ -285,6 +285,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     btnAgregarCliente.addEventListener('click', function () {
         const url = btnAgregarCliente.dataset.url;
+        const bootstrapModal = new bootstrap.Modal(modal);
+        bootstrapModal.show();
+
+        modalContent.innerHTML = '<p class="text-center p-3">Cargando formulario...</p>';
+
         fetch(url, {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
@@ -293,13 +298,14 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(response => response.json())
         .then(data => {
             modalContent.innerHTML = data.html;
-            const bootstrapModal = new bootstrap.Modal(modal);
-            bootstrapModal.show();
-
+            
             // Inicializar el script de validaciones del modal cargado
             if (window.inicializarRegistroCliente) {
                 window.inicializarRegistroCliente();
             }
+        })
+        .catch(() => {
+            modalContent.innerHTML = '<p class="text-danger text-center p-3">Error al cargar el formulario.</p>';
         });
     });
 
