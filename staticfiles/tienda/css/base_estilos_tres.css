@@ -11,8 +11,11 @@ body {
   color: white;
   padding: 1rem;
   width: 250px;
-
   overflow-y: auto;
+  position: relative; /* Añadir esto para permitir posicionamiento absoluto interno */
+  height: 100vh; /* Asegura que la altura ocupe toda la pantalla */
+  display: flex;
+  flex-direction: column; /* Para que los elementos se ordenen verticalmente */
 }
 
 .sidebar a, .sidebar button {
@@ -78,4 +81,24 @@ body {
   border-color: #b6effb !important;
 }
 
+.logout-container {
+  margin-top: auto; /* Empuja el logout al fondo */
+  padding-top: 1rem;
+}
 
+.sidebar .logout-button {
+  color: white;
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem 0;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start !important; /* <-- fuerza la alineación */
+  gap: 10px;
+  font-size: 1rem;
+}
+
+.logout-button:hover {
+  text-decoration: underline;
+}

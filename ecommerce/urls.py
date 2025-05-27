@@ -17,13 +17,16 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from tienda import views
+from django.contrib.auth.views import LogoutView
 
 urlpatterns = [
     # HOMRE---------
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),
     path('login/', views.login_view, name='login'),
-    path('logout/',views.signoup, name= 'logout'),
+    # path('logout/',views.signoup, name= 'logout'),
+    path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
+    
     # ARTICULOS-------------------
     path('productos/',views.lista_productos, name= 'lista_productos'),
     path('lista_articulos/',views.lista_articulos, name= 'lista_articulos'),

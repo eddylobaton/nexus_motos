@@ -100,7 +100,20 @@
         <a href="#">- ventas por fechas</a>
       </div>
       {% endif %}
+
+    <div class="logout-container">
+      <form method="POST" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="logout-button">
+          <i class="bi bi-box-arrow-right"></i>
+          Cerrar sesión
+        </button>
+      </form>
     </div>
+
+    </div>
+
+
 
     <div class="main-content">
       {% block content %}
