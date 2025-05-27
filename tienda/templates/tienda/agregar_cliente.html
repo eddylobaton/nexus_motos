@@ -61,4 +61,9 @@
 
 {% block extra_js %}
 <script src="{% static 'tienda/js/registro_cliente.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        inicializarRegistroCliente();
+    });
+</script>
 {% endblock %}

@@ -32,6 +32,7 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 # Create your views here.
+@login_required
 def home(request):
     today = timezone.now()
     last_week = today - timedelta(days=7)
@@ -560,16 +561,37 @@ def agregar_cliente(request):
         form = ClienteForm(request.POST, request.FILES)
         if form.is_valid():
             try:
-                cliente = form.save(commit=False)
-                cliente.save()
-                return redirect('lista_clientes')
+                cliente = form.save()
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': True,
+                        'cliente': {
+                            'id': cliente.cliente_id,
+                            'nombre': f"{cliente.cliente_nombre} {cliente.cliente_paterno}"
+                        }
+                    })
+                else:
+                    return redirect('lista_clientes')
             except Exception as e:
-                print(f'Error al guardar el cliente: {e}')  # Esto mostrará el error exacto
+                # Captura cualquier error inesperado al guardar
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': False,
+                        'error': 'Ocurrió un error al guardar el cliente: ' + str(e)
+                    })
+                else:
+                    messages.error(request, f"Ocurrió un error al guardar el cliente: {str(e)}")
+                    return render(request, 'tienda/agregar_cliente.html', {'form': form})
         else:
-            print('Formulario inválido:', form.errors)
+            # Si el formulario es inválido
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                html = render_to_string('tienda/agregar_cliente_form.html', {'form': form}, request=request)
+                return JsonResponse({'success': False, 'html': html})
     else:
         form = ClienteForm()
-
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            html = render_to_string('tienda/agregar_cliente_form.html', {'form': form}, request=request)
+            return JsonResponse({'success': False, 'html': html})
     return render(request, 'tienda/agregar_cliente.html', {'form': form})
 
 @login_required

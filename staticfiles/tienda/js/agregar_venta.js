@@ -277,5 +277,83 @@ document.addEventListener('DOMContentLoaded', function () {
   
       actualizarFinanciamiento();
     }
-  });
+
+    /*****  AGREGAR CLIENTE  ******/
+    const btnAgregarCliente = document.getElementById('btnAgregarCliente');
+    const modal = document.getElementById('modalCliente');
+    const modalContent = document.getElementById('modalClienteContent');
+
+    btnAgregarCliente.addEventListener('click', function () {
+        const url = btnAgregarCliente.dataset.url;
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            modalContent.innerHTML = data.html;
+            const bootstrapModal = new bootstrap.Modal(modal);
+            bootstrapModal.show();
+
+            // Inicializar el script de validaciones del modal cargado
+            if (window.inicializarRegistroCliente) {
+                window.inicializarRegistroCliente();
+            }
+        });
+    });
+
+    // Delegar el submit del formulario dentro del modal
+    document.addEventListener('submit', function (e) {
+        if (e.target && e.target.id === 'formRegistro') {
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+            const url = btnAgregarCliente.dataset.url;
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Cliente registrado',
+                        text: 'El cliente fue registrado correctamente',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                    const modalInstance = bootstrap.Modal.getInstance(modal);
+                    modalInstance.hide();
+                    
+                    // Aquí puedes actualizar el selector de clientes si deseas
+                    // Por ejemplo, agregar el nuevo cliente al <select>
+                    const selectCliente = document.getElementById('cliente');
+                    const option = document.createElement('option');
+                    option.value = data.cliente.id;
+                    option.text = data.cliente.nombre;
+                    option.selected = true;
+                    selectCliente.appendChild(option);
+
+                } else {
+                    modalContent.innerHTML = data.html;
+                }
+            })
+            .catch(error => {
+                console.error('Error al guardar el cliente:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Hubo un problema al guardar el cliente.'
+                });
+            });
+        }
+    });    
+
+});
   

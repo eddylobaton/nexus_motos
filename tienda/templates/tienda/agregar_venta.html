@@ -31,13 +31,18 @@
           <!-- Datos del cliente y comprobante -->
           <div class="row">
             <div class="col-md-6">
-              <label for="cliente">Cliente</label>
-              <select class="form-select" id="cliente" name="cliente" required>
-                <option value="">-- Seleccione --</option>
-                {% for cliente in clientes %}
-                <option value="{{ cliente.cliente_id }}">{{ cliente.cliente_nombre }}</option>
-                {% endfor %}
-              </select>
+            <label for="cliente">Cliente</label>
+              <div class="input-group">
+                <select class="form-select" id="cliente" name="cliente" required>
+                  <option value="">-- Seleccione --</option>
+                  {% for cliente in clientes %}
+                  <option value="{{ cliente.cliente_id }}">{{ cliente.cliente_nombre }} {{ cliente.cliente_paterno }}</option>
+                  {% endfor %}
+                </select>
+                <button type="button" class="btn btn-outline-primary" id="btnAgregarCliente"  data-url="{% url 'agregar_cliente' %}">
+                  <i class="bi bi-person-plus"></i>
+                </button>
+              </div>
             </div>
             <div class="col-md-6">
               <label for="comprobante">Tipo de Comprobante</label>
@@ -226,11 +231,31 @@
     </div>
   </div>
 
+  <!-- Modal para registrar cliente -->
+  <div class="modal fade" id="modalCliente" tabindex="-1" aria-labelledby="modalClienteLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content" id="modalClienteContent">
+        <!-- Aquí se inyectará el formulario vía AJAX -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlay de carga -->
+  <div id="loadingOverlay" style="display: none;">
+      <div class="loading-content">
+          <span class="spinner-border text-light" role="status"></span>
+          <p class="text-light mt-3">Cargando, por favor espere...</p>
+      </div>
+  </div>
 {% endblock %}
 
 {% block extra_js %}
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/fixedheader/3.4.0/js/dataTables.fixedHeader.min.js"></script>
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script src="{% static 'tienda/js/agregar_venta.js' %}"></script>
+<script src="{% static 'tienda/js/registro_cliente.js' %}"></script>
 {% endblock %}

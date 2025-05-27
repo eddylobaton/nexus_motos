@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function () {
+function inicializarRegistroCliente() {
     //**** validar DNI
     const dniInput = document.querySelector('#id_cliente_nrodocumento');
     const tipoDocInput = document.querySelector('#id_cliente_tipodocumento');
@@ -235,7 +235,7 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(response => response.json())
             .then(data => {
                 if (data.existsTelefCliente) {
-                    feedbackDivTelf.textContent = "Email ya ha sido registrado.";
+                    feedbackDivTelf.textContent = "Teléfono ya ha sido registrado.";
                     telfInput.classList.add('is-invalid');
                     feedbackDivTelf.classList.add('text-danger');
                 } else {
@@ -245,8 +245,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             })
             .catch(error => {
-                console.error("Error al verificar email:", error);
-                feedbackDivTelf.textContent = "Ocurrió un error al verificar el email.";
+                console.error("Error al verificar teléfono:", error);
+                feedbackDivTelf.textContent = "Ocurrió un error al verificar el teléfono.";
                 telfInput.classList.add('is-invalid');
             })
             .finally(() => {
@@ -254,4 +254,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     });
 
-});
+}
+
+// Hacer la función accesible globalmente
+window.inicializarRegistroCliente = inicializarRegistroCliente;
