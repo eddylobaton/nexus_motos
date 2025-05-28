@@ -32,9 +32,6 @@
                     <a href="{% url 'agregar_venta' %}" class="btn btn-primary me-2">
                         <i class="bi bi-plus-circle"></i> Agregar
                     </a>
-                    <a href="#" class="btn btn-success">
-                        <i class="bi bi-file-earmark-text"></i> Reporte
-                    </a>
                 </div>
             </div>
             <hr size="3px" color="black">
@@ -67,7 +64,7 @@
                         <td>{{ venta.venta_total }}</td>
                         <td>
                             <a href="{% url 'detalle_venta' venta.venta_id %}" class="btn btn-sm btn-outline-primary" title="Ver"><i class="bi bi-eye"></i></a>
-                            <a href="{% url 'detalle_venta' venta.venta_id %}" class="btn btn-sm btn-outline-success" title="Editar"><i class="bi bi-pencil-square"></i></a>
+                            <!-- <a href="{% url 'detalle_venta' venta.venta_id %}" class="btn btn-sm btn-outline-success" title="Editar"><i class="bi bi-pencil-square"></i></a>  -->
                         </td>
                     </tr>
                     {% endfor %}

@@ -831,7 +831,7 @@ def numero_a_letras(numero):
 @login_required
 def generar_pdf_venta(request, venta_id):
     venta = get_object_or_404(TblVenta, pk=venta_id)
-    detalle_venta = TblDetVenta.objects.filter(venta=venta)
+    detalle_venta = TblDetVenta.objects.filter(venta=venta).select_related('prod')
     financiamiento = TblFinanciamiento.objects.filter(venta=venta).first()
     detalle_financiamiento = TblDetFinanciamiento.objects.filter(financia=financiamiento) if financiamiento else []
 
@@ -863,8 +863,28 @@ def generar_pdf_venta(request, venta_id):
 
 @login_required
 def detalle_venta(request, venta_id):
-    venta = get_object_or_404(TblVenta, pk=venta_id)
-    return render(request, 'tienda/detalle_venta.html', {'venta': venta})
+    try:
+        venta = get_object_or_404(TblVenta, pk=venta_id)
+        detalle_venta = TblDetVenta.objects.filter(venta=venta).select_related('prod')
+        financiamiento = TblFinanciamiento.objects.filter(venta=venta).first()
+        detalle_financiamiento = TblDetFinanciamiento.objects.filter(financia=financiamiento) if financiamiento else []
+
+        descuento_total = sum(item.det_venta_dcto for item in detalle_venta)
+
+        context = {
+            'venta': venta,
+            'detalle_venta': detalle_venta,
+            'financiamiento': financiamiento,
+            'detalle_financiamiento': detalle_financiamiento,
+            'descuento_total': descuento_total,
+        }
+        return render(request, 'tienda/detalle_venta.html', context)
+    except Exception as e:
+        # Mostrar el error solo en la consola
+        print("Error en vista detalle_ingreso:")
+        print(traceback.format_exc())
+        messages.error(request, f"Ocurrió un error: {str(e)}")
+        return redirect("lista_ventas")
 
 @login_required
 def lista_salidas(request):

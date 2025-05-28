@@ -1,0 +1,136 @@
+{% extends 'tienda/base_tres.html'%} 
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'tienda/css/detalle_venta_estilos.css' %}"> 
+{% endblock %} 
+
+{% block content %}
+<div class="card shadow-lg">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="card-title mb-0">Detalle venta</h5>
+            <div>
+                <a href="{% url 'lista_ventas' %}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver
+                </a>
+            </div>
+        </div>
+        <hr size="3px" color="black">
+        <div class="row">
+            <div class="col-md-12">
+                <h5><strong>Cliente:</strong> {{ venta.cliente.cliente_nombre }} {{ venta.cliente.cliente_paterno }} {{ venta.cliente.cliente_materno }}</h5>
+            </div>
+        </div>    
+        <div class="row">
+            <div class="col-12 col-md-4 mb-2">
+                <strong>Tipo Comprobante:</strong> {{ venta.venta_tipo_comprobante|upper }}
+            </div>
+            <div class="col-12 col-md-4 mb-2">
+                <strong>N° Documento:</strong> {{ venta.venta_nro_documento }}
+            </div>
+            <div class="col-12 col-md-4 mb-2">
+                <strong>IGV (%):</strong> {{ venta.venta_igv|floatformat:0 }}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 col-md-4 mb-2">
+                <strong>Usuario registrador:</strong> {{ venta.usuario.usuario_nombre }} {{ venta.usuario.usuario_paterno }}
+            </div>
+            <div class="col-12 col-md-4 mb-2">
+                <strong>Fecha Registro:</strong> {{ venta.venta_fecha_venta|date:"d/m/Y H:i:s" }}
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-md-12">
+                <h5><strong>Artículos</strong></h5>
+                <div class="table-responsive">
+                    <table class="table table-bordered tblArticulos">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Modelo</th>
+                                <th>Marca</th>
+                                <th>Categoría</th>
+                                <th>Cantidad</th>
+                                <th>Precio</th>
+                                <th>Subtotal</th>
+                                <th>Dcto</th>
+                                <th>Importe</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for detalle in detalle_venta %}
+                            <tr>
+                                <td> 
+                                    <div class="d-flex align-items-center">
+                                        <img src="{% static 'tienda/img/' %}{{ detalle.prod.prod_imagen }}" alt="Foto" class="foto me-2">
+                                        <span>{{ detalle.prod.prod_nombre }}</span>
+                                    </div>
+                                </td>
+                                <td>{{ detalle.prod.prod_modelo }}</td>
+                                <td>{{ detalle.prod.prod_marca }}</td>
+                                <td>{{ detalle.prod.prod_categoria }}</td>
+                                <td>{{ detalle.det_venta_cantidad }}</td>
+                                <td>S/ {{ detalle.det_venta_precio_unitario|floatformat:2 }}</td>
+                                <td>S/ {{ detalle.det_venta_subtotal|floatformat:2 }}</td>
+                                <td>S/ {{ detalle.det_venta_dcto|floatformat:2 }}</td>
+                                <td>S/ {{ detalle.det_venta_total|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="text-end">
+                    <p><strong>Descuento:</strong> S/ {{ descuento_total|floatformat:2 }}</p>
+                    <p><strong>Sub Total:</strong> S/ {{ venta.venta_subtotal|floatformat:2 }}</p>
+                    <p><strong>IGV:</strong> S/ {{ venta.venta_costo_igv|floatformat:2 }}</p>
+                    <p><strong>Total:</strong> S/ {{ venta.venta_total|floatformat:2 }}</p>
+                </div>
+            </div>
+        </div>
+        {% if financiamiento %}
+        <hr>
+        <div class="row">
+            <div class="col-md-12">
+                <h5><strong>Financiamiento</strong></h5>
+            </div>
+        </div>
+        <hr> 
+        <div class="row">
+            <div class="col-md-4">
+                <p><strong>Monto financiado:</strong> S/ {{ financiamiento.financia_monto_financiado|floatformat:2 }}</p>
+                <p><strong>N° cuotas:</strong> {{ financiamiento.financia_numero_cuotas }}</p>
+                <p><strong>Tasa interés:</strong> {{ financiamiento.financia_tasa_interes|floatformat:0 }}%</p>
+                <p><strong>Monto total interés:</strong> S/ {{ financiamiento.financia_total_interes|floatformat:2 }}</p>
+                <p><strong>Monto total:</strong> S/ {{ financiamiento.financia_monto_total|floatformat:2 }}</p>
+            </div>
+            <div class="col-md-8">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>N° Cuota</th>
+                                <th>Fecha de Pago</th>
+                                <th>Monto</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cuota in detalle_financiamiento %}
+                            <tr>
+                                <td>{{ cuota.det_finan_num_cuota }}</td>
+                                <td>{{ cuota.det_finan_fch_pago_max|date:"d/m/Y" }}</td>
+                                <td>S/ {{ cuota.det_finan_monto_cuota|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock%}

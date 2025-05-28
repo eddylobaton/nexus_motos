@@ -307,6 +307,7 @@ class TblSalida(models.Model):
     salida_motivo = models.CharField(max_length=200, blank=True, null=True)
     salida_eliminado = models.BooleanField(default=False)
     tipo_doc_almacen = models.ForeignKey('TblTipoDocAlmacen', models.DO_NOTHING)
+    venta = models.ForeignKey('TblVenta', models.DO_NOTHING, null=True, blank=True)
     usuario = models.ForeignKey('TblUsuario', models.DO_NOTHING)
 
     class Meta:

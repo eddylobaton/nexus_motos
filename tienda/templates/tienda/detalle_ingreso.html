@@ -9,7 +9,7 @@
 <div class="card shadow-lg">
     <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="card-title mb-0">Detalle de compra</h5>
+            <h5 class="card-title mb-0">Detalle compra</h5>
             <div>
                 <a href="{% url 'lista_ingresos' %}" class="btn btn-secondary">
                     <i class="bi bi-arrow-left"></i> Volver
@@ -46,7 +46,7 @@
             <div class="col-md-12">
                 <h5><strong>Artículos</strong></h5>
                 <div class="table-responsive">
-                    <table class="table table-bordered">
+                    <table class="table table-bordered tblArticulos">
                         <thead>
                             <tr>
                                 <th>Nombre</th>
@@ -62,8 +62,10 @@
                             {% for detalle in detalles %}
                             <tr>
                                 <td> 
-                                    <img src="{% static 'tienda/img/' %}{{ detalle.prod.prod_imagen }}" alt="Foto" class="foto"><br>
-                                    {{ detalle.prod.prod_nombre }}
+                                    <div class="d-flex align-items-center">
+                                        <img src="{% static 'tienda/img/' %}{{ detalle.prod.prod_imagen }}" alt="Foto" class="foto me-2">
+                                        <span>{{ detalle.prod.prod_nombre }}</span>
+                                    </div>
                                 </td>
                                 <td>{{ detalle.prod.prod_modelo }}</td>
                                 <td>{{ detalle.prod.prod_marca }}</td>
