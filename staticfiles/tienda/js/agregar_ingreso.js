@@ -49,21 +49,45 @@
 
   });
   
-  
-  function actualizarNumeroDoc() {
-    const tipoDocID = document.getElementById("tipo_doc").value;
-    if (!tipoDocID) {
-      document.getElementById("entrada_num_doc").value = "";
+  const numDocInput = document.querySelector('#entrada_num_doc');
+  const comentNumDoc = document.createElement('div');
+  comentNumDoc.classList.add('text-danger', 'small');
+  numDocInput.parentNode.appendChild(comentNumDoc);
+  const overlay = document.getElementById('loadingOverlay');
+
+  numDocInput.addEventListener('blur', function () {
+    const numDoc = numDocInput.value.trim();
+    if (numDoc) {
+      numDocInput.value = "";
+      comentNumDoc.textContent = "";
+      numDocInput.classList.remove('is-invalid');
       return;
     }
+
+    overlay.style.display = 'flex';
   
-    fetch(`?tipo_doc_id=${tipoDocID}`)
+    fetch(`?num_doc=${numDoc}`)
       .then(response => response.json())
       .then(data => {
-        document.getElementById("entrada_num_doc").value = data.numero;
+        if (data.existeNumDoc) {
+          comentNumDoc.textContent = `El num_doc "${numDoc}" ya ha sido registrado.`;
+          numDocInput.classList.add('is-invalid');
+          numDocInput.value = '';
+        }else{
+          comentNumDoc.textContent = "";
+          numDocInput.classList.remove('is-invalid');
+        }
       })
-      .catch(error => console.error("Error al obtener número de documento:", error));
-  }
+      .catch(error => {
+          console.error("Error al verificar num_doc:", error);
+          comentNumDoc.textContent = `Ocurrió un error al verificar el num_doc "${numDoc}".`;
+          numDocInput.classList.add('is-invalid');
+          numDocInput.value = '';
+      })
+      .finally(() => {
+          overlay.style.display = 'none';
+      });
+  });
   
   
   let articulosSeleccionados = {};

@@ -456,7 +456,7 @@ def agregar_ingresos(request):
     if request.method == "POST":
         try:
             proveedor_id = request.POST.get("proveedor_id")
-            tipo_doc_id = request.POST.get("tipo_doc_almacen_id")
+            tipo_doc_id = request.POST.get("tipo_doc")
             entrada_num_doc = request.POST.get("entrada_num_doc")
             #entrada_fecha = request.POST.get("entrada_fecha")
             entrada_igv = float(request.POST.get("entrada_igv", 0))
@@ -528,40 +528,11 @@ def agregar_ingresos(request):
     tipos_doc = TblTipoDocAlmacen.objects.filter(tipo_doc_almacen_tipo__in=['ES', 'E', 'EI'])
     productos = TblProducto.objects.filter(prod_estado=True)
 
-    tipo_seleccionado_id = request.GET.get('tipo_doc_id')
+    numero_documento = request.GET.get('num_doc')
 
-    if tipo_seleccionado_id:
-        tipo_doc = TblTipoDocAlmacen.objects.get(pk=tipo_seleccionado_id)
-        tipo_codigo = tipo_doc.tipo_doc_almacen_tipo  # ES, E o EI
-
-        # Lógica de agrupamiento para prefijos y filtrado
-        if tipo_codigo in ['ES', 'E']:
-            tipo_cod_prefijo = 'E'
-            tipos_a_contar = ['ES', 'E']
-        elif tipo_codigo == 'EI':
-            tipo_cod_prefijo = 'EI'
-            tipos_a_contar = ['EI']
-        else:
-            return JsonResponse({'numero': ''})  # En caso de un tipo inesperado
-
-        # Obtener las entradas que tienen ese tipo_cod_prefijo
-        entradas = TblEntrada.objects.filter(
-            tipo_doc_almacen__tipo_doc_almacen_tipo__in=tipos_a_contar
-        )
-
-        # Extraer el correlativo mayor
-        max_num = 0
-        for entrada in entradas:
-            try:
-                num = int(entrada.entrada_num_doc.split("-")[1])
-                max_num = max(max_num, num)
-            except:
-                continue
-
-        nuevo_num = max_num + 1
-        numero_generado = f"{tipo_cod_prefijo}-{nuevo_num:05d}"
-
-        return JsonResponse({'numero': numero_generado})
+    if numero_documento:
+        existeNumDoc = TblEntrada.objects.filter(entrada_num_doc=numero_documento).exists()
+        return JsonResponse({'existeNumDoc': existeNumDoc})
 
 
     #hoy = date.today()

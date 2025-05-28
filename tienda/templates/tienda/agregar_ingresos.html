@@ -54,7 +54,7 @@
           <div class="col-sm-12 col-md-4 col-lg-4 mb-3">
             <div class="form-group">
               <label for="tipo_doc">Tipo Documento</label>
-              <select class="form-control" id="tipo_doc" name="tipo_doc_almacen_id" required onchange="actualizarNumeroDoc()">
+              <select class="form-control" id="tipo_doc" name="tipo_doc" required>
                 <option value="">-- Seleccione --</option>
                 {% for tipo in tipos_doc %}
                   <option value="{{ tipo.tipo_doc_almacen_id }}">{{ tipo.tipo_doc_almacen_descripcion }}</option>
@@ -65,7 +65,7 @@
           <div class="col-sm-12 col-md-4 col-lg-4 mb-3">
             <div class="form-group">
               <label for="entrada_num_doc">N° Documento</label>
-              <input type="text" class="form-control" id="entrada_num_doc" name="entrada_num_doc" readonly>
+              <input type="text" class="form-control" id="entrada_num_doc" name="entrada_num_doc" required>
             </div>
           </div>
           <div class="col-sm-12 col-md-4 col-lg-4 mb-3">
