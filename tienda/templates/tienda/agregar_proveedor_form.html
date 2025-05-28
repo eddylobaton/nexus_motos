@@ -1,0 +1,44 @@
+<form id="formRegistroProv" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <div class="row g-3">
+    <!-- Mostrar errores de formulario si existen -->
+    {% if form.errors %}
+        <div class="alert alert-danger mt-3">
+            <ul>
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+    <div class="col-md-6">
+        {{ form.proveedor_nombre.label_tag }}
+        {{ form.proveedor_nombre }}
+        <div class="invalid-feedback" id="error_nombre"></div>
+    </div>
+    <div class="col-md-6">
+        {{ form.proveedor_ruc.label_tag }}
+        {{ form.proveedor_ruc }}
+        <div class="invalid-feedback" id="error_ruc"></div>
+    </div>
+    <div class="col-md-6">
+        {{ form.proveedor_telefono.label_tag }}
+        {{ form.proveedor_telefono }}
+    </div>
+    <div class="col-md-6">
+        {{ form.proveedor_direccion.label_tag }}
+        {{ form.proveedor_direccion }}
+    </div>
+    <div class="col-md-6">
+        {{ form.proveedor_email.label_tag }}
+        {{ form.proveedor_email }}
+        <div class="invalid-feedback" id="error_email"></div>
+    </div>
+  </div>
+  <div class="text-end">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+    <button type="submit" id="btnSubmit" class="btn btn-success">Guardar</button>
+  </div>
+</form>

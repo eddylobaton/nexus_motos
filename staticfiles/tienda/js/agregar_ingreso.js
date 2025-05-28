@@ -222,4 +222,91 @@
   
     this.submit();
   });
+
+  /*****  AGREGAR PROVEEDOR  ******/
+  const btnAgregarProveedor = document.getElementById('btnAgregarProveedor');
+  const modal = document.getElementById('modalProveedor');
+  const modalContent = document.getElementById('modalProveedorContent');
+
+  btnAgregarProveedor.addEventListener('click', function () {
+      const url = btnAgregarProveedor.dataset.url;
+      const bootstrapModal = new bootstrap.Modal(modal, {
+          backdrop: 'static',   // No se cierra al hacer clic fuera
+          keyboard: false       // No se cierra con ESC
+      });
+      bootstrapModal.show();
+
+
+      modalContent.innerHTML = '<p class="text-center p-3">Cargando formulario...</p>';
+
+      fetch(url, {
+          headers: {
+              'X-Requested-With': 'XMLHttpRequest'
+          }
+      })
+      .then(response => response.json())
+      .then(data => {
+          modalContent.innerHTML = data.html;
+            
+          // Inicializar el script de validaciones del modal cargado
+          if (window.inicializarRegistroProveedor) {
+              window.inicializarRegistroProveedor();
+          }
+      })
+      .catch(() => {
+          modalContent.innerHTML = '<p class="text-danger text-center p-3">Error al cargar el formulario.</p>';
+      });
+  });
+
+  // Delegar el submit del formulario dentro del modal
+  document.addEventListener('submit', function (e) {
+      if (e.target && e.target.id === 'formRegistroProv') {
+          e.preventDefault();
+          const form = e.target;
+          const formData = new FormData(form);
+          const url = btnAgregarProveedor.dataset.url;
+
+          fetch(url, {
+              method: 'POST',
+              headers: {
+                  'X-Requested-With': 'XMLHttpRequest'
+              },
+              body: formData
+          })
+          .then(response => response.json())
+          .then(data => {
+              if (data.success) {
+                  Swal.fire({
+                      icon: 'success',
+                      title: 'Proveedor registrado',
+                      text: 'El Proveedor fue registrado correctamente',
+                      timer: 2000,
+                      showConfirmButton: false
+                  });
+                  const modalInstance = bootstrap.Modal.getInstance(modal);
+                  modalInstance.hide();
+                    
+                  // Aquí puedes actualizar el selector de proveedores si deseas
+                  // Por ejemplo, agregar el nuevo proveedor al <select>
+                  const selectProveedor = document.getElementById('proveedor');
+                  const option = document.createElement('option');
+                  option.value = data.proveedor.id;
+                  option.text = data.proveedor.nombre;
+                  option.selected = true;
+                  selectProveedor.appendChild(option);
+
+              } else {
+                  modalContent.innerHTML = data.html;
+              }
+          })
+          .catch(error => {
+              console.error('Error al guardar el proveedor:', error);
+              Swal.fire({
+                  icon: 'error',
+                  title: 'Error',
+                  text: 'Hubo un problema al guardar el proveedor.'
+              });
+          });
+      }
+  });  
   

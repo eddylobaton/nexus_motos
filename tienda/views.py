@@ -22,6 +22,7 @@ from django.utils.http import urlencode
 from xhtml2pdf import pisa
 from num2words import num2words
 import json
+import traceback
 
 import requests
 from django.http import JsonResponse, HttpResponse
@@ -396,15 +397,39 @@ def agregar_proveedor(request):
         form = ProveedorForm(request.POST, request.FILES)
         if form.is_valid():
             try:
-                proveedor = form.save(commit=False)
-                proveedor.save()
-                return redirect('lista_proveedores')
+                proveedor = form.save()
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': True,
+                        'proveedor': {
+                            'id': proveedor.proveedor_id,
+                            'nombre': proveedor.proveedor_nombre
+                        }
+                    })
+                else:
+                    return redirect('lista_proveedores')
             except Exception as e:
+                # Captura cualquier error inesperado al guardar
                 print(f'Error al guardar el proveedor: {e}')  # Esto mostrará el error exacto
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': False,
+                        'error': 'Ocurrió un error al guardar el proveedor: ' + str(e)
+                    })
+                else:
+                    messages.error(request, f"Ocurrió un error al guardar el proveedor: {str(e)}")
+                    return render(request, 'tienda/agregar_proveedor.html', {'form': form})
         else:
             print('Formulario inválido:', form.errors)
+            # Si el formulario es inválido
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                html = render_to_string('tienda/agregar_proveedor_form.html', {'form': form}, request=request)
+                return JsonResponse({'success': False, 'html': html})
     else:
         form = ProveedorForm()
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            html = render_to_string('tienda/agregar_proveedor_form.html', {'form': form}, request=request)
+            return JsonResponse({'success': False, 'html': html})
 
     return render(request, 'tienda/agregar_proveedor.html', {'form': form})
 
@@ -549,6 +574,24 @@ def agregar_ingresos(request):
         #'fecha_hoy': hoy.strftime('%Y-%m-%d'),
         #'fecha_min': hace_dos_dias.strftime('%Y-%m-%d'),
     })
+
+@login_required
+def detalle_ingreso(request, ingreso_id):
+    try:
+        entrada = get_object_or_404(TblEntrada, pk=ingreso_id)
+        detalles = TblDetEntrada.objects.filter(entrada=entrada).select_related('prod')
+
+        context = {
+            'entrada': entrada,
+            'detalles': detalles,
+        }
+        return render(request, 'tienda/detalle_ingreso.html', context)
+    except Exception as e:
+        # Mostrar el error solo en la consola
+        print("Error en vista detalle_ingreso:")
+        print(traceback.format_exc())
+        messages.error(request, f"Ocurrió un error: {str(e)}")
+        return redirect("lista_ingresos")
 
 @login_required
 def lista_clientes(request):

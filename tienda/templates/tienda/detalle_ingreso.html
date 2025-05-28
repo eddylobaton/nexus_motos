@@ -1,0 +1,89 @@
+{% extends 'tienda/base_tres.html'%} 
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'tienda/css/detalle_ingreso_estilos.css' %}"> 
+{% endblock %} 
+
+{% block content %}
+<div class="card shadow-lg">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="card-title mb-0">Detalle de compra</h5>
+            <div>
+                <a href="{% url 'lista_ingresos' %}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver
+                </a>
+            </div>
+        </div>
+        <hr size="3px" color="black">
+        <div class="row">
+            <div class="col-md-12">
+                <h5><strong>Proveedor:</strong> {{ entrada.proveedor.proveedor_nombre }}</h5>
+            </div>
+        </div>    
+        <div class="row">
+            <div class="col-12 col-md-4 mb-2">
+                <strong>Tipo Documento:</strong> {{ entrada.tipo_doc_almacen.tipo_doc_almacen_descripcion }}
+            </div>
+            <div class="col-12 col-md-4 mb-2">
+                <strong>N° Documento:</strong> {{ entrada.entrada_num_doc }}
+            </div>
+            <div class="col-12 col-md-4 mb-2">
+                <strong>IGV (%):</strong> {{ entrada.entrada_igv|floatformat:0 }}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 col-md-4 mb-2">
+                <strong>Usuario registrador:</strong> {{ entrada.usuario.usuario_nombre }} {{ entrada.usuario.usuario_paterno }}
+            </div>
+            <div class="col-12 col-md-4 mb-2">
+                <strong>Fecha Registro:</strong> {{ entrada.entrada_fecha|date:"d/m/Y H:i:s" }}
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-md-12">
+                <h5><strong>Artículos</strong></h5>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Modelo</th>
+                                <th>Marca</th>
+                                <th>Categoría</th>
+                                <th>Cantidad</th>
+                                <th>Precio</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for detalle in detalles %}
+                            <tr>
+                                <td> 
+                                    <img src="{% static 'tienda/img/' %}{{ detalle.prod.prod_imagen }}" alt="Foto" class="foto"><br>
+                                    {{ detalle.prod.prod_nombre }}
+                                </td>
+                                <td>{{ detalle.prod.prod_modelo }}</td>
+                                <td>{{ detalle.prod.prod_marca }}</td>
+                                <td>{{ detalle.prod.prod_categoria }}</td>
+                                <td>{{ detalle.det_entrada_cantidad }}</td>
+                                <td>S/ {{ detalle.det_entrada_precio_costo|floatformat:2 }}</td>
+                                <td>S/ {{ detalle.det_entrada_sub_total|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="text-end">
+                    <p><strong>Sub Total:</strong> S/ {{ entrada.entrada_subtotal|floatformat:2 }}</p>
+                    <p><strong>IGV:</strong> S/ {{ entrada.entrada_costo_igv|floatformat:2 }}</p>
+                    <p><strong>Total:</strong> S/ {{ entrada.entrada_costo_total|floatformat:2 }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock%}

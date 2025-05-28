@@ -1,4 +1,5 @@
 function inicializarRegistroCliente() {
+    let tieneError = true;
     //**** validar DNI
     const dniInput = document.querySelector('#id_cliente_nrodocumento');
     const tipoDocInput = document.querySelector('#id_cliente_tipodocumento');

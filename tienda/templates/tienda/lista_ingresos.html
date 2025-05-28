@@ -32,9 +32,9 @@
                     <a href="{% url 'agregar_ingresos' %}" class="btn btn-primary me-2">
                         <i class="bi bi-plus-circle"></i> Agregar
                     </a>
-                    <a href="#" class="btn btn-success">
+                    <!-- <a href="#" class="btn btn-success">
                         <i class="bi bi-file-earmark-text"></i> Reporte
-                    </a>
+                    </a> -->
                 </div>
             </div>
             <hr size="3px" color="black">
@@ -64,8 +64,7 @@
                         <td>{{ ingreso.usuario.usuario_nombre }} {{ ingreso.usuario.usuario_paterno }} {{ ingreso.usuario.usuario_materno }}</td>
                         <td>{{ ingreso.entrada_fecha|date:"d/m/Y H:i:s" }}</td>
                         <td>
-                            <a href="#" class="btn btn-sm btn-outline-primary" title="Ver"><i class="bi bi-eye"></i></a>
-                            <a href="#" class="btn btn-sm btn-outline-success" title="Editar"><i class="bi bi-pencil-square"></i></a>
+                            <a href="{% url 'detalle_ingreso' ingreso.entrada_id %}" class="btn btn-sm btn-outline-primary" title="Ver"><i class="bi bi-eye"></i></a>
                         </td>
                     </tr>
                     {% endfor %}

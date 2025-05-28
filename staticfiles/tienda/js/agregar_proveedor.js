@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function () {
+function inicializarRegistroProveedor() {
     const nombreInput = document.getElementById('id_proveedor_nombre');
     const rucInput = document.getElementById('id_proveedor_ruc');
     const emailInput = document.getElementById('id_proveedor_email');
@@ -106,7 +106,10 @@ document.addEventListener('DOMContentLoaded', function () {
             feedbackDivproveedor.textContent = "Ingrese un teléfono correcto (9 dígitos).";
             feedbackDivproveedor.classList.add('text-danger', 'small');
             proveedorInput.classList.add('is-invalid');
+            btnSubmit.disabled = true;
             return;
+        }else{
+            btnSubmit.disabled = false;
         }
 
         document.getElementById('loadingOverlay').style.display = 'flex';
@@ -115,9 +118,10 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(response => response.json())
             .then(data => {
                 if (data.existeTelefono) {
-                    feedbackDivproveedor.textContent = "Email ya ha sido registrado.";
+                    feedbackDivproveedor.textContent = `El Teléfono "${telefono}" ya ha sido registrado.`;
                     proveedorInput.classList.add('is-invalid');
                     feedbackDivproveedor.classList.add('text-danger');
+                    proveedorInput.value = '';
                 } else {
                     feedbackDivproveedor.textContent = "";
                     proveedorInput.classList.remove('is-invalid');
@@ -125,14 +129,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             })
             .catch(error => {
-                console.error("Error al verificar email:", error);
-                feedbackDivproveedor.textContent = "Ocurrió un error al verificar el email.";
+                console.error("Error al verificar teléfono:", error);
+                feedbackDivproveedor.textContent = `Ocurrió un error al verificar el teléfono "${telefono}".`;
                 proveedorInput.classList.add('is-invalid');
+                feedbackDivproveedor.classList.add('text-danger');
+                proveedorInput.value = '';
             })
             .finally(() => {
                 document.getElementById('loadingOverlay').style.display = 'none';
             });
     });
 
-    
-});
+}
+
+// Hacer la función accesible globalmente
+window.inicializarRegistroProveedor = inicializarRegistroProveedor;

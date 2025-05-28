@@ -285,8 +285,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     btnAgregarCliente.addEventListener('click', function () {
         const url = btnAgregarCliente.dataset.url;
-        const bootstrapModal = new bootstrap.Modal(modal);
+        const bootstrapModal = new bootstrap.Modal(modal, {
+            backdrop: 'static',   // No se cierra al hacer clic fuera
+            keyboard: false       // No se cierra con ESC
+        });
         bootstrapModal.show();
+
 
         modalContent.innerHTML = '<p class="text-center p-3">Cargando formulario...</p>';
 
