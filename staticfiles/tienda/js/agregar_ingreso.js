@@ -57,7 +57,7 @@
 
   numDocInput.addEventListener('blur', function () {
     const numDoc = numDocInput.value.trim();
-    if (numDoc) {
+    if (!numDoc) {
       numDocInput.value = "";
       comentNumDoc.textContent = "";
       numDocInput.classList.remove('is-invalid');
@@ -197,6 +197,14 @@
 
   document.getElementById("formEntrada").addEventListener("submit", function(e) {
     e.preventDefault();
+
+    const numDoc = numDocInput.value.trim();
+    if (!numDoc) {
+      alert("Debe ingresar número de documento.");
+      return;
+    }
+
+    numDocInput.value = numDoc;
   
     if (Object.keys(articulosSeleccionados).length === 0) {
       alert("Debe agregar al menos un producto.");
