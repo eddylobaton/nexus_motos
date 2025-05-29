@@ -27,26 +27,37 @@ function inicializarRegistroProveedor() {
         this.value = this.value.replace(/\D/g, "").slice(0, 11);
     }
 
+    emailInput.addEventListener('change', function () {
+        const emailValor = emailInput.value.trim();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if(!emailRegex.test(emailValor)){
+            emailInput.classList.add('is-invalid');
+            errorEmail.textContent = `El email "${emailValor}" no es correcto.`;
+            emailInput.value = '';
+            btnSubmit.disabled = true;
+        }else{
+            btnSubmit.disabled = false;
+        }
+    });
+
+    rucInput.addEventListener('change', function () {
+        const rucValor = rucInput.value.trim();
+        const rucRegex = /^\d{11}$/;
+        if(!rucRegex.test(rucValor)){
+            rucInput.classList.add('is-invalid');
+            errorRuc.textContent = `El RUC "${rucValor}" no es correcto.`;
+            rucInput.value = '';
+            btnSubmit.disabled = true;
+        }else{
+            btnSubmit.disabled = false;
+        }
+    });
+
+
     function verificarProveedor() {
         const nombreValor = nombreInput.value.trim();
         const rucValor = rucInput.value.trim();
         const emailValor = emailInput.value.trim();
-
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(emailValor)) {
-            emailInput.classList.add('is-invalid');
-            errorEmail.textContent = `El email "${emailValor}" no es correcto.`;
-            emailInput.value = '';
-            return;
-        }
-
-        const rucRegex = /^\d{11}$/;
-        if (!rucRegex.test(rucValor)) {
-            rucInput.classList.add('is-invalid');
-            errorRuc.textContent = `El RUC "${rucValor}" no es correcto.`;
-            rucInput.value = '';
-            return;
-        }
 
         if (!nombreValor && !rucValor && !emailValor) return;
 
