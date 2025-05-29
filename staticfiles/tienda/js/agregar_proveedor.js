@@ -23,10 +23,30 @@ function inicializarRegistroProveedor() {
         overlay.style.display = 'none';
     }
 
+    function verificarRuc() {
+        this.value = this.value.replace(/\D/g, "").slice(0, 11);
+    }
+
     function verificarProveedor() {
         const nombreValor = nombreInput.value.trim();
         const rucValor = rucInput.value.trim();
         const emailValor = emailInput.value.trim();
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(emailValor)) {
+            emailInput.classList.add('is-invalid');
+            errorEmail.textContent = `El email "${emailValor}" no es correcto.`;
+            emailInput.value = '';
+            return;
+        }
+
+        const rucRegex = /^\d{11}$/;
+        if (!rucRegex.test(rucValor)) {
+            rucInput.classList.add('is-invalid');
+            errorRuc.textContent = `El RUC "${rucValor}" no es correcto.`;
+            rucInput.value = '';
+            return;
+        }
 
         if (!nombreValor && !rucValor && !emailValor) return;
 
@@ -76,6 +96,7 @@ function inicializarRegistroProveedor() {
     nombreInput.addEventListener('blur', verificarProveedor);
     rucInput.addEventListener('blur', verificarProveedor);
     emailInput.addEventListener('blur', verificarProveedor);
+    rucInput.addEventListener("input", verificarRuc);
 
 
     //**** Validar telefono
