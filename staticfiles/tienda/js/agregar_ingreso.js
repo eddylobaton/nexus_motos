@@ -70,7 +70,7 @@
       .then(response => response.json())
       .then(data => {
         if (data.existeNumDoc) {
-          comentNumDoc.textContent = `El num_doc "${numDoc}" ya ha sido registrado.`;
+          comentNumDoc.textContent = `El N° Doc. "${numDoc}" ya ha sido registrado.`;
           numDocInput.classList.add('is-invalid');
           numDocInput.value = '';
         }else{
@@ -79,8 +79,8 @@
         }
       })
       .catch(error => {
-          console.error("Error al verificar num_doc:", error);
-          comentNumDoc.textContent = `Ocurrió un error al verificar el num_doc "${numDoc}".`;
+          console.error("Error al verificar N° Doc.:", error);
+          comentNumDoc.textContent = `Ocurrió un error al verificar el N° Doc. "${numDoc}".`;
           numDocInput.classList.add('is-invalid');
           numDocInput.value = '';
       })

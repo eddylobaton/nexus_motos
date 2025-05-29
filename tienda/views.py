@@ -783,6 +783,42 @@ def agregar_venta(request):
         productos = TblProducto.objects.filter(prod_estado=True).select_related('tblkardex')
         nro_documento = f"V-{TblVenta.objects.count() + 1:05d}"
         
+        tipo_seleccionado_id = request.GET.get('tipo_doc_id')
+
+        if tipo_seleccionado_id:
+            tipo_doc = TblTipoDocAlmacen.objects.filter(pk=tipo_seleccionado_id).first()
+            if tipo_doc:
+                tipo_descrip = tipo_doc.tipo_doc_almacen_descripcion # boleta o factura
+            else:
+                return JsonResponse({'numero': ''})  # En caso no exista tipo doc.
+            
+            if tipo_descrip == "Boleta":
+                tipo_cod_prefijo = 'B0001'
+            elif tipo_descrip == 'Factura':
+                tipo_cod_prefijo = 'F0001'
+            else:
+                return JsonResponse({'numero': ''})  # En caso de un tipo inesperado
+            
+            # Obtener las ventas que tienen ese tipo_descrip
+            ventas = TblVenta.objects.filter(
+                venta_tipo_comprobante=tipo_descrip
+            )
+
+            # Extraer el correlativo mayor
+            max_num = 0
+            for venta in ventas:
+                try:
+                    num = int(venta.venta_nro_documento.split("-")[1])
+                    max_num = max(max_num, num)
+                except:
+                    continue
+
+            nuevo_num = max_num + 1
+            numero_generado = f"{tipo_cod_prefijo}-{nuevo_num:05d}"
+
+            return JsonResponse({'numero': numero_generado})
+
+
         context = {
             'clientes': clientes,
             'comprobantes': comprobantes,

@@ -36,12 +36,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const financiamientoSeccion = document.getElementById('financiamiento_seccion');
     const errorSpan = document.getElementById('error_efectivo');
+    
+    const overlay = document.getElementById('loadingOverlay');
   
     /*igvInput.addEventListener('input', function () {
       igvPorcentaje = parseFloat(this.value) || 0;
       actualizarTotales();
     });*/
   
+
     metodoPagoSelect.addEventListener('change', function () {
       const metodo = this.options[this.selectedIndex].text.toLowerCase();
       const totalVenta = parseFloat(ventaTotalSpan.textContent) || 0;
@@ -79,6 +82,25 @@ document.addEventListener('DOMContentLoaded', function () {
         const selected = this.options[this.selectedIndex];
         const descripcion = selected.getAttribute("data-descripcion");
         document.getElementById("venta_tipo_comprobante").value = descripcion;
+
+        const tipoDocID = document.getElementById("comprobante").value;
+        if (!tipoDocID) {
+          document.getElementById("venta_nro_documento").value = "";
+          return;
+        }
+
+        overlay.style.display = 'flex';
+      
+        fetch(`?tipo_doc_id=${tipoDocID}`)
+          .then(response => response.json())
+          .then(data => {
+            document.getElementById("venta_nro_documento").value = data.numero;
+          })
+          .catch(error => console.error("Error al obtener número de documento:", error))
+          .finally(() => {
+              overlay.style.display = 'none';
+          });
+
     });
 
     document.getElementById("formularioVenta").addEventListener("submit", function (e) {
