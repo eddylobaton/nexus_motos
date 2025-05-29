@@ -148,13 +148,13 @@ class ArticuloForm(forms.ModelForm):
     prod_porcenta_dcto = forms.IntegerField(
         required=False,
         min_value=0,
-        max_value=99,
+        max_value=10,
         initial=0,  # Valor por defecto
         widget=forms.NumberInput(attrs={
             'class': 'form-control',
             'placeholder': 'Descuento (%)',
             'min': '0',
-            'max': '99'
+            'max': '10'
         }),
         label="Descuento (%)"
     )
@@ -193,8 +193,8 @@ class ArticuloForm(forms.ModelForm):
         if valor is None:
             return 0  # Valor por defecto si no se ingresa nada
 
-        if valor < 0 or valor > 99:
-            raise forms.ValidationError("Ingresa un número entre 0 y 99.")
+        if valor < 0 or valor > 10:
+            raise forms.ValidationError("Ingresa un número entre 0 y 10.")
 
         resultado = int(valor)
         return resultado
