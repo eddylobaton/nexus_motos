@@ -56,7 +56,8 @@ function inicializarRegistroCliente() {
                 .then(data => {
                     if (data.existeDocCliente) {
                         limpiarCampos();
-                        feedbackDivDni.textContent = "Este DNI ya está registrado en el sistema.";
+                        dniInput.value = "";
+                        feedbackDivDni.textContent = `El DNI "${dni}" ya ha sido registrado.`;
                         dniInput.classList.add('is-invalid');
                         feedbackDivDni.classList.add('text-danger');
                         document.getElementById('loadingOverlay').style.display = 'none';
@@ -101,6 +102,7 @@ function inicializarRegistroCliente() {
         } else if (tipoDoc === "DNI" && !dniRegex.test(dni)) {
             if (dni.length > 0 && dni.length < 8) {
                 limpiarCampos();
+                dniInput.value = "";
                 feedbackDivDni.textContent = "El DNI debe tener exactamente 8 dígitos. Ingresó menos.";
                 feedbackDivDni.classList.remove('text-danger');
                 dniInput.classList.add('is-invalid');
@@ -168,6 +170,7 @@ function inicializarRegistroCliente() {
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
+            emailInput.value = "";
             feedbackDivEmail.textContent = "Ingrese un email correcto.";
             feedbackDivEmail.classList.add('text-danger', 'small');
             emailInput.classList.add('is-invalid');
@@ -180,7 +183,8 @@ function inicializarRegistroCliente() {
             .then(response => response.json())
             .then(data => {
                 if (data.existsEmailCliente) {
-                    feedbackDivEmail.textContent = "Email ya ha sido registrado.";
+                    emailInput.value = "";
+                    feedbackDivEmail.textContent = `El email "${email}" ya ha sido registrado.`;
                     emailInput.classList.add('is-invalid');
                     feedbackDivEmail.classList.add('text-danger');
                 } else {
@@ -190,6 +194,7 @@ function inicializarRegistroCliente() {
                 }
             })
             .catch(error => {
+                dniInput.value = "";
                 console.error("Error al verificar email:", error);
                 feedbackDivEmail.textContent = "Ocurrió un error al verificar el email.";
                 emailInput.classList.add('is-invalid');
@@ -224,6 +229,7 @@ function inicializarRegistroCliente() {
         const telfRegex = /^\d{9}$/;
 
         if (!telfRegex.test(telefono)) {
+            telfInput.value = "";
             feedbackDivTelf.textContent = "Ingrese un teléfono correcto (9 dígitos).";
             feedbackDivTelf.classList.add('text-danger', 'small');
             telfInput.classList.add('is-invalid');
@@ -236,7 +242,8 @@ function inicializarRegistroCliente() {
             .then(response => response.json())
             .then(data => {
                 if (data.existsTelefCliente) {
-                    feedbackDivTelf.textContent = "Teléfono ya ha sido registrado.";
+                    telfInput.value = "";
+                    feedbackDivTelf.textContent = `El teléfono "${telefono}" ya ha sido registrado.`;
                     telfInput.classList.add('is-invalid');
                     feedbackDivTelf.classList.add('text-danger');
                 } else {

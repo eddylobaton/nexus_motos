@@ -240,14 +240,15 @@ def lista_productos(request):
 
 @login_required
 def lista_articulos(request):
-    productos = TblProducto.objects.all()
+    productos = TblProducto.objects.all().select_related('tblkardex')
     
     for producto in productos:
-        if producto.prod_porcenta_dcto:
-            producto.descuento_porcentaje = int(producto.prod_porcenta_dcto)
+        producto.descuento_porcentaje = int(producto.prod_porcenta_dcto or 0)
+        if hasattr(producto, 'tblkardex'):
+            producto.stock_actual = producto.tblkardex.kardex_stock_actual
         else:
-            producto.descuento_porcentaje = 0
-
+            producto.stock_actual = 0
+        
     return render(request, 'tienda/lista_articulos.html', {'productos': productos})
 
 @login_required

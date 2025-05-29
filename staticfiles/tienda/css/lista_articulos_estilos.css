@@ -30,6 +30,15 @@ table {
     text-align: center !important;
 }
 
+.badge-stock {
+  display: inline-block;
+  width: 90px; /* Ajusta según lo que necesites */
+  text-align: center;
+  font-size: 0.85rem;
+  padding: 0.25em 0.6em;
+  border-radius: 0.4em;
+}
+
 .switch {
     position: relative;
     display: inline-block;

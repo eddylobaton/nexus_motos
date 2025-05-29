@@ -131,7 +131,7 @@ class TblCargo(models.Model):
 class TblCliente(models.Model):
     cliente_id = models.AutoField(primary_key=True)
     cliente_nrodocumento = models.CharField(max_length=45)
-    cliente_tipodocumento = models.CharField(max_length=45, blank=True, null=True)
+    cliente_tipodocumento = models.CharField(max_length=45)
     cliente_nombre = models.CharField(max_length=45)
     cliente_paterno = models.CharField(max_length=45)
     cliente_materno = models.CharField(max_length=45)

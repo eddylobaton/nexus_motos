@@ -32,12 +32,12 @@
             <table id="productos-table" class="table table-bordered table-hover text-center" style="width:100%">
                 <thead class="table table-striped responsive nowrap">
                     <tr>
-                        <th>Nombre</th>
                         <th>Marca</th>
                         <th>Modelo</th>
                         <th>Motor</th>
                         <th>Categoría</th>
                         <th>Descuento</th>
+                        <th>Stock</th>
                         <th>Fecha Registro</th>
                         <th>Estado</th>
                         <th>Acciones</th>
@@ -46,12 +46,21 @@
                 <tbody>
                     {% for producto in productos %}
                     <tr>
-                        <td>{{ producto.prod_nombre }}</td>
                         <td>{{ producto.prod_marca }}</td>
                         <td>{{ producto.prod_modelo }}</td>
                         <td>{{ producto.prod_motor }}</td>
                         <td>{{ producto.prod_categoria }}</td>
                         <td>{{ producto.descuento_porcentaje }}%</td>
+                        <td>
+                            <div class="text-start">
+                                {{ producto.stock_actual }}
+                                {% if producto.stock_actual == 0 %}
+                                    <span class="badge bg-danger ms-2 badge-stock">Agotado</span>
+                                {% elif producto.stock_actual <= 5 %}
+                                    <span class="badge bg-warning text-dark ms-2 badge-stock">Por agotar</span>
+                                {% endif %}
+                            </div>
+                        </td>
                         <td>{{ producto.prod_fecha_registro|date:"Y-m-d H:i:s" }}</td>
                         <td>
                             <label class="switch">
