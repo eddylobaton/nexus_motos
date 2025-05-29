@@ -79,7 +79,7 @@
       {% endif %}
 
       <!-- Consulta Compras -->
-      {% if request.user.tipo_usuario_id == 1 or request.user.tipo_usuario_id == 2 %}
+      {% if request.user.tipo_usuario_id == 4 %}
       <button class="btn" data-bs-toggle="collapse" data-bs-target="#consultaComprasMenu" aria-expanded="false" aria-controls="consultaComprasMenu">
         <div><i class="bi bi-search menu-icon"></i> Consulta compras</div>
         <i class="bi bi-chevron-down arrow-icon"></i>
@@ -91,7 +91,7 @@
 
 
       <!-- Consulta Ventas -->
-      {% if request.user.tipo_usuario_id == 1 or request.user.tipo_usuario_id == 3 %}
+      {% if request.user.tipo_usuario_id == 4 %}
       <button class="btn" data-bs-toggle="collapse" data-bs-target="#consultaVentasMenu" aria-expanded="false" aria-controls="consultaVentasMenu">
         <div><i class="bi bi-search menu-icon"></i> Consulta ventas</div>
         <i class="bi bi-chevron-down arrow-icon"></i>
