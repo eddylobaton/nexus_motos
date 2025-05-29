@@ -55,9 +55,11 @@
                             <div class="text-start">
                                 {{ producto.stock_actual }}
                                 {% if producto.stock_actual == 0 %}
-                                    <span class="badge bg-danger ms-2 badge-stock">Agotado</span>
+                                    <span class="badge bg-danger text-white ms-2 badge-stock">Agotado</span>
                                 {% elif producto.stock_actual <= 5 %}
                                     <span class="badge bg-warning text-dark ms-2 badge-stock">Por agotar</span>
+                                {% else %}
+                                    <span class="badge bg-success text-white ms-2 badge-stock">Disponible</span>
                                 {% endif %}
                             </div>
                         </td>
