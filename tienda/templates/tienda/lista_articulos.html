@@ -82,7 +82,9 @@
                         </td>
                         <td>
                             <a href="{% url 'detalle_articulo' producto.prod_id %}" class="btn btn-sm btn-outline-primary" title="Ver"><i class="bi bi-eye"></i></a>
+                            {% if producto.prod_estado %}
                             <a href="{% url 'editar_articulo' producto.prod_id %}" class="btn btn-sm btn-outline-success" title="Editar"><i class="bi bi-pencil-square"></i></a>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
