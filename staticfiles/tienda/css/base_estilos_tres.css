@@ -13,7 +13,7 @@ body {
   width: 250px;
   overflow-y: auto;
   position: relative; /* Añadir esto para permitir posicionamiento absoluto interno */
-  height: 100vh; /* Asegura que la altura ocupe toda la pantalla */
+  height: auto; /* Asegura que la altura ocupe toda la pantalla */
   display: flex;
   flex-direction: column; /* Para que los elementos se ordenen verticalmente */
 }
