@@ -74,4 +74,6 @@ urlpatterns = [
     path('verificar-articulo-existe/', views.verificar_articulo_existe, name='verificar_articulo'),
     path('verificar-proveedor/', views.verificar_proveedor, name='verificar_proveedor'),
 
+    #REPORTES-----------
+    path('comprar_por_fecha/', views.compras_por_fecha, name='comprar_por_fecha'),
 ]

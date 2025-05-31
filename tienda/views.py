@@ -29,6 +29,8 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_GET, require_POST
 
 from django.contrib.auth import get_user_model
+from django.utils.dateparse import parse_datetime
+
 
 User = get_user_model()
 
@@ -1049,3 +1051,25 @@ def verificar_proveedor(request):
     }
 
     return JsonResponse(data)
+
+@login_required
+def compras_por_fecha(request):
+    fecha_inicio = request.GET.get('fecha_inicio')
+    fecha_fin = request.GET.get('fecha_fin')
+
+    compras = TblEntrada.objects.all()
+
+    if fecha_inicio and fecha_fin:
+        compras = compras.filter(entrada_fecha__range=[fecha_inicio, fecha_fin])
+
+    data = compras.select_related('usuario', 'proveedor', 'tipo_doc_almacen').values(
+        'entrada_fecha',
+        'usuario__usuario_nombre',
+        'proveedor__proveedor_nombre',
+        'tipo_doc_almacen__tipo_doc_almacen_descripcion',
+        'entrada_num_doc',
+        'entrada_costo_total',
+        'entrada_igv'
+    )
+
+    return render(request, 'tienda/listado_compras.html', {'compras': data})

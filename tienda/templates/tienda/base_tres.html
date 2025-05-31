@@ -79,13 +79,13 @@
       {% endif %}
 
       <!-- Consulta Compras -->
-      {% if request.user.tipo_usuario_id == 4 %}
+      {% if request.user.tipo_usuario_id == 4 or request.user.tipo_usuario_id == 3 %}
       <button class="btn" data-bs-toggle="collapse" data-bs-target="#consultaComprasMenu" aria-expanded="false" aria-controls="consultaComprasMenu">
         <div><i class="bi bi-search menu-icon"></i> Consulta compras</div>
         <i class="bi bi-chevron-down arrow-icon"></i>
       </button>
       <div class="collapse submenu" id="consultaComprasMenu">
-        <a href="#">- compras por fechas</a>
+        <a href="/comprar_por_fecha">- compras por fechas</a>
       </div>
       {% endif %}
 
