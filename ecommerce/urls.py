@@ -75,5 +75,6 @@ urlpatterns = [
     path('verificar-proveedor/', views.verificar_proveedor, name='verificar_proveedor'),
 
     #REPORTES-----------
-    path('comprar_por_fecha/', views.compras_por_fecha, name='comprar_por_fecha'),
+    path('reporte_compras/', views.reporte_compras, name='reporte_compras'),
+    path('filtrar-compras/', views.filtrar_compras, name='filtrar_compras'),
 ]

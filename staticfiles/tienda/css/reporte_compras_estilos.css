@@ -1,0 +1,25 @@
+.card {
+    background: #fff;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.table thead th {
+    background-color: #e1f0ff;
+    color: #6c757d;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-align: center !important;
+    vertical-align: middle;
+}
+
+table {
+    width: 100%;
+}
+
+.table tbody td {
+    font-size: 0.875rem; /* equivale a 14px si el root es 16px */
+}

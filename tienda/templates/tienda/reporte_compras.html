@@ -1,0 +1,112 @@
+{% extends 'tienda/base_tres.html'%} 
+{% load static %}
+
+{% block title %} - Listado de Compras{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'tienda/css/reporte_compras_estilos.css' %}" />
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- DataTables Bootstrap 5 -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+    <!-- DataTables Buttons CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
+{% endblock %}
+
+{% block content %}
+
+  <div class="card">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="card-title mb-0">Listado de Compras</h5>
+        </div>
+        <hr size="3px" color="black">
+        <form id="form-filtros" class="row g-3 mb-3">
+            <div class="col-md-3">
+                <label for="fecha_inicio" class="form-label">Desde:</label>
+                <input type="date" class="form-control" name="fecha_inicio" id="fecha_inicio">
+            </div>
+            <div class="col-md-3">
+                <label for="fecha_fin" class="form-label">Hasta:</label>
+                <input type="date" class="form-control" name="fecha_fin" id="fecha_fin">
+            </div>
+            <div class="col-md-3">
+                <label for="proveedor" class="form-label">Proveedor:</label>
+                <select class="form-select" name="proveedor" id="proveedor">
+                    <option value="">-- Todos --</option>
+                    {% for proveedor in proveedores %}
+                        <option value="{{ proveedor.proveedor_id }}">{{ proveedor.proveedor_nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="usuario" class="form-label">Registrado por (Almacenero):</label>
+                <select class="form-select" name="usuario" id="usuario">
+                    <option value="">-- Todos --</option>
+                    {% for usuario in almacenistas %}
+                        <option value="{{ usuario.id }}">{{ usuario.usuario_nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-12 d-flex justify-content-end">
+                <button type="submit" id="btn-buscar" class="btn btn-primary mt-3">
+                    <span id="spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                    Buscar
+                </button>
+            </div>
+        </form>
+        <table id="tabla-compras" class="table table-bordered table-hover text-center" style="width:100%">
+            <thead class="table table-striped responsive nowrap">
+                <tr>
+                    <th>Fecha</th>
+                    <th>Usuario</th>
+                    <th>Proveedor</th>
+                    <th>Tipo Doc</th>
+                    <th>Número Doc</th>
+                    <th>Costo Total</th>
+                    <th>IGV</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for compra in compras %}
+                <tr>
+                    <td>{{ compra.entrada_fecha }}</td>
+                    <td>{{ compra.usuario__usuario_nombre }}</td>
+                    <td>{{ compra.proveedor__proveedor_nombre }}</td>
+                    <td>{{ compra.tipo_doc_almacen__tipo_doc_almacen_descripcion }}</td>
+                    <td>{{ compra.entrada_num_doc }}</td>
+                    <td>{{ compra.entrada_costo_total }}</td>
+                    <td>{{ compra.entrada_igv }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+  </div>
+
+{% endblock%}
+
+{% block extra_js %}
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- DataTables core -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <!-- DataTables Bootstrap 5 -->
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+    <!-- DataTables Buttons JS -->
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    
+    <script src="{% static 'tienda/js/reporte_compras.js' %}"></script>
+{% endblock %}

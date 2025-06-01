@@ -134,6 +134,46 @@ class RegistroUsuarioForm(forms.ModelForm):
             user.save()
         return user
     
+class EditarUsuarioForm(forms.ModelForm):
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        required=False,
+        label='Contraseña'
+    )
+
+    class Meta:
+        model = TblUsuario
+        fields = ['usuario_direccion', 'usuario_email', 'tipo_usuario', 'password']
+        labels = {
+            'usuario_direccion': 'Dirección',
+            'usuario_email': 'Correo electrónico',
+            'tipo_usuario': 'Tipo de usuario',
+            'password': 'Contraseña'
+        }
+        widgets = {
+            'usuario_direccion': forms.TextInput(attrs={'class': 'form-control'}),
+            'usuario_email': forms.TextInput(attrs={'class': 'form-control'}),
+            'tipo_usuario': forms.Select(attrs={'class': 'form-control'}),
+            'password': forms.PasswordInput(attrs={'class': 'form-control'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['tipo_usuario'].empty_label = "Seleccionar..."
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        password = self.cleaned_data.get("password")
+
+        if password:
+            user.password = make_password(password)
+        elif self.instance.pk:
+            # Conservar contraseña actual si no se modifica
+            user.password = self.instance.password
+
+        if commit:
+            user.save()
+        return user
 
 class ArticuloForm(forms.ModelForm):
     imagen_archivo = forms.FileField(

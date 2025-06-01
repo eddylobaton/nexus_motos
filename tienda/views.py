@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import get_object_or_404, render, redirect
 
 from django.conf import settings
-from .forms import LoginForm, RegistroUsuarioForm, ArticuloForm, ProveedorForm, ClienteForm
+from .forms import LoginForm, RegistroUsuarioForm, ArticuloForm, ProveedorForm, ClienteForm, EditarUsuarioForm
 from .models import TblUsuario, TblProducto, TblProveedor, TblCliente, TblVenta, TblDetVenta, TblEntrada,TblTipoDocAlmacen, TblDetEntrada, TblMetodoPago, TblSalida, TblDetSalida, TblFinanciamiento, TblDetFinanciamiento, TblTipoUsuario, TblKardex
 from django.contrib import messages
 from django.core.paginator import Paginator
@@ -374,18 +374,17 @@ def editar_cliente(request, clien_id):
 
 @login_required
 def editar_usuario(request, id):
-    usuario = get_object_or_404(TblUsuario, id = id)
-    if request.method == 'POST':
-        form = RegistroUsuarioForm(request.POST, instance=usuario)
+    usuario = get_object_or_404(TblUsuario, id=id)
 
+    if request.method == 'POST':
+        form = EditarUsuarioForm(request.POST, instance=usuario)
         if form.is_valid():
-            usuario.save()
+            form.save()
             return redirect('lista_usuarios')
-            
         else:
             print(form.errors)
     else:
-        form = RegistroUsuarioForm(instance=usuario)
+        form = EditarUsuarioForm(instance=usuario)
 
     return render(request, 'tienda/editar_usuario.html', {'form': form, 'usuario': usuario})
 
@@ -1053,23 +1052,48 @@ def verificar_proveedor(request):
     return JsonResponse(data)
 
 @login_required
-def compras_por_fecha(request):
+def reporte_compras(request):
+    proveedores = TblProveedor.objects.all()
+    almacenistas = TblUsuario.objects.filter(tipo_usuario__tipo_usuario_descrip='Almacenero')
+    print("almacenistasssssss")
+    print(almacenistas[0].__dict__)
+
+    return render(request, 'tienda/reporte_compras.html', {
+        'proveedores': proveedores,
+        'almacenistas': almacenistas
+    })
+
+@login_required
+def filtrar_compras(request):
     fecha_inicio = request.GET.get('fecha_inicio')
     fecha_fin = request.GET.get('fecha_fin')
+    proveedor_id = request.GET.get('proveedor')
+    usuario_id = request.GET.get('usuario')
 
-    compras = TblEntrada.objects.all()
+    # Validar que si se proporciona una fecha, estén ambas
+    if (fecha_inicio and not fecha_fin) or (fecha_fin and not fecha_inicio):
+        return JsonResponse({'error': 'Debe seleccionar un rango de fechas completo.'}, status=400)
 
+    filtros = Q()
     if fecha_inicio and fecha_fin:
-        compras = compras.filter(entrada_fecha__range=[fecha_inicio, fecha_fin])
+        filtros &= Q(entrada_fecha__range=[fecha_inicio, fecha_fin])
+    if proveedor_id != "":
+        filtros &= Q(proveedor_id=proveedor_id)
+    if usuario_id != "":
+        filtros &= Q(usuario_id=usuario_id)
 
-    data = compras.select_related('usuario', 'proveedor', 'tipo_doc_almacen').values(
-        'entrada_fecha',
-        'usuario__usuario_nombre',
-        'proveedor__proveedor_nombre',
-        'tipo_doc_almacen__tipo_doc_almacen_descripcion',
-        'entrada_num_doc',
-        'entrada_costo_total',
-        'entrada_igv'
-    )
+    compras = TblEntrada.objects.filter(filtros).select_related('usuario', 'proveedor', 'tipo_doc_almacen')
 
-    return render(request, 'tienda/listado_compras.html', {'compras': data})
+    data = []
+    for c in compras:
+        data.append({
+            'fecha': c.entrada_fecha.strftime('%Y-%m-%d'),
+            'usuario': c.usuario.usuario_nombre,
+            'proveedor': c.proveedor.proveedor_nombre,
+            'tipo_doc': c.tipo_doc_almacen.tipo_doc_almacen_descripcion,
+            'numero_doc': c.entrada_num_doc,
+            'costo_total': float(c.entrada_costo_total),
+            'igv': float(c.entrada_igv)
+        })
+
+    return JsonResponse({'compras': data})
