@@ -136,7 +136,10 @@ class RegistroUsuarioForm(forms.ModelForm):
     
 class EditarUsuarioForm(forms.ModelForm):
     password = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': '********'
+        }),
         required=False,
         label='Contraseña'
     )
@@ -154,22 +157,37 @@ class EditarUsuarioForm(forms.ModelForm):
             'usuario_direccion': forms.TextInput(attrs={'class': 'form-control'}),
             'usuario_email': forms.TextInput(attrs={'class': 'form-control'}),
             'tipo_usuario': forms.Select(attrs={'class': 'form-control'}),
-            'password': forms.PasswordInput(attrs={'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['tipo_usuario'].empty_label = "Seleccionar..."
+        if self.instance.pk:
+            # Marcador visual que NO será guardado
+            self.initial['password'] = '********'
+
+    def clean_password(self):
+        password = self.cleaned_data.get("password")
+        if password == '********':
+            # No quiere cambiar la contraseña
+            return None
+        return password
+
+    def clean_usuario_email(self):
+        email = self.cleaned_data.get('usuario_email')
+        if TblUsuario.objects.exclude(pk=self.instance.pk).filter(usuario_email=email).exists():
+            raise forms.ValidationError("Este correo electrónico ya está en uso por otro usuario.")
+        return email
 
     def save(self, commit=True):
         user = super().save(commit=False)
         password = self.cleaned_data.get("password")
 
-        if password:
+        if password:  # Cambió la contraseña
             user.password = make_password(password)
-        elif self.instance.pk:
-            # Conservar contraseña actual si no se modifica
-            user.password = self.instance.password
+        else:  # No cambió: conservar contraseña actual
+            if self.instance.pk:
+                user.password = TblUsuario.objects.get(pk=self.instance.pk).password
 
         if commit:
             user.save()

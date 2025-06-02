@@ -399,39 +399,15 @@ def agregar_proveedor(request):
         form = ProveedorForm(request.POST, request.FILES)
         if form.is_valid():
             try:
-                proveedor = form.save()
-                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                    return JsonResponse({
-                        'success': True,
-                        'proveedor': {
-                            'id': proveedor.proveedor_id,
-                            'nombre': proveedor.proveedor_nombre
-                        }
-                    })
-                else:
-                    return redirect('lista_proveedores')
+                proveedor = form.save(commit=False)
+                proveedor.save()
+                return redirect('lista_proveedor')
             except Exception as e:
-                # Captura cualquier error inesperado al guardar
                 print(f'Error al guardar el proveedor: {e}')  # Esto mostrará el error exacto
-                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                    return JsonResponse({
-                        'success': False,
-                        'error': 'Ocurrió un error al guardar el proveedor: ' + str(e)
-                    })
-                else:
-                    messages.error(request, f"Ocurrió un error al guardar el proveedor: {str(e)}")
-                    return render(request, 'tienda/agregar_proveedor.html', {'form': form})
         else:
             print('Formulario inválido:', form.errors)
-            # Si el formulario es inválido
-            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                html = render_to_string('tienda/agregar_proveedor_form.html', {'form': form}, request=request)
-                return JsonResponse({'success': False, 'html': html})
     else:
         form = ProveedorForm()
-        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            html = render_to_string('tienda/agregar_proveedor_form.html', {'form': form}, request=request)
-            return JsonResponse({'success': False, 'html': html})
 
     return render(request, 'tienda/agregar_proveedor.html', {'form': form})
 
@@ -1036,20 +1012,17 @@ def verificar_articulo_existe(request):
 
 @login_required
 def verificar_proveedor(request):
-    nombre = request.GET.get('nombre', '').strip()
-    ruc = request.GET.get('ruc', '').strip()
-    email = request.GET.get('email', '').strip()
-    telefono = request.GET.get('telefono', '').strip()
+    nombre = request.GET.get('nombre')
+    ruc = request.GET.get('ruc')
+    email = request.GET.get('email')
+    telefono = request.GET.get('telefono')
 
-    data = {
-        'existeNombre': TblProveedor.objects.filter(proveedor_nombre__iexact=nombre).exists(),
-        'existeRuc': TblProveedor.objects.filter(proveedor_ruc=ruc).exists(),
-        'existeEmail': TblProveedor.objects.filter(proveedor_email__iexact=email).exists(),
-        'existeTelefono': TblProveedor.objects.filter(proveedor_telefono__iexact=telefono).exists()
+    existeNombre= TblProveedor.objects.filter(proveedor_nombre=nombre).exists() if nombre else False
+    existeRuc = TblProveedor.objects.filter(proveedor_ruc=ruc).exists() if ruc else False
+    existeEmail = TblProveedor.objects.filter(proveedor_email=email).exists() if email else False
+    existeTelefono = TblProveedor.objects.filter(proveedor_telefono=telefono).exists() if telefono else False
 
-    }
-
-    return JsonResponse(data)
+    return JsonResponse({'existeEmail': existeEmail, 'existeNombre': existeNombre, 'existeRuc': existeRuc, 'existeTelefono': existeTelefono})
 
 @login_required
 def reporte_compras(request):

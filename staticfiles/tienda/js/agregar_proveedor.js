@@ -2,17 +2,19 @@ function inicializarRegistroProveedor() {
     const nombreInput = document.getElementById('id_proveedor_nombre');
     const rucInput = document.getElementById('id_proveedor_ruc');
     const emailInput = document.getElementById('id_proveedor_email');
-    const btnSubmit = document.getElementById('btnSubmit');
+    const telefonoInput = document.getElementById('id_proveedor_email');
+
 
     const errorNombre = document.getElementById('error_nombre');
     const errorRuc = document.getElementById('error_ruc');
     const errorEmail = document.getElementById('error_email');
+    const errorTelefono = document.getElementById('error_email');
 
     const overlay = document.getElementById('loadingOverlay');
 
     function limpiarErrores() {
-        [nombreInput, rucInput, emailInput].forEach(input => input.classList.remove('is-invalid'));
-        [errorNombre, errorRuc, errorEmail].forEach(div => div.textContent = '');
+        [nombreInput, rucInput, emailInput, telefonoInput].forEach(input => input.classList.remove('is-invalid'));
+        [errorNombre, errorRuc, errorEmail, errorTelefono].forEach(div => div.textContent = '');
     }
 
     function mostrarOverlay() {
@@ -23,125 +25,196 @@ function inicializarRegistroProveedor() {
         overlay.style.display = 'none';
     }
 
-    function verificarRuc() {
-        this.value = this.value.replace(/\D/g, "").slice(0, 11);
-    }
+    //**** Validar nombre
+    const nombreInput_ = document.querySelector('#id_proveedor_nombre');
+    const feedbackDivNombre = document.createElement('div');
+    
+    nombreInput_.parentNode.appendChild(feedbackDivNombre);
 
-    emailInput.addEventListener('change', function () {
-        const emailValor = emailInput.value.trim();
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if(!emailRegex.test(emailValor)){
-            emailInput.classList.add('is-invalid');
-            errorEmail.textContent = `El email "${emailValor}" no es correcto.`;
-            emailInput.value = '';
-            btnSubmit.disabled = true;
-        }else{
-            btnSubmit.disabled = false;
+    nombreInput.addEventListener('keydown', function (e) {
+        if (['!', '#', '$', '%', '(', ')', '=', '+', '%', '?', '¿', '¡'].includes(e.key)) {
+            e.preventDefault();
         }
     });
 
-    rucInput.addEventListener('change', function () {
-        const rucValor = rucInput.value.trim();
-        const rucRegex = /^\d{11}$/;
-        if(!rucRegex.test(rucValor)){
-            rucInput.classList.add('is-invalid');
-            errorRuc.textContent = `El RUC "${rucValor}" no es correcto.`;
-            rucInput.value = '';
-            btnSubmit.disabled = true;
-        }else{
-            btnSubmit.disabled = false;
+    nombreInput_.addEventListener('blur', function () {
+        const nombre = nombreInput_.value.trim();
+
+        if (nombre === "") {
+            feedbackDivNombre.textContent = "";
+            feedbackDivNombre.classList.remove('text-danger', 'small');
+            nombreInput_.classList.remove('is-invalid');
+            return;
         }
-    });
 
+        document.getElementById('loadingOverlay').style.display = 'flex';
 
-    function verificarProveedor() {
-        const nombreValor = nombreInput.value.trim();
-        const rucValor = rucInput.value.trim();
-        const emailValor = emailInput.value.trim();
-
-        if (!nombreValor && !rucValor && !emailValor) return;
-
-        mostrarOverlay(); // ⏳ Mostrar mientras consulta
-
-        fetch(`/verificar-proveedor/?nombre=${encodeURIComponent(nombreValor)}&ruc=${encodeURIComponent(rucValor)}&email=${encodeURIComponent(emailValor)}`)
+        fetch(`/verificar-proveedor/?nombre=${nombre}`)
             .then(response => response.json())
             .then(data => {
-                limpiarErrores();
-                let tieneError = false;
-
                 if (data.existeNombre) {
-                    nombreInput.classList.add('is-invalid');
-                    errorNombre.textContent = `El proveedor "${nombreValor}" ya existe.`;
-                    nombreInput.value = '';
-                    tieneError = true;
+                    nombreInput_.value = "";
+                    feedbackDivNombre.textContent = `El nombre "${nombre}" ya ha sido registrado.`;
+                    nombreInput_.classList.add('is-invalid');
+                    feedbackDivNombre.classList.add('text-danger');
+                } else {
+                    feedbackDivNombre.textContent = "";
+                    nombreInput_.classList.remove('is-invalid');
+                    feedbackDivNombre.classList.remove('text-danger');
                 }
-
-                if (data.existeRuc) {
-                    rucInput.classList.add('is-invalid');
-                    errorRuc.textContent = `El RUC "${rucValor}" ya está registrado.`;
-                    rucInput.value = '';
-                    tieneError = true;
-                }
-
-                if (data.existeEmail) {
-                    emailInput.classList.add('is-invalid');
-                    errorEmail.textContent = `El email "${emailValor}" ya está registrado.`;
-                    emailInput.value = '';
-                    tieneError = true;
-                }
-
-                btnSubmit.disabled = tieneError;
             })
             .catch(error => {
-                console.error("Error al verificar proveedor:", error);
-                limpiarErrores();
-                nombreInput.classList.add('is-invalid');
-                errorNombre.textContent = 'Error al verificar los datos del proveedor.';
-                btnSubmit.disabled = true;
+                nombreInput_.value = "";
+                console.error("Error al verificar el nombre:", error);
+                feedbackDivNombre.textContent = "Ocurrió un error al verificar el nombre.";
+                nombreInput_.classList.add('is-invalid');
             })
             .finally(() => {
-                ocultarOverlay(); // ✅ Ocultar overlay pase lo que pase
+                document.getElementById('loadingOverlay').style.display = 'none';
             });
-    }
-
-    nombreInput.addEventListener('blur', verificarProveedor);
-    rucInput.addEventListener('blur', verificarProveedor);
-    emailInput.addEventListener('blur', verificarProveedor);
-    rucInput.addEventListener("input", verificarRuc);
-
-
-    //**** Validar telefono
-    const proveedorInput = document.querySelector('#id_proveedor_telefono');
-    const feedbackDivproveedor = document.createElement('div');
-
-    proveedorInput.parentNode.appendChild(feedbackDivproveedor);
-
-    // Solo permitir números y máximo 9 dígitos mientras se escribe
-    proveedorInput.addEventListener('input', function () {
-        this.value = this.value.replace(/\D/g, '').slice(0, 9);
     });
 
-    proveedorInput.addEventListener('blur', function () {
-        const telefono = proveedorInput.value.trim();
+    //**** Validar RUC
+    const rucInput_ = document.querySelector('#id_proveedor_ruc');
+    const feedbackDivRuc = document.createElement('div');
+
+    rucInput_.parentNode.appendChild(feedbackDivRuc);
+
+    // Solo permitir números y máximo 9 dígitos mientras se escribe
+    rucInput_.addEventListener('input', function () {
+        this.value = this.value.replace(/\D/g, '').slice(0,11);
+    });
+
+    rucInput_.addEventListener('blur', function () {
+        const ruc = rucInput_.value.trim();
+
+         // Si está vacío, limpiar feedback y salir sin mostrar error
+        if (ruc === "") {
+            feedbackDivRuc.textContent = "";
+            feedbackDivRuc.classList.remove('text-danger', 'small');
+            rucInput_.classList.remove('is-invalid');
+            return;
+        }
+
+        const rucfRegex = /^\d{11}$/;
+
+        if (!rucfRegex.test(ruc)) {
+            rucInput_.value = "";
+            feedbackDivRuc.textContent = "Ingrese un ruc correcto (11 dígitos).";
+            feedbackDivRuc.classList.add('text-danger', 'small');
+            rucInput_.classList.add('is-invalid');
+            return;
+        }
+
+        document.getElementById('loadingOverlay').style.display = 'flex';
+
+        fetch(`/verificar-proveedor/?ruc=${ruc}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.existeRuc) {
+                    rucInput_.value = "";
+                    feedbackDivRuc.textContent = `El ruc "${ruc}" ya ha sido registrado.`;
+                    rucInput_.classList.add('is-invalid');
+                    feedbackDivRuc.classList.add('text-danger');
+                } else {
+                    feedbackDivRuc.textContent = "";
+                    rucInput_.classList.remove('is-invalid');
+                    feedbackDivRuc.classList.remove('text-danger');
+                }
+            })
+            .catch(error => {
+                console.error("Error al verificar ruc:", error);
+                feedbackDivRuc.textContent = "Ocurrió un error al verificar el ruc.";
+                rucInput_.classList.add('is-invalid');
+            })
+            .finally(() => {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            });
+    });
+
+    //**** Validar email
+    const emailInput_ = document.querySelector('#id_proveedor_email');
+    const feedbackDivEmail = document.createElement('div');
+    
+    emailInput_.parentNode.appendChild(feedbackDivEmail);
+
+    emailInput_.addEventListener('blur', function () {
+        const email = emailInput_.value.trim();
+
+        if (email === "") {
+            feedbackDivEmail.textContent = "";
+            feedbackDivEmail.classList.remove('text-danger', 'small');
+            emailInput_.classList.remove('is-invalid');
+            return;
+        }
+
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            emailInput_.value = "";
+            feedbackDivEmail.textContent = "Ingrese un email correcto.";
+            feedbackDivEmail.classList.add('text-danger', 'small');
+            emailInput_.classList.add('is-invalid');
+            return;
+        }
+
+        document.getElementById('loadingOverlay').style.display = 'flex';
+
+        fetch(`/verificar-proveedor/?email=${email}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.existeEmail) {
+                    emailInput_.value = "";
+                    feedbackDivEmail.textContent = `El email "${email}" ya ha sido registrado.`;
+                    emailInput_.classList.add('is-invalid');
+                    feedbackDivEmail.classList.add('text-danger');
+                } else {
+                    feedbackDivEmail.textContent = "";
+                    emailInput_.classList.remove('is-invalid');
+                    feedbackDivEmail.classList.remove('text-danger');
+                }
+            })
+            .catch(error => {
+                emailInput_.value = "";
+                console.error("Error al verificar email:", error);
+                feedbackDivEmail.textContent = "Ocurrió un error al verificar el email.";
+                emailInput_.classList.add('is-invalid');
+            })
+            .finally(() => {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            });
+    });
+
+    //**** Validar telefono
+    const telfInput = document.querySelector('#id_proveedor_telefono');
+    const feedbackDivTelf = document.createElement('div');
+
+    telfInput.parentNode.appendChild(feedbackDivTelf);
+
+    // Solo permitir números y máximo 9 dígitos mientras se escribe
+    telfInput.addEventListener('input', function () {
+        this.value = this.value.replace(/\D/g, '').slice(0,9);
+    });
+
+    telfInput.addEventListener('blur', function () {
+        const telefono = telfInput.value.trim();
 
          // Si está vacío, limpiar feedback y salir sin mostrar error
         if (telefono === "") {
-            feedbackDivproveedor.textContent = "";
-            feedbackDivproveedor.classList.remove('text-danger', 'small');
-            proveedorInput.classList.remove('is-invalid');
+            feedbackDivTelf.textContent = "";
+            feedbackDivTelf.classList.remove('text-danger', 'small');
+            telfInput.classList.remove('is-invalid');
             return;
         }
 
         const telfRegex = /^\d{9}$/;
 
         if (!telfRegex.test(telefono)) {
-            feedbackDivproveedor.textContent = "Ingrese un teléfono correcto (9 dígitos).";
-            feedbackDivproveedor.classList.add('text-danger', 'small');
-            proveedorInput.classList.add('is-invalid');
-            btnSubmit.disabled = true;
+            telfInput.value = "";
+            feedbackDivTelf.textContent = "Ingrese un teléfono correcto (9 dígitos).";
+            feedbackDivTelf.classList.add('text-danger', 'small');
+            telfInput.classList.add('is-invalid');
             return;
-        }else{
-            btnSubmit.disabled = false;
         }
 
         document.getElementById('loadingOverlay').style.display = 'flex';
@@ -150,29 +223,23 @@ function inicializarRegistroProveedor() {
             .then(response => response.json())
             .then(data => {
                 if (data.existeTelefono) {
-                    feedbackDivproveedor.textContent = `El Teléfono "${telefono}" ya ha sido registrado.`;
-                    proveedorInput.classList.add('is-invalid');
-                    feedbackDivproveedor.classList.add('text-danger');
-                    proveedorInput.value = '';
+                    telfInput.value = "";
+                    feedbackDivTelf.textContent = `El teléfono "${telefono}" ya ha sido registrado.`;
+                    telfInput.classList.add('is-invalid');
+                    feedbackDivTelf.classList.add('text-danger');
                 } else {
-                    feedbackDivproveedor.textContent = "";
-                    proveedorInput.classList.remove('is-invalid');
-                    feedbackDivproveedor.classList.remove('text-danger');
+                    feedbackDivTelf.textContent = "";
+                    telfInput.classList.remove('is-invalid');
+                    feedbackDivTelf.classList.remove('text-danger');
                 }
             })
             .catch(error => {
                 console.error("Error al verificar teléfono:", error);
-                feedbackDivproveedor.textContent = `Ocurrió un error al verificar el teléfono "${telefono}".`;
-                proveedorInput.classList.add('is-invalid');
-                feedbackDivproveedor.classList.add('text-danger');
-                proveedorInput.value = '';
+                feedbackDivTelf.textContent = "Ocurrió un error al verificar el teléfono.";
+                telfInput.classList.add('is-invalid');
             })
             .finally(() => {
                 document.getElementById('loadingOverlay').style.display = 'none';
             });
     });
-
-}
-
-// Hacer la función accesible globalmente
-window.inicializarRegistroProveedor = inicializarRegistroProveedor;
+};
