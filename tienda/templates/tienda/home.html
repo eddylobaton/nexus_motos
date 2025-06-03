@@ -1,135 +1,159 @@
-{% extends 'tienda/base_tres.html'%}
+{% extends 'tienda/base2.html'%}
 {% load static %}
 
 {% block extra_css %}
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"> -->
 <link rel="stylesheet" href="{% static 'tienda/css/home.css' %}" />
 {% endblock %}
 
 {% block content %}
-<div class="card card-principal">
-    <div class="card-body">
-        <!-- FILA SUPERIOR DE TOTALES -->
-        <div class="row g-3 mb-4">
-            <div class="col-md-3">
-                <div class="card card-total border-primary p-3">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <div>Total compras:</div>
-                            <h5>S/. {{ total_compras|floatformat:2 }}</h5>
-                            <small class="text-muted">S/. {{ compras_semana|floatformat:2 }} última semana</small>
+<div class="row">
+    <div class="col-md-12 col-lg-12 col-xl-12">
+        <div class="card mb-4">
+            <div class="card-header">
+              <div class="card-title header-elements">
+                <h4 class="m-0 me-2 text-primary">Dashboard</h4>
+              </div>
+            </div>
+            <div class="card-body">
+                <!-- FILA SUPERIOR DE TOTALES -->
+                <div class="row g-3 mb-5">
+                    <div class="col-md-3">
+                        <div class="card border card-border-shadow-primary p-3">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <div>Total compras:</div>
+                                    <h5>S/. {{ total_compras|floatformat:2 }}</h5>
+                                    <small class="text-muted">S/. {{ compras_semana|floatformat:2 }} última semana</small>
+                                </div>
+                                <div><i class="icon-base bx bxs-cart fs-2 text-primary"></i></div>
+                            </div>
                         </div>
-                        <div><i class="bi bi-cart fs-2 text-primary"></i></div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border card-border-shadow-danger p-3">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <div>Total ventas:</div>
+                                    <h5>S/. {{ total_ventas|floatformat:2 }}</h5>
+                                    <small class="text-muted">S/. {{ ventas_semana|floatformat:2 }} última semana</small>
+                                </div>
+                                <div><i class="icon-base bx bxs-shopping-bag fs-2 text-danger"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border card-border-shadow-success p-3">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <div>Clientes:</div>
+                                    <h5>{{ total_clientes }}</h5>
+                                    <small class="text-muted">+{{ clientes_semana }} última semana</small>
+                                </div> 
+                                <div><i class="icon-base bx bxs-user fs-2 text-success"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border card-border-shadow-warning p-3">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <div>Proveedores:</div>
+                                    <h5>{{ total_proveedores }}</h5>
+                                    <small class="text-muted">+{{ proveedores_semana }} última semana</small>
+                                </div>
+                                <div><i class="icon-base bx bxs-truck fs-2 text-warning"></i></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card card-total border-danger p-3">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <div>Total ventas:</div>
-                            <h5>S/. {{ total_ventas|floatformat:2 }}</h5>
-                            <small class="text-muted">S/. {{ ventas_semana|floatformat:2 }} última semana</small>
-                        </div>
-                        <div><i class="bi bi-bag fs-2 text-danger"></i></div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card card-total border-success p-3">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <div>Clientes:</div>
-                            <h5>{{ total_clientes }}</h5>
-                            <small class="text-muted">+{{ clientes_semana }} última semana</small>
-                        </div>
-                        <div><i class="bi bi-person fs-2 text-success"></i></div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card card-total border-warning p-3">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <div>Proveedores:</div>
-                            <h5>{{ total_proveedores }}</h5>
-                            <small class="text-muted">+{{ proveedores_semana }} última semana</small>
-                        </div>
-                        <div><i class="bi bi-truck fs-2 text-warning"></i></div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- FILA INFERIOR DE LISTAS -->
-        <div class="row g-3">
-            <!-- Top productos más vendidos -->
-            <div class="col-md-4">
-                <div class="data-box scroll-box">
-                    <div class="section-title">Top producto más vendido</div>
-                    {% for prod in top_productos %}
-                    <div class="d-flex align-items-center mb-2">
-                        <img src="{% static 'tienda/img/' %}{{ prod.prod_id__prod_imagen }}" class="item-photo me-2" alt="imagen">
-                        <div>
-                            <div class="text-primary">{{ prod.prod_id__prod_nombre }} {{ prod.prod_id__prod_modelo }}</div>
-                            <div class="text-success">S/. {{ prod.total_ventas|floatformat:2 }}</div>
+                <!-- FILA INFERIOR DE LISTAS -->
+                <div class="row mb-5">
+                    <!-- Top productos más vendidos -->
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="card h-100">
+                            <h4 class="card-header">Top producto más vendido</h4>
+                            <div class="card-body">
+                                {% for prod in top_productos %}
+                                <div class="d-flex mb-3">
+                                    <div class="flex-shrink-0">
+                                        <img src="{% static 'tienda/img/' %}{{ prod.prod_id__prod_imagen }}" alt="imagen" class="me-3" height="30" />
+                                    </div>
+                                    <div class="flex-grow-1 row">
+                                        <div class="col-12 mb-sm-0 mb-2">
+                                            <h6 class="mb-0">{{ prod.prod_id__prod_nombre }} {{ prod.prod_id__prod_modelo }}</h6>
+                                            <small class="text-muted">S/. {{ prod.total_ventas|floatformat:2 }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
                         </div>
                     </div>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <!-- Top vendedores -->
-            <div class="col-md-4">
-                <div class="data-box scroll-box">
-                    <div class="section-title">Top vendedores</div>
-                    {% for vend in top_vendedores %}
-                    <div class="d-flex align-items-center mb-2">
-                        <div class="initial-circle me-2">
-                            {{ vend.usuario__usuario_nombre|slice:":1" }}{{ vend.usuario__usuario_paterno|slice:":1" }}
-                        </div>
-                        <div>
-                            <div class="text-primary">{{ vend.usuario__usuario_nombre }} {{ vend.usuario__usuario_paterno }}</div>
-                            <div class="text-success">S/. {{ vend.total_vendido|floatformat:2 }}</div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <!-- Top clientes -->
-            <!--
-            <div class="col-md-2">
-                <div class="data-box scroll-box">
-                    <div class="section-title">Top clientes</div>
-                    {% for cli in top_clientes %}
-                    <div class="d-flex align-items-center mb-2">
-                        <div class="initial-circle me-2">
-                            {{ cli.salida_venta__venta_cliente__cliente_nombre|slice:":1" }}{{ cli.salida_venta__venta_cliente__cliente_paterno|slice:":1" }}
-                        </div>
-                        <div>
-                            <div class="text-primary">{{ cli.salida_venta__venta_cliente__cliente_nombre }} {{ cli.salida_venta__venta_cliente__cliente_paterno }}</div>
-                            <div class="text-success">S/. {{ cli.total_compras|floatformat:2 }}</div>
+                    <!-- Top vendedores -->
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="card h-100">
+                            <h4 class="card-header">Top vendedores</h4>
+                            <div class="card-body">
+                                {% for vend in top_vendedores %}
+                                <div class="d-flex mb-3">
+                                    <div class="flex-shrink-0">
+                                        <div class="initial-circle me-3">
+                                            {{ vend.usuario__usuario_nombre|slice:":1" }}{{ vend.usuario__usuario_paterno|slice:":1" }}
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1 row">
+                                        <div class="col-12 mb-sm-0 mb-2">
+                                            <h6 class="mb-0">{{ vend.usuario__usuario_nombre }} {{ vend.usuario__usuario_paterno }}</h6>
+                                            <small class="text-muted">S/. {{ vend.total_vendido|floatformat:2 }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
                         </div>
                     </div>
-                    {% endfor %}
-                </div>
-            </div>
-            -->
-
-            <!-- Artículos por agotar -->
-            <div class="col-md-4">
-                <div class="data-box scroll-box">
-                    <div class="section-title">Artículos por agotar</div>
-                    {% for art in articulos_agotar %}
-                    <div class="d-flex align-items-center mb-2">
-                        <img src="{% static 'tienda/img/' %}{{ art.prod_id__prod_imagen }}" class="item-photo me-2" alt="imagen">
-                        <div>
-                            <div class="text-primary">{{ art.prod_id__prod_nombre }} {{ art.prod_id__prod_modelo }}</div>
-                            <div class="text-success">Stock {{ art.kardex_stock_actual }}</div>
+                    <!-- Top clientes -->
+                    <!--
+                    <div class="col-md-2">
+                        <div class="">
+                            <div class="">Top clientes</div>
+                            {% for cli in top_clientes %}
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="initial-circle me-2">
+                                    {{ cli.salida_venta__venta_cliente__cliente_nombre|slice:":1" }}{{ cli.salida_venta__venta_cliente__cliente_paterno|slice:":1" }}
+                                </div>
+                                <div>
+                                    <div class="text-primary">{{ cli.salida_venta__venta_cliente__cliente_nombre }} {{ cli.salida_venta__venta_cliente__cliente_paterno }}</div>
+                                    <div class="text-success">S/. {{ cli.total_compras|floatformat:2 }}</div>
+                                </div>
+                            </div>
+                            {% endfor %}
                         </div>
                     </div>
-                    {% endfor %}
+                    -->
+                    <!-- Artículos por agotar -->
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="card h-100">
+                            <h4 class="card-header">Artículos por agotar</h4>
+                            <div class="card-body">
+                                {% for art in articulos_agotar %}
+                                <div class="d-flex mb-3">
+                                    <div class="flex-shrink-0">
+                                        <img src="{% static 'tienda/img/' %}{{ art.prod_id__prod_imagen }}" alt="imagen" class="me-3" height="30" />
+                                    </div>
+                                    <div class="flex-grow-1 row">
+                                        <div class="col-12 mb-sm-0 mb-2">
+                                            <h6 class="mb-0">{{ art.prod_id__prod_nombre }} {{ art.prod_id__prod_modelo }}</h6>
+                                            <small class="text-muted">Stock <span class="badge rounded-pill badge-center h-px-20 w-px-20 bg-label-danger">{{ art.kardex_stock_actual }}</span></small>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -139,5 +163,5 @@
 
 {% block extra_js %}
     <!-- Bootstrap icons -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.js"></script> -->
 {% endblock %}

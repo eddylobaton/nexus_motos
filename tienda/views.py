@@ -112,6 +112,9 @@ def home(request):
         print("ERROR obteniendo articulos_agotar:", e)
 
     context = {
+        'breadcrumbs': [],
+        'menu_padre': 'home',
+        'menu_hijo': '',
         'total_compras': total_compras,
         'compras_semana': compras_semana,
         'total_ventas': total_ventas,
@@ -250,8 +253,15 @@ def lista_articulos(request):
             producto.stock_actual = producto.tblkardex.kardex_stock_actual
         else:
             producto.stock_actual = 0
-        
-    return render(request, 'tienda/lista_articulos.html', {'productos': productos})
+
+    context = {
+        'breadcrumbs': [['Artículos', '']],
+        'menu_padre': 'almacen',
+        'menu_hijo': 'articulos',
+        'productos': productos,
+    }
+
+    return render(request, 'tienda/lista_articulos.html', context)
 
 @login_required
 def agregar_articulos(request):
@@ -390,8 +400,16 @@ def editar_usuario(request, id):
 
 @login_required
 def lista_proveedores(request):
-    proveedor = TblProveedor.objects.all()
-    return render(request, 'tienda/lista_proveedores.html', {'proveedor': proveedor})
+    proveedores = TblProveedor.objects.all()
+
+    context = {
+        'breadcrumbs': [['Proveedores', '']],
+        'menu_padre': 'compras',
+        'menu_hijo': 'proveedores',
+        'proveedores': proveedores,
+    }
+
+    return render(request, 'tienda/lista_proveedores.html', context)
 
 @login_required
 def agregar_proveedor(request):
@@ -426,7 +444,15 @@ def lista_ingresos(request):
     ingresos = TblEntrada.objects.select_related(
         'proveedor', 'tipo_doc_almacen', 'usuario'
     ).all()
-    return render(request, 'tienda/lista_ingresos.html', {'ingresos': ingresos})
+
+    context = {
+        'breadcrumbs': [['Ingresos', '']],
+        'menu_padre': 'compras',
+        'menu_hijo': 'ingresos',
+        'ingresos': ingresos,
+    }
+
+    return render(request, 'tienda/lista_ingresos.html', context)
 
 @transaction.atomic
 @login_required
@@ -545,7 +571,15 @@ def detalle_ingreso(request, ingreso_id):
 @login_required
 def lista_clientes(request):
     clientes = TblCliente.objects.all()
-    return render(request, 'tienda/lista_clientes.html', {'clientes': clientes})
+
+    context = {
+        'breadcrumbs': [['Clientes', '']],
+        'menu_padre': 'ventas',
+        'menu_hijo': 'clientes',
+        'clientes': clientes,
+    }
+
+    return render(request, 'tienda/lista_clientes.html', context)
 
 @login_required
 def agregar_cliente(request):
@@ -589,7 +623,15 @@ def agregar_cliente(request):
 @login_required
 def lista_ventas(request):
     ventas = TblVenta.objects.select_related('cliente', 'usuario', 'metodo_pago').all()
-    return render(request, 'tienda/lista_ventas.html', {'ventas': ventas})
+
+    context = {
+        'breadcrumbs': [['Ventas', '']],
+        'menu_padre': 'ventas',
+        'menu_hijo': 'ventas',
+        'ventas': ventas,
+    }
+
+    return render(request, 'tienda/lista_ventas.html', context)
 
 @transaction.atomic
 @login_required
@@ -874,7 +916,15 @@ def detalle_venta(request, venta_id):
 @login_required
 def lista_salidas(request):
     salidas = TblSalida.objects.select_related('tipo_doc_almacen', 'usuario').all()
-    return render(request, 'tienda/lista_salidas.html', {'salidas': salidas})
+
+    context = {
+        'breadcrumbs': [['Salidas', '']],
+        'menu_padre': 'almacen',
+        'menu_hijo': 'salidas',
+        'salidas': salidas,
+    }
+
+    return render(request, 'tienda/lista_salidas.html', context)
 
 @transaction.atomic
 @login_required
@@ -977,7 +1027,15 @@ def agregar_salida(request):
 @login_required
 def lista_usuarios(request):
     usuarios  = TblUsuario.objects.all()
-    return render(request, 'tienda/lista_usuarios.html', {'usuarios': usuarios})
+
+    context = {
+        'breadcrumbs': [['Usuarios', '']],
+        'menu_padre': 'accesos',
+        'menu_hijo': 'usuarios',
+        'usuarios': usuarios,
+    }
+
+    return render(request, 'tienda/lista_usuarios.html', context)
 
 @login_required
 def agregar_usuario(request):

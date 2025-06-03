@@ -1,29 +1,9 @@
 $(document).ready(function () {
     $('#productos-table').DataTable({
         responsive: true,
-        language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json',
-            lengthMenu: "Mostrar _MENU_ registros",
-            zeroRecords: "No se encontraron resultados",
-            info: "Mostrando de _START_ a _END_ de _TOTAL_ registros",
-            infoEmpty: "Mostrando 0 a 0 de 0 registros",
-            infoFiltered: "(filtrado de _MAX_ registros totales)",
-            search: "Buscar:",
-            paginate: {
-                first: "Primero",
-                last: "Último",
-                next: "Siguiente",
-                previous: "Anterior"
-            },
-        },
         pageLength: 10,
         lengthMenu: [10, 25, 50, 100],
-        ordering: true,
-        responsive: true,
-        autoWidth: false,
-        columnDefs: [
-            { orderable: false, targets: -1 }  // Columna "Acciones" no ordenable
-        ]
+        order: [[1, 'asc'], [2, 'asc'], ],
     });
 });
 
@@ -95,27 +75,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     });
                 }
             });
-        });
-    });
-
-
-    const switches = document.querySelectorAll(".toggle-estado");
-
-    switches.forEach(function (input) {
-        const label = input.closest(".switch");
-        const textSpan = label.querySelector(".switch-text");
-
-        const updateText = () => {
-            textSpan.textContent = input.checked ? "ON" : "OFF";
-        };
-
-        // Inicializa texto
-        updateText();
-
-        // Actualiza al hacer clic, pero sin cambiar el estado aún (por el modal)
-        input.addEventListener("click", function (e) {
-            e.preventDefault();  // prevenimos el cambio sin confirmar
-            updateText();        // actualizamos el texto inmediatamente (visual)
         });
     });
 

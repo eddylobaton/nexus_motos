@@ -1,21 +1,43 @@
-.card-principal {
-    background: #fff;
-    border: none;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    padding: 20px;
-    margin-top: 20px;
+.card-border-shadow-primary {
+    border-bottom: 4px solid #2092EC !important;
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
-.card-total {
-    border-width: 2px;
-    border-radius: 10px;
+.card-border-shadow-primary:hover {
+    box-shadow: 0 4px 15px rgba(32, 146, 236, 0.3);
+    border-bottom-color: #2092EC;
 }
-.section-title {
-    font-weight: 600;
-    border-bottom: 1px solid #ccc;
-    margin-bottom: 10px;
+
+.card-border-shadow-danger {
+    border-bottom: 4px solid #ff3e1d !important;
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
+
+.card-border-shadow-danger:hover {
+    box-shadow: 0 4px 15px rgba(129, 18, 18, 0.3);
+    border-bottom-color: #ff3e1d;
+}
+
+.card-border-shadow-success {
+    border-bottom: 4px solid #5fbb2d !important;
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.card-border-shadow-success:hover {
+    box-shadow: 0 4px 15px rgba(33, 129, 18, 0.3);
+    border-bottom-color: #5fbb2d;
+}
+
+.card-border-shadow-warning {
+    border-bottom: 4px solid #ffab00 !important;
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.card-border-shadow-warning:hover {
+    box-shadow: 0 4px 15px rgba(129, 127, 18, 0.3);
+    border-bottom-color: #ffab00;
+}
+
 .initial-circle {
     width: 35px;
     height: 35px;
@@ -25,22 +47,4 @@
     align-items: center;
     justify-content: center;
     font-weight: bold;
-}
-.item-photo {
-    width: 40px;
-    height: 40px;
-    object-fit: cover;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-.data-box {
-    background: white;
-    border-radius: 10px;
-    padding: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    height: 100%;
-}
-.scroll-box {
-    max-height: 300px;
-    overflow-y: auto;
 }

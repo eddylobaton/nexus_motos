@@ -1,84 +1,80 @@
-{% extends 'tienda/base_tres.html'%} 
+{% extends 'tienda/base2.html'%}
 {% load static %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'assets/vendor/libs/DataTables/DataTables-1.13.8/css/dataTables.bootstrap5.min.css' %}" />
 <link rel="stylesheet" href="{% static 'tienda/css/lista_clientes_estilos.css' %}" />
-<!-- Bootstrap 5 -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<!-- Bootstrap Icons -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-<!-- DataTables Bootstrap 5 -->
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
-
 {% endblock %}
 
 {% block content %}
-
-    <div class="card">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="card-title mb-0">Lista de clientes</h5>
-                <div>
-                    <a href="{% url 'agregar_cliente' %}" class="btn btn-primary me-2">
-                        <i class="bi bi-plus-circle"></i> Agregar
-                    </a>
-                    <a href="#" class="btn btn-success">
-                        <i class="bi bi-file-earmark-text"></i> Reporte
-                    </a>
+<div class="row">
+    <div class="col-md-12 col-lg-12 col-xl-12">
+        <div class="card mb-4">
+            <div class="card-header">
+              <div class="card-title header-elements">
+                <h4 class="m-0 me-2 text-primary">Lista de Clientes</h4>
+                <div class="card-title-elements ms-auto">
+                    <div class="row">
+                        <div class="gap-2 col-lg-12 text-end">
+                            <a href="{% url 'agregar_cliente' %}" class="btn btn-primary btn-flat">
+                                <i class="bx bx-plus-circle"></i> Agregar
+                            </a>
+                        </div>
+                    </div>    
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12 mb-4 order-0">
+                        <div class="table-responsive text-nowrap">
+                            <table id="clientes-table" class="table table-bordered text-center w-100">
+                                <thead class="table-primary">
+                                    <tr role="row">
+                                        <th class="text-center">Tipo documento</th>
+                                        <th class="text-center">Nro. documento</th>
+                                        <th class="text-center">Nombres </th>
+                                        <th class="text-center">Ap. Paterno</th>
+                                        <th class="text-center">Ap. Materno</th>
+                                        <th class="text-center">Teléfono</th>
+                                        <th class="text-center">Email</th>
+                                        <th class="text-center">Dirección</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="table-border-bottom-0">
+                                    {% for clientes in clientes %}
+                                    <tr>
+                                        <td>{{ clientes.cliente_nrodocumento }}</td>
+                                        <td>{{ clientes.cliente_tipodocumento }}</td>
+                                        <td>{{ clientes.cliente_nombre }}</td>
+                                        <td>{{ clientes.cliente_paterno }}</td>
+                                        <td>{{ clientes.cliente_materno }}</td>
+                                        <td>{{ clientes.cliente_telefono }}</td>
+                                        <td>{{ clientes.cliente_email }}</td>
+                                        <td>{{ clientes.cliente_direccion }}</td>
+                                        <td>
+                                            <a href="{% url 'detalle_cliente' clientes.cliente_id %}" class="btn btn-sm btn-icon btn-outline-primary" title="Ver"><i class="bx bx-show"></i></a>
+                                            <a href="{% url 'editar_cliente' clientes.cliente_id %}" class="btn btn-sm btn-icon btn-outline-success" title="Editar"><i class="bx bx-pencil"></i></a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <hr size="3px" color="black">
-            <table id="cliente-table" class="table table-bordered table-hover text-center" style="width:100%">
-                <thead class="table table-striped responsive nowrap">
-                    <tr>
-                        <th>Tipo documento</th>
-                        <th>Nro. documento</th>
-                        <th>Nombres </th>
-                        <th>Ap. Paterno</th>
-                        <th>Ap. Materno</th>
-                        <th>Teléfono</th>
-                        <th>Email</th>
-                        <th>Dirección</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for clientes in clientes %}
-                    <tr>
-                        <td>{{ clientes.cliente_nrodocumento }}</td>
-                        <td>{{ clientes.cliente_tipodocumento }}</td>
-                        <td>{{ clientes.cliente_nombre }}</td>
-                        <td>{{ clientes.cliente_paterno }}</td>
-                        <td>{{ clientes.cliente_materno }}</td>
-                        <td>{{ clientes.cliente_telefono }}</td>
-                        <td>{{ clientes.cliente_email }}</td>
-                        <td>{{ clientes.cliente_direccion }}</td>
-                        <td>
-                            <a href="{% url 'detalle_cliente' clientes.cliente_id %}" class="btn btn-sm btn-outline-primary" title="Ver"><i class="bi bi-eye"></i></a>
-                            <a href="{% url 'editar_cliente' clientes.cliente_id %}" class="btn btn-sm btn-outline-success" title="Editar"><i class="bi bi-pencil-square"></i></a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
         </div>
     </div>
-
+</div> 
 
 {% endblock%}
 
 {% block extra_js %}
-<!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<!-- Bootstrap 5 JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<!-- DataTables core -->
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<!-- DataTables Bootstrap 5 -->
-<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
-<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="{% static 'tienda/js/lista_cliente.js' %}"></script>
+<script src="{% static 'assets/vendor/libs/DataTables/DataTables-1.13.8/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/vendor/libs/DataTables/DataTables-1.13.8/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/vendor/libs/DataTables/Buttons-2.4.2/js/dataTables.buttons.min.js' %}"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> -->
+<script src="{% static 'tienda/js/lista_clientes.js' %}"></script>
 {% endblock %}

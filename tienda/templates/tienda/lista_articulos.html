@@ -1,112 +1,105 @@
-{% extends 'tienda/base_tres.html'%} 
+{% extends 'tienda/base2.html'%}
 {% load static %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'assets/vendor/libs/DataTables/DataTables-1.13.8/css/dataTables.bootstrap5.min.css' %}" />
 <link rel="stylesheet" href="{% static 'tienda/css/lista_articulos_estilos.css' %}" />
-<!-- Bootstrap 5 -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<!-- Bootstrap Icons -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-<!-- DataTables Bootstrap 5 -->
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
-
 {% endblock %}
 
 {% block content %}
-
-    <div class="card">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="card-title mb-0">Lista de Artículos</h5>
-                <div>
-                    <a href="{% url 'agregar_articulos' %}" class="btn btn-primary me-2">
-                        <i class="bi bi-plus-circle"></i> Agregar
-                    </a>
-                    <a href="#" class="btn btn-success">
-                        <i class="bi bi-file-earmark-text"></i> Reporte
-                    </a>
+<div class="row">
+    <div class="col-md-12 col-lg-12 col-xl-12">
+        <div class="card mb-4">
+            <div class="card-header">
+              <div class="card-title header-elements">
+                <h4 class="m-0 me-2 text-primary">Lista de Artículos</h4>
+                <div class="card-title-elements ms-auto">
+                    <div class="row">
+                        <div class="gap-2 col-lg-12 text-end">
+                            <a href="{% url 'agregar_articulos' %}" class="btn btn-primary btn-flat">
+                                <i class="bx bx-plus-circle"></i> Agregar
+                            </a>
+                        </div>
+                    </div>    
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12 mb-4 order-0">
+                        <div class="table-responsive text-nowrap">
+                            <table id="productos-table" class="table table-bordered text-center w-100">
+                                <thead class="table-primary">
+                                    <tr role="row">
+                                        <th class="text-center">Marca</th>
+                                        <th class="text-center">Modelo</th>
+                                        <th class="text-center">Motor</th>
+                                        <th class="text-center">Categoría</th>
+                                        <th class="text-center">Descuento</th>
+                                        <th class="text-center">Stock</th>
+                                        <th class="text-center">Fecha Registro</th>
+                                        <th class="text-center">Estado</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="table-border-bottom-0">
+                                    {% for producto in productos %}
+                                    <tr>
+                                        <td>{{ producto.prod_marca }}</td>
+                                        <td>{{ producto.prod_modelo }}</td>
+                                        <td>{{ producto.prod_motor }}</td>
+                                        <td>{{ producto.prod_categoria }}</td>
+                                        <td>{{ producto.descuento_porcentaje }}%</td>
+                                        <td>
+                                            <span>{{ producto.stock_actual }}</span>
+                                            {% if producto.stock_actual == 0 %}
+                                                <span class="badge bg-label-danger me-1 badge-stock">Agotado</span>
+                                            {% elif producto.stock_actual <= 5 %}
+                                                <span class="badge bg-label-warning me-1 badge-stock">Por agotar</span>
+                                            {% else %}
+                                                <span class="badge bg-label-success me-1 badge-stock">Disponible</span> <!-- badge bg-success text-white ms-2  -->
+                                            {% endif %}
+                                            
+                                        </td>
+                                        <td>{{ producto.prod_fecha_registro|date:"Y-m-d H:i:s" }}</td>
+                                        <td>
+                                            <label class="switch">
+                                                <input type="checkbox"
+                                                    class="toggle-estado"
+                                                    data-producto-id="{{ producto.prod_id }}"
+                                                    data-producto-nombre="{{ producto.prod_nombre }}"
+                                                    data-producto-estado="{{ producto.prod_estado }}"
+                                                    {% if producto.prod_estado %}checked{% endif %}>
+                                                <span class="slider">
+                                                    <span class="text-on">ON</span>
+                                                    <span class="text-off">OFF</span>
+                                                </span>
+                                            </label>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'detalle_articulo' producto.prod_id %}" class="btn btn-sm btn-icon btn-outline-primary" title="Ver"><i class="bx bx-show"></i></a>
+                                            {% if producto.prod_estado %}
+                                            <a href="{% url 'editar_articulo' producto.prod_id %}" class="btn btn-sm btn-icon btn-outline-success" title="Editar"><i class="bx bx-pencil"></i></a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <hr size="3px" color="black">
-            <table id="productos-table" class="table table-bordered table-hover text-center" style="width:100%">
-                <thead class="table table-striped responsive nowrap">
-                    <tr>
-                        <th>Marca</th>
-                        <th>Modelo</th>
-                        <th>Motor</th>
-                        <th>Categoría</th>
-                        <th>Descuento</th>
-                        <th>Stock</th>
-                        <th>Fecha Registro</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for producto in productos %}
-                    <tr>
-                        <td>{{ producto.prod_marca }}</td>
-                        <td>{{ producto.prod_modelo }}</td>
-                        <td>{{ producto.prod_motor }}</td>
-                        <td>{{ producto.prod_categoria }}</td>
-                        <td>{{ producto.descuento_porcentaje }}%</td>
-                        <td>
-                            <div class="text-start">
-                                {{ producto.stock_actual }}
-                                {% if producto.stock_actual == 0 %}
-                                    <span class="badge bg-danger text-white ms-2 badge-stock">Agotado</span>
-                                {% elif producto.stock_actual <= 5 %}
-                                    <span class="badge bg-warning text-dark ms-2 badge-stock">Por agotar</span>
-                                {% else %}
-                                    <span class="badge bg-success text-white ms-2 badge-stock">Disponible</span>
-                                {% endif %}
-                            </div>
-                        </td>
-                        <td>{{ producto.prod_fecha_registro|date:"Y-m-d H:i:s" }}</td>
-                        <td>
-                            <label class="switch">
-                                <input type="checkbox"
-                                    class="toggle-estado"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#confirmarCambioEstadoModal"
-                                    data-producto-id="{{ producto.prod_id }}"
-                                    data-producto-nombre="{{ producto.prod_nombre }}"
-                                    data-producto-estado="{{ producto.prod_estado }}"
-                                    {% if producto.prod_estado %}checked{% endif %}>
-                                <span class="slider">
-                                    <span class="text-on">ON</span>
-                                    <span class="text-off">OFF</span>
-                                </span>
-                            </label>
-                        </td>
-                        <td>
-                            <a href="{% url 'detalle_articulo' producto.prod_id %}" class="btn btn-sm btn-outline-primary" title="Ver"><i class="bi bi-eye"></i></a>
-                            {% if producto.prod_estado %}
-                            <a href="{% url 'editar_articulo' producto.prod_id %}" class="btn btn-sm btn-outline-success" title="Editar"><i class="bi bi-pencil-square"></i></a>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
         </div>
     </div>
-
+</div>            
 
 {% endblock%}
 
 {% block extra_js %}
-<!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<!-- Bootstrap 5 JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<!-- DataTables core -->
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<!-- DataTables Bootstrap 5 -->
-<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
-<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+<script src="{% static 'assets/vendor/libs/DataTables/DataTables-1.13.8/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/vendor/libs/DataTables/DataTables-1.13.8/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/vendor/libs/DataTables/Buttons-2.4.2/js/dataTables.buttons.min.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="{% static 'tienda/js/lista_articulos.js' %}"></script>
 {% endblock %}
