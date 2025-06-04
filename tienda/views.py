@@ -169,7 +169,7 @@ def consultar_dni(request):
         return JsonResponse({'success': False, 'error': 'DNI no proporcionado.'})
     
     try:
-        token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzODU0MiIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImNvbnN1bHRvciJ9.-e-nfoCiwEwPqJrbjNzNRQHhlzm21LIAolTMsTcTZEE'
+        token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzODc4OCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImNvbnN1bHRvciJ9.stX-2-MmVboX45wjocJNKOrasdsrasIihHbc0iGoNiU'
         url = f"https://api.factiliza.com/v1/dni/info/{dni}"
         headers = {'Authorization': f'Bearer {token}'}
         response = requests.get(url, headers=headers)
@@ -409,7 +409,14 @@ def editar_cliente(request, clien_id):
     else:
         form = ClienteForm(instance=cliente)
 
-    return render(request, 'tienda/editar_cliente.html', {'form': form, 'cliente': cliente})
+    context = {
+        'breadcrumbs': [['Clientes','/lista_clientes/'],['Edición de cliente','']],
+        'menu_padre': 'ventas',
+        'menu_hijo': 'clientes',
+        'form': form,
+        'cliente': cliente,
+    }
+    return render(request, 'tienda/editar_cliente.html', context)
 
 @login_required
 def editar_usuario(request, id):
@@ -425,7 +432,14 @@ def editar_usuario(request, id):
     else:
         form = EditarUsuarioForm(instance=usuario)
 
-    return render(request, 'tienda/editar_usuario.html', {'form': form, 'usuario': usuario})
+    context = {
+        'breadcrumbs': [],
+        'menu_padre': 'home',
+        'menu_hijo': '',
+        'form': form,
+        'usuario': usuario,
+    }
+    return render(request, 'tienda/editar_usuario.html', context)
 
 @login_required
 def lista_proveedores(request):
@@ -511,7 +525,15 @@ def detalle_proveedor(request, prov_id):
 @login_required
 def detalle_cliente(request, clien_id):
     cliente = get_object_or_404(TblCliente, pk=clien_id)
-    return render(request, 'tienda/detalle_cliente.html', {'cliente': cliente})
+    
+    context = {
+        'breadcrumbs': [['Clientes','/lista_clientes/'],['Detalle de cliente','']],
+        'menu_padre': 'ventas',
+        'menu_hijo': 'clientes',
+        'cliente': cliente,
+    }
+
+    return render(request, 'tienda/detalle_cliente.html', context)
 
 @login_required
 def lista_ingresos(request):
@@ -931,6 +953,9 @@ def agregar_venta(request):
 
 
         context = {
+            'breadcrumbs': [['Ventas','/lista_ventas/'],['Registro de nueva venta','']],
+            'menu_padre': 'ventas',
+            'menu_hijo': 'ventas',
             'clientes': clientes,
             'comprobantes': comprobantes,
             'metodos_pago': metodos_pago,
@@ -956,7 +981,6 @@ def generar_pdf_venta(request, venta_id):
     descuento_total = sum(item.det_venta_dcto for item in detalle_venta)
     total_letras = numero_a_letras(venta.venta_total)
     
-    # Reemplaza con tus propios contextos reales
     context = {
         'venta': venta,
         'detalle_venta': detalle_venta,
@@ -990,6 +1014,9 @@ def detalle_venta(request, venta_id):
         descuento_total = sum(item.det_venta_dcto for item in detalle_venta)
 
         context = {
+            'breadcrumbs': [['Ventas','/lista_ventas/'],['Detalle venta','']],
+            'menu_padre': 'ventas',
+            'menu_hijo': 'ventas',
             'venta': venta,
             'detalle_venta': detalle_venta,
             'financiamiento': financiamiento,
@@ -1150,7 +1177,13 @@ def agregar_usuario(request):
     else:
         form = RegistroUsuarioForm()
 
-    return render(request, 'tienda/agregar_usuario.html', {'form': form})
+    context = {
+        'breadcrumbs': [['Usuarios','/lista_usuarios/'],['Registro de nuevo usuario','']],
+        'menu_padre': 'accesos',
+        'menu_hijo': 'usuarios',
+        'form': form,
+    }
+    return render(request, 'tienda/agregar_usuario.html', context)
 
 @login_required
 def detalle_usuario(request, id):

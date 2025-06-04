@@ -31,8 +31,3 @@
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
-
-.card {
-    padding: 20px;
-    margin-top: 20px;
-}

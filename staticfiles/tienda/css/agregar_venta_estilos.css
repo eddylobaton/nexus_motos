@@ -1,25 +1,25 @@
-.card {
-  padding: 20px;
-  margin-top: 20px;
+.mi-container-sw {
+  z-index: 9999 !important; /* Mayor que tu header o sidebar */
+  pointer-events: auto;
 }
 
-.modal-dialog-altura {
-  height: 80vh;
+.mi-popup-sw {
+  z-index: 10000 !important;
 }
 
-#tablaProductosDT {
-  width: 100% !important;
-  table-layout: fixed;
+.is-invalid {
+  border-color: red;
+}
+
+.sinDscto {
+  background-color: #bebebe2b !important;
+  color: #bebebe !important;
 }
 
 #error_efectivo {
   color:red;
   font-size: 12px;
   display:none;
-}
-
-.is-invalid {
-  border-color: red;
 }
 
 #loadingOverlay {
@@ -36,4 +36,14 @@
 }
 .loading-content {
     text-align: center;
+}
+
+input[readonly],
+textarea[readonly],
+select[readonly] {
+    background-color: #e9ecef;  /* color típico de inputs disabled */
+    color: #6c757d;             /* texto en gris como disabled */
+    border-color: #ced4da;      /* mismo borde que el resto */
+    cursor: not-allowed;        /* ícono de cursor deshabilitado */
+    pointer-events: none;       /* previene foco o selección */
 }

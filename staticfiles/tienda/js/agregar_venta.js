@@ -9,12 +9,12 @@ document.addEventListener('DOMContentLoaded', function () {
       fixedHeader: true,
       autoWidth: false,
       language: {
-        search: "Buscar:",
         info: "Mostrando _TOTAL_ articulos",
         infoEmpty: "No hay articulos disponibles",
         zeroRecords: "No se encontraron articulos",
         emptyTable: "No hay articulos en la tabla",
-      }
+      },
+      order: [[1, 'asc'], ]
     });
 
     // Al abrir el modal, reajusta columnas
@@ -214,9 +214,9 @@ document.addEventListener('DOMContentLoaded', function () {
           <td><input type="number" class="form-control cantidad" value="1" min="1" max="${stockFinal}" step="1" id="cant_${id}" required></td>
           <td><input type="number" min="0" class="form-control" value="${precioFinal}" id="precio_${id}" readonly></td>
           <td><span id="costo_${id}">0.00</span></td>
-          <td><span id="desc_${id}">0.00</span></td>
+          <td class="${ parseFloat(descuento) <= 0 ? 'sinDscto' : ''}"><span id="desc_${id}">0.00</span></td>
           <td><span id="total_${id}">0.00</span></td>
-          <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarArticulo(${id})"><i class="bi bi-x-lg"></i></button></td>
+          <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarArticulo(${id})"><i class="bx bx-x"></i></button></td>
         </tr>`;
       tablaArticulosBody.insertAdjacentHTML('beforeend', fila);
       document.querySelector(`#prod_${id} button`).disabled = true;
@@ -343,6 +343,20 @@ document.addEventListener('DOMContentLoaded', function () {
             const formData = new FormData(form);
             const url = btnAgregarCliente.dataset.url;
 
+            Swal.fire({
+                title: 'Procesando...',
+                text: 'Por favor espera',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                customClass: {
+                    popup: 'mi-popup-sw',
+                    container: 'mi-container-sw'
+                },
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
             fetch(url, {
                 method: 'POST',
                 headers: {
@@ -352,13 +366,19 @@ document.addEventListener('DOMContentLoaded', function () {
             })
             .then(response => response.json())
             .then(data => {
+                // Ocultar el loading
+                Swal.close();
                 if (data.success) {
                     Swal.fire({
                         icon: 'success',
                         title: 'Cliente registrado',
                         text: 'El cliente fue registrado correctamente',
                         timer: 2000,
-                        showConfirmButton: false
+                        showConfirmButton: false,
+                        customClass: {
+                            popup: 'mi-popup-sw',
+                            container: 'mi-container-sw'
+                        }
                     });
                     const modalInstance = bootstrap.Modal.getInstance(modal);
                     modalInstance.hide();
@@ -377,11 +397,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             })
             .catch(error => {
+                // Ocultar el loading
+                Swal.close();
                 console.error('Error al guardar el cliente:', error);
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'Hubo un problema al guardar el cliente.'
+                    text: 'Hubo un problema al guardar el cliente.',
+                    customClass: {
+                        popup: 'mi-popup-sw',
+                        container: 'mi-container-sw'
+                    }
                 });
             });
         }

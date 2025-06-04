@@ -1,12 +1,7 @@
-.card {
-    padding: 20px;
-    margin-top: 20px;
-}
-
 .foto {
     width: 60px;
     height: 60px;
-    object-fit: cover;
+    object-fit: contain;
     border: 1px solid #ccc;
 }
 

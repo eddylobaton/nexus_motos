@@ -1,50 +1,62 @@
-{% extends 'tienda/base_tres.html'%}
+{% extends 'tienda/base2.html'%}
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'tienda/css/agregar_usuario_estilos.css' %}"> 
+<link rel="stylesheet" href="{% static 'tienda/css/editar_usuario_estilos.css' %}"> 
 {% endblock %} 
 
 {% block content %}
-
-<div class="card shadow-lg">
-    <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="card-title mb-0">Editar usuario: {{ usuario.usuario_nombre }} {{ usuario.usuario_paterno }} {{ usuario.usuario_materno }}</h5>
-            <div>
-                <a href="{% url 'lista_usuarios' %}" class="btn btn-secondary ">
-                    <i class="bi bi-arrow-left"></i> Volver
-                </a>
+<div class="row">
+    <div class="col-md-12 col-lg-12 col-xl-12">
+        <div class="card mb-4">
+            <div class="card-header">
+              <div class="card-title header-elements">
+                <h4 class="m-0 me-2 text-primary">Editar usuario: </h4><h4 class="m-0 me-2">{{ usuario.usuario_nombre }} {{ usuario.usuario_paterno }} {{ usuario.usuario_materno }}</h4>
+                <div class="card-title-elements ms-auto">
+                    <div class="row">
+                        <div class="gap-2 col-lg-12 text-end">
+                            <a href="{% url 'lista_usuarios' %}" class="btn btn-secondary">
+                                <span class="tf-icon bx bx-left-arrow-alt bx-18px me-1"></span> Regresar
+                            </a>
+                        </div>
+                    </div>    
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12 mb-4 order-0">
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="row g-3">
+                                <!-- Mostrar errores de formulario si existen -->
+                                {% if form.errors %}
+                                    <div class="alert alert-danger mt-1 mb-1 alert-dismissible" role="alert">
+                                        <ul>
+                                            {% for field in form %}
+                                                {% for error in field.errors %}
+                                                    <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                                                {% endfor %}
+                                            {% endfor %}
+                                        </ul>
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                {% endif %}
+                                <div class="col-md-6">{{ form.usuario_direccion.label_tag }}{{ form.usuario_direccion }}</div>
+                                <div class="col-md-6">{{ form.usuario_email.label_tag }}{{ form.usuario_email }}</div>
+                                <div class="col-md-6">{{ form.tipo_usuario.label_tag }}{{ form.tipo_usuario }}</div>
+                                <div class="col-md-6">{{ form.password.label_tag }}{{ form.password }}<small class="form-text text-muted">Si no desea cambiar la contraseña, deje el campo como está.</small></div>
+                            </div>
+                            <div class="mt-4 text-end">
+                                <button type="submit" class="btn btn-primary">
+                                    <span class="tf-icon bx bx-save bx-18px me-1"></span> Guardar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
-        <hr size="3px" color="black">
-        <!-- Mostrar errores de formulario si existen -->
-        {% if form.errors %}
-        <div class="alert alert-danger mt-3">
-            <ul>
-                {% for field in form %}
-                    {% for error in field.errors %}
-                        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
-                    {% endfor %}
-                {% endfor %}
-            </ul>
-        </div>
-        {% endif %}
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div class="row g-3">
-                <div class="col-md-6">{{ form.usuario_direccion.label_tag }}{{ form.usuario_direccion }}</div>
-                <div class="col-md-6">{{ form.usuario_email.label_tag }}{{ form.usuario_email }}</div>
-                <div class="col-md-6">{{ form.tipo_usuario.label_tag }}{{ form.tipo_usuario }}</div>
-                <div class="col-md-6">{{ form.password.label_tag }}{{ form.password }}<small class="form-text text-muted">Si no desea cambiar la contraseña, deje el campo como está.</small></div>
-
-            </div>
-            <div class="mt-4 text-end">
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-save"></i> Guardar cambios
-                </button>
-            </div>
-        </form>
     </div>
 </div>
 
