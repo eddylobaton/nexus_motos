@@ -31,7 +31,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 showCancelButton: true,
                 confirmButtonText: 'Sí, confirmar',
                 cancelButtonText: 'Cancelar',
-                reverseButtons: true
+                reverseButtons: true,
+                allowOutsideClick: false,
+                customClass: {
+                    popup: 'mi-popup-sw',
+                    container: 'mi-container-sw'
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
                     Swal.fire({
@@ -39,6 +44,10 @@ document.addEventListener("DOMContentLoaded", function () {
                         text: 'Por favor espera',
                         allowOutsideClick: false,
                         allowEscapeKey: false,
+                        customClass: {
+                            popup: 'mi-popup-sw',
+                            container: 'mi-container-sw'
+                        },
                         didOpen: () => {
                             Swal.showLoading();
                         }
@@ -56,21 +65,33 @@ document.addEventListener("DOMContentLoaded", function () {
                         return response.json();
                     })
                     .then(data => {
+                        // Ocultar el loading
+                        Swal.close();
                         Swal.fire({
                             title: 'Éxito',
                             text: data.message,
                             icon: 'success',
-                            confirmButtonText: 'OK'
+                            confirmButtonText: 'OK',
+                            customClass: {
+                                popup: 'mi-popup-sw',
+                                container: 'mi-container-sw'
+                            }
                         }).then(() => {
                             window.location.reload();
                         });
                     })
                     .catch(error => {
+                        // Ocultar el loading
+                        Swal.close();
                         Swal.fire({
                             title: 'Error',
                             text: 'Ocurrió un problema al cambiar el estado.',
                             icon: 'error',
-                            confirmButtonText: 'Cerrar'
+                            confirmButtonText: 'Cerrar',
+                            customClass: {
+                                popup: 'mi-popup-sw',
+                                container: 'mi-container-sw'
+                            }
                         });
                     });
                 }

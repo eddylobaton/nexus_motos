@@ -7,12 +7,12 @@
       fixedHeader: true,
       autoWidth: false,
       language: {
-        search: "Buscar:",
         info: "Mostrando _TOTAL_ articulos",
         infoEmpty: "No hay articulos disponibles",
         zeroRecords: "No se encontraron articulos",
         emptyTable: "No hay articulos en la tabla",
-      }
+      },
+      order: [[1, 'asc'], ]
     });
 
     // Al abrir el modal, reajusta columnas
@@ -105,7 +105,7 @@
         <td><input type="number" class="form-control cantidad" min="1" value="1" step="1" id="cant_${id}" required></td>
         <td><input type="number" class="form-control precio" min="0" value="0" step="0.01" id="precio_${id}" required></td>
         <td><span id="sub_${id}">0.00</span></td>
-        <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarArticulo(${id})"><i class="bi bi-x-lg"></i></button></td>
+        <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarArticulo(${id})"><i class="bx bx-x"></i></button></td>
       </tr>`;
     document.querySelector("#tablaArticulos tbody").insertAdjacentHTML("beforeend", fila);
     document.querySelector(`#prod_${id} button`).disabled = true;
@@ -298,6 +298,20 @@
           const formData = new FormData(form);
           const url = btnAgregarProveedor.dataset.url;
 
+          Swal.fire({
+              title: 'Procesando...',
+              text: 'Por favor espera',
+              allowOutsideClick: false,
+              allowEscapeKey: false,
+              customClass: {
+                  popup: 'mi-popup-sw',
+                  container: 'mi-container-sw'
+              },
+              didOpen: () => {
+                  Swal.showLoading();
+              }
+          });
+
           fetch(url, {
               method: 'POST',
               headers: {
@@ -307,13 +321,19 @@
           })
           .then(response => response.json())
           .then(data => {
+              // Ocultar el loading
+              Swal.close();
               if (data.success) {
                   Swal.fire({
                       icon: 'success',
                       title: 'Proveedor registrado',
                       text: 'El Proveedor fue registrado correctamente',
                       timer: 2000,
-                      showConfirmButton: false
+                      showConfirmButton: false,
+                      customClass: {
+                          popup: 'mi-popup-sw',
+                          container: 'mi-container-sw'
+                      }
                   });
                   const modalInstance = bootstrap.Modal.getInstance(modal);
                   modalInstance.hide();
@@ -332,11 +352,17 @@
               }
           })
           .catch(error => {
+              // Ocultar el loading
+              Swal.close();
               console.error('Error al guardar el proveedor:', error);
               Swal.fire({
                   icon: 'error',
                   title: 'Error',
-                  text: 'Hubo un problema al guardar el proveedor.'
+                  text: 'Hubo un problema al guardar el proveedor.',
+                  customClass: {
+                      popup: 'mi-popup-sw',
+                      container: 'mi-container-sw'
+                  }
               });
           });
       }

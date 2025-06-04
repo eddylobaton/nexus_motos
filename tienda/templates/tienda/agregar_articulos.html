@@ -1,4 +1,4 @@
-{% extends 'tienda/base_tres.html'%}
+{% extends 'tienda/base2.html'%}
 {% load static %}
 
 {% block extra_css %}
@@ -6,82 +6,94 @@
 {% endblock %} 
 
 {% block content %}
-
-    <div class="card shadow-lg">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="card-title mb-0">Registrar nuevo artículo</h5>
-                <div>
-                    <a href="{% url 'lista_articulos' %}" class="btn btn-secondary ">
-                        <i class="bi bi-arrow-left"></i> Volver
-                    </a>
+<div class="row">
+    <div class="col-md-12 col-lg-12 col-xl-12">
+        <div class="card mb-4">
+            <div class="card-header">
+              <div class="card-title header-elements">
+                <h4 class="m-0 me-2 text-primary">Registrar nuevo artículo</h4>
+                <div class="card-title-elements ms-auto">
+                    <div class="row">
+                        <div class="gap-2 col-lg-12 text-end">
+                            <a href="{% url 'lista_articulos' %}" class="btn btn-secondary">
+                                <span class="tf-icon bx bx-left-arrow-alt bx-18px me-1"></span> Regresar
+                            </a>
+                        </div>
+                    </div>    
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12 mb-4 order-0">
+                        <form id="formArticulo" method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="row g-3">
+                                <!-- Mostrar errores de formulario si existen -->
+                                {% if form.errors %}
+                                    <div class="alert alert-danger mt-1 mb-1 alert-dismissible" role="alert">
+                                        <ul>
+                                            {% for field in form %}
+                                                {% for error in field.errors %}
+                                                    <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                                                {% endfor %}
+                                            {% endfor %}
+                                        </ul>
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                {% endif %}
+                                <div class="col-md-6">
+                                    {{ form.prod_nombre.label_tag }}
+                                    {{ form.prod_nombre }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.prod_marca.label_tag }}
+                                    {{ form.prod_marca }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.prod_modelo.label_tag }}
+                                    {{ form.prod_modelo }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.prod_motor.label_tag }}
+                                    {{ form.prod_motor }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.prod_categoria.label_tag }}
+                                    {{ form.prod_categoria }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="id_prod_porcenta_dcto">Descuento (%)</label>
+                                    <div class="input-group">
+                                        {{ form.prod_porcenta_dcto }}
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.prod_descripcion.label_tag }}
+                                    {{ form.prod_descripcion }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.imagen_archivo.label_tag }}
+                                    {{ form.imagen_archivo }}
+                                </div>
+                            </div>
+                            <div class="mt-4 text-end">
+                                <div id="articuloFeedback"></div>
+                                <button type="submit" class="btn btn-primary">
+                                    <span class="tf-icon bx bx-save bx-18px me-1"></span> Guardar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
-            <hr size="3px" color="black">
-            <form  id="formArticulo" method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                <div class="row g-3">
-                    <!-- Mostrar errores de formulario si existen -->
-                    {% if form.errors %}
-                        <div class="alert alert-danger mt-3">
-                            <ul>
-                                {% for field in form %}
-                                    {% for error in field.errors %}
-                                        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
-                                    {% endfor %}
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    {% endif %}
-                    <div class="col-md-6">
-                        {{ form.prod_nombre.label_tag }}
-                        {{ form.prod_nombre }}
-                    </div>
-                    <div class="col-md-6">
-                        {{ form.prod_marca.label_tag }}
-                        {{ form.prod_marca }}
-                    </div>
-                    <div class="col-md-6">
-                        {{ form.prod_modelo.label_tag }}
-                        {{ form.prod_modelo }}
-                    </div>
-                    <div class="col-md-6">
-                        {{ form.prod_motor.label_tag }}
-                        {{ form.prod_motor }}
-                    </div>
-                    <div class="col-md-6">
-                        {{ form.prod_categoria.label_tag }}
-                        {{ form.prod_categoria }}
-                    </div>
-                    <div class="col-md-6">
-                        <label for="id_prod_porcenta_dcto">Descuento (%)</label>
-                        <div class="input-group">
-                            {{ form.prod_porcenta_dcto }}
-                            <span class="input-group-text">%</span>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        {{ form.prod_descripcion.label_tag }}
-                        {{ form.prod_descripcion }}
-                    </div>
-                    <div class="col-md-6">
-                        {{ form.imagen_archivo.label_tag }}
-                        {{ form.imagen_archivo }}
-                    </div>
-                </div>
-                <div class="mt-4 text-end">
-                    <div id="articuloFeedback"></div>
-                    <button type="submit" class="btn btn-success">
-                        <i class="bi bi-save"></i> Guardar
-                    </button>
-                </div>
-            </form>
         </div>
     </div>
+</div>
 
 {% endblock%}
 
 {% block extra_js %}
-<!-- <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script> -->
 <script src="{% static 'tienda/js/agregar_articulo.js' %}"></script>
 {% endblock %}

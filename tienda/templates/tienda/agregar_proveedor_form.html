@@ -3,7 +3,7 @@
   <div class="row g-3">
     <!-- Mostrar errores de formulario si existen -->
     {% if form.errors %}
-        <div class="alert alert-danger mt-3">
+        <div class="alert alert-danger mt-1 mb-1 alert-dismissible" role="alert">
             <ul>
                 {% for field in form %}
                     {% for error in field.errors %}
@@ -11,6 +11,7 @@
                     {% endfor %}
                 {% endfor %}
             </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     {% endif %}
     <div class="col-md-6">
@@ -39,6 +40,6 @@
   </div>
   <div class="text-end">
     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-    <button type="submit" id="btnSubmit" class="btn btn-success">Guardar</button>
+    <button type="submit" id="btnSubmit" class="btn btn-primary">Guardar</button>
   </div>
 </form>

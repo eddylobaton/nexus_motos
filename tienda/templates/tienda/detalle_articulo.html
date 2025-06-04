@@ -1,4 +1,4 @@
-{% extends 'tienda/base_tres.html'%} 
+{% extends 'tienda/base2.html'%}
 {% load static %}
 
 {% block extra_css %}
@@ -6,36 +6,40 @@
 {% endblock %} 
 
 {% block content %}
-
-
-<div class="card shadow-lg">
-    <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="card-title mb-0">Detalle de Artículo</h5>
-            <div>
-                <a href="{% url 'lista_articulos' %}" class="btn btn-secondary">
-                    <i class="bi bi-arrow-left"></i> Volver
-                </a>
+<div class="row">
+    <div class="col-md-12 col-lg-12 col-xl-12">
+        <div class="card mb-4">
+            <div class="card-header">
+              <div class="card-title header-elements">
+                <h4 class="m-0 me-2 text-primary">Detalle artículo</h4>
+                <div class="card-title-elements ms-auto">
+                    <div class="row">
+                        <div class="gap-2 col-lg-12 text-end">
+                            <a href="{% url 'lista_articulos' %}" class="btn btn-secondary">
+                                <span class="tf-icon bx bx-left-arrow-alt bx-18px me-1"></span> Regresar
+                            </a>
+                        </div>
+                    </div>    
+                </div>
+              </div>
             </div>
-        </div>
-        <hr size="3px" color="black">
-        <div class="row">
-            <!-- Columna de datos -->
-            <div class="col-md-6 col-12 mb-4">
-                <h3>{{ producto.prod_nombre }}</h3>
-                <p><strong>Marca:</strong> {{ producto.prod_marca }}</p>
-                <p><strong>Modelo:</strong> {{ producto.prod_modelo }}</p>
-                <p><strong>Motor:</strong> {{ producto.prod_motor }}</p>
-                <p><strong>Categoría:</strong> {{ producto.prod_categoria }}</p>
-                <p><strong>Descuento:</strong> {{ descuento_porcentaje }}%</p>
-                <p><strong>Descripción:</strong><br>{{ producto.prod_descripcion|linebreaks }}</p>
-                <p><strong>Fecha de registro:</strong> {{ producto.prod_fecha_registro|date:"Y-m-d H:i:s" }}</p>
-            </div>
-
-            <!-- Columna de imagen -->
-            <div class="col-md-6 col-12 text-center">
-                <img src="{% static 'tienda/img/' %}{{ producto.prod_imagen }}" alt="Imagen del producto"
-                    class="img-fluid rounded border shadow" style="max-height: 400px;">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 col-12 mb-4">
+                        <h3>{{ producto.prod_nombre }}</h3>
+                        <p><strong>Marca:</strong> {{ producto.prod_marca }}</p>
+                        <p><strong>Modelo:</strong> {{ producto.prod_modelo }}</p>
+                        <p><strong>Motor:</strong> {{ producto.prod_motor }}</p>
+                        <p><strong>Categoría:</strong> {{ producto.prod_categoria }}</p>
+                        <p><strong>Descuento:</strong> {{ descuento_porcentaje }}%</p>
+                        <p><strong>Descripción:</strong><br>{{ producto.prod_descripcion|linebreaks }}</p>
+                        <p><strong>Fecha de registro:</strong> {{ producto.prod_fecha_registro|date:"Y-m-d H:i:s" }}</p>
+                    </div>
+                    <div class="col-md-6 col-12 text-center">
+                        <img src="{% static 'tienda/img/' %}{{ producto.prod_imagen }}" alt="Imagen del producto"
+                            class="img-fluid rounded border shadow imgProd">
+                    </div>
+                </div>
             </div>
         </div>
     </div>

@@ -293,7 +293,14 @@ def agregar_articulos(request):
     else:
         form = ArticuloForm()
 
-    return render(request, 'tienda/agregar_articulos.html', {'form': form})
+    context = {
+        'breadcrumbs': [['Artículos','/lista_articulos/'],['Registro de nuevo artículo','']],
+        'menu_padre': 'almacen',
+        'menu_hijo': 'articulos',
+        'form': form,
+    }
+
+    return render(request, 'tienda/agregar_articulos.html', context)
 
 @login_required
 def editar_articulo(request, producto_id):
@@ -327,16 +334,30 @@ def editar_articulo(request, producto_id):
     else:
         form = ArticuloForm(instance=producto, tiene_imagen=tiene_imagen)
 
-    return render(request, 'tienda/editar_articulo.html', {'form': form, 'producto': producto})
+    context = {
+        'breadcrumbs': [['Artículos','/lista_articulos/'],['Edición de artículo','']],
+        'menu_padre': 'almacen',
+        'menu_hijo': 'articulos',
+        'form': form,
+        'producto': producto,
+    }
+
+    return render(request, 'tienda/editar_articulo.html', context)
 
 @login_required
 def detalle_articulo(request, producto_id):
     producto = get_object_or_404(TblProducto, pk=producto_id)
     descuento_porcentaje = int(producto.prod_porcenta_dcto)
-    return render(request, 'tienda/detalle_articulo.html', {
+
+    context = {
+        'breadcrumbs': [['Artículos','/lista_articulos/'],['Detalle de artículo','']],
+        'menu_padre': 'almacen',
+        'menu_hijo': 'articulos',
         'producto': producto,
-        'descuento_porcentaje': descuento_porcentaje
-    })
+        'descuento_porcentaje': descuento_porcentaje,
+    }
+
+    return render(request, 'tienda/detalle_articulo.html', context)
 
 @require_POST
 @login_required
@@ -363,7 +384,15 @@ def editar_proveedor(request, prov_id):
     else:
         form = ProveedorForm(instance=proveedor)
 
-    return render(request, 'tienda/editar_proveedor.html', {'form': form, 'proveedor': proveedor})
+    context = {
+        'breadcrumbs': [['Proveedores','/lista_proveedores/'],['Edición de proveedor','']],
+        'menu_padre': 'compras',
+        'menu_hijo': 'proveedores',
+        'form': form,
+        'proveedor': proveedor,
+    }
+
+    return render(request, 'tienda/editar_proveedor.html', context)
 
 @login_required
 def editar_cliente(request, clien_id):
@@ -417,22 +446,67 @@ def agregar_proveedor(request):
         form = ProveedorForm(request.POST, request.FILES)
         if form.is_valid():
             try:
-                proveedor = form.save(commit=False)
-                proveedor.save()
-                return redirect('lista_proveedor')
+                proveedor = form.save()
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': True,
+                        'proveedor': {
+                            'id': proveedor.proveedor_id,
+                            'nombre': proveedor.proveedor_nombre
+                        }
+                    })
+                else:
+                    return redirect('lista_proveedores')
             except Exception as e:
+                # Captura cualquier error inesperado al guardar
                 print(f'Error al guardar el proveedor: {e}')  # Esto mostrará el error exacto
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': False,
+                        'error': 'Ocurrió un error al guardar el proveedor: ' + str(e)
+                    })
+                else:
+                    messages.error(request, f"Ocurrió un error al guardar el proveedor: {str(e)}")
+                    context = {
+                        'breadcrumbs': [['Proveedores','/lista_proveedores/'],['Registro de nuevo proveedor','']],
+                        'menu_padre': 'compras',
+                        'menu_hijo': 'proveedores',
+                        'form': form,
+                    }
+                    return render(request, 'tienda/agregar_proveedor.html', context)
         else:
             print('Formulario inválido:', form.errors)
+            # Si el formulario es inválido
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                html = render_to_string('tienda/agregar_proveedor_form.html', {'form': form}, request=request)
+                return JsonResponse({'success': False, 'html': html})
     else:
         form = ProveedorForm()
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            html = render_to_string('tienda/agregar_proveedor_form.html', {'form': form}, request=request)
+            return JsonResponse({'success': False, 'html': html})
 
-    return render(request, 'tienda/agregar_proveedor.html', {'form': form})
+    context = {
+        'breadcrumbs': [['Proveedores','/lista_proveedores/'],['Registro de nuevo proveedor','']],
+        'menu_padre': 'compras',
+        'menu_hijo': 'proveedores',
+        'form': form,
+    }
+
+    return render(request, 'tienda/agregar_proveedor.html', context)
 
 @login_required
 def detalle_proveedor(request, prov_id):
     proveedor = get_object_or_404(TblProveedor, pk=prov_id)
-    return render(request, 'tienda/detalle_proveedor.html', {'proveedor': proveedor})
+    
+    context = {
+        'breadcrumbs': [['Proveedores','/lista_proveedores/'],['Detalle de proveedor','']],
+        'menu_padre': 'compras',
+        'menu_hijo': 'proveedores',
+        'proveedor': proveedor,
+    }
+
+    return render(request, 'tienda/detalle_proveedor.html', context)
 
 @login_required
 def detalle_cliente(request, clien_id):
@@ -539,16 +613,16 @@ def agregar_ingresos(request):
         return JsonResponse({'existeNumDoc': existeNumDoc})
 
 
-    #hoy = date.today()
-    #hace_dos_dias = hoy - timedelta(days=2)
-
-    return render(request, 'tienda/agregar_ingresos.html', {
+    context = {
+        'breadcrumbs': [['Ingresos','/lista_ingresos/'],['Registro de nuevo ingreso','']],
+        'menu_padre': 'compras',
+        'menu_hijo': 'ingresos',
         'proveedores': proveedores,
         'tipos_doc': tipos_doc,
         'productos': productos,
-        #'fecha_hoy': hoy.strftime('%Y-%m-%d'),
-        #'fecha_min': hace_dos_dias.strftime('%Y-%m-%d'),
-    })
+    }
+
+    return render(request, 'tienda/agregar_ingresos.html', context)
 
 @login_required
 def detalle_ingreso(request, ingreso_id):
@@ -557,6 +631,9 @@ def detalle_ingreso(request, ingreso_id):
         detalles = TblDetEntrada.objects.filter(entrada=entrada).select_related('prod')
 
         context = {
+            'breadcrumbs': [['Ingresos','/lista_ingresos/'],['Detalle de compra','']],
+            'menu_padre': 'compras',
+            'menu_hijo': 'ingresos',
             'entrada': entrada,
             'detalles': detalles,
         }
@@ -607,7 +684,13 @@ def agregar_cliente(request):
                     })
                 else:
                     messages.error(request, f"Ocurrió un error al guardar el cliente: {str(e)}")
-                    return render(request, 'tienda/agregar_cliente.html', {'form': form})
+                    context = {
+                        'breadcrumbs': [['Clientes','/lista_clientes/'],['Registro de nuevo cliente','']],
+                        'menu_padre': 'ventas',
+                        'menu_hijo': 'clientes',
+                        'form': form,
+                    }
+                    return render(request, 'tienda/agregar_cliente.html', context)
         else:
             # Si el formulario es inválido
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
@@ -618,7 +701,15 @@ def agregar_cliente(request):
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             html = render_to_string('tienda/agregar_cliente_form.html', {'form': form}, request=request)
             return JsonResponse({'success': False, 'html': html})
-    return render(request, 'tienda/agregar_cliente.html', {'form': form})
+    
+    context = {
+        'breadcrumbs': [['Clientes','/lista_clientes/'],['Registro de nuevo cliente','']],
+        'menu_padre': 'ventas',
+        'menu_hijo': 'clientes',
+        'form': form,
+    }
+
+    return render(request, 'tienda/agregar_cliente.html', context)
 
 @login_required
 def lista_ventas(request):
@@ -813,9 +904,9 @@ def agregar_venta(request):
                 return JsonResponse({'numero': ''})  # En caso no exista tipo doc.
             
             if tipo_descrip == "Boleta":
-                tipo_cod_prefijo = 'B0001'
+                tipo_cod_prefijo = 'B001'
             elif tipo_descrip == 'Factura':
-                tipo_cod_prefijo = 'F0001'
+                tipo_cod_prefijo = 'F001'
             else:
                 return JsonResponse({'numero': ''})  # En caso de un tipo inesperado
             
@@ -834,7 +925,7 @@ def agregar_venta(request):
                     continue
 
             nuevo_num = max_num + 1
-            numero_generado = f"{tipo_cod_prefijo}-{nuevo_num:05d}"
+            numero_generado = f"{tipo_cod_prefijo}-{nuevo_num:08d}"
 
             return JsonResponse({'numero': numero_generado})
 
@@ -1018,11 +1109,17 @@ def agregar_salida(request):
     # Obtener las salidas que tienen ese tipo_cod_prefijo
     salidas = TblSalida.objects.filter(tipo_doc_almacen__tipo_doc_almacen_tipo='SI')
     nro_documento = f"SI-{salidas.count() + 1:05d}"
-    return render(request, 'tienda/agregar_salida.html', {
+    
+    context = {
+        'breadcrumbs': [['Salidas','/lista_salidas/'],['Registro de nueva salida','']],
+        'menu_padre': 'almacen',
+        'menu_hijo': 'salidas',
         'tipo_doc_des': tipo_doc_des,
         'productos': productos,
-	    'nro_documento': nro_documento,
-    })
+        'nro_documento': nro_documento,
+    }
+
+    return render(request, 'tienda/agregar_salida.html', context)
 
 @login_required
 def lista_usuarios(request):

@@ -1,3 +1,12 @@
+.mi-container-sw {
+  z-index: 9999 !important; /* Mayor que tu header o sidebar */
+  pointer-events: auto;
+}
+
+.mi-popup-sw {
+  z-index: 10000 !important;
+}
+
 .table tbody td {
     font-size: 14px;
 }

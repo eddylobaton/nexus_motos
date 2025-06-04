@@ -7,12 +7,12 @@
       fixedHeader: true,
       autoWidth: false,
       language: {
-        search: "Buscar:",
         info: "Mostrando _TOTAL_ articulos",
         infoEmpty: "No hay articulos disponibles",
         zeroRecords: "No se encontraron articulos",
         emptyTable: "No hay articulos en la tabla",
-      }
+      },
+      order: [[1, 'asc'], ]
     });
 
     // Al abrir el modal, reajusta columnas
@@ -43,7 +43,7 @@
         <td><input type="number" class="form-control cantidad" value="1" min="1" max="${stockFinal}" step="1" id="cant_${id}" required></td>
         <td><input type="number" class="form-control precio" value="0" min="0" max="${precioVigFinal}" step="0.01" id="precio_${id}" required></td>
         <td><span id="sub_${id}">0.00</span></td>
-        <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarArticulo(${id})"><i class="bi bi-x-lg"></i></button></td>
+        <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarArticulo(${id})"><i class="bx bx-x"></i></button></td>
       </tr>`;
     document.querySelector("#tablaArticulos tbody").insertAdjacentHTML("beforeend", fila);
     document.querySelector(`#prod_${id} button`).disabled = true;
