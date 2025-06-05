@@ -1230,7 +1230,7 @@ def verificar_proveedor(request):
 @login_required
 def reporte_compras(request):
     proveedores = TblProveedor.objects.all()
-    almacenistas = TblUsuario.objects.filter(tipo_usuario__tipo_usuario_descrip='Almacenero')
+    almacenistas = TblUsuario.objects.filter(tipo_usuario__tipo_usuario_descrip='Administrador')
     
     context = {
         'breadcrumbs': [['Reporte compras', '']],
@@ -1278,3 +1278,18 @@ def filtrar_compras(request):
         })
 
     return JsonResponse({'compras': data})
+
+@login_required
+def reporte_salidas(request):
+    proveedores = TblCliente.objects.all()
+    almacenistas = TblUsuario.objects.filter(tipo_usuario__tipo_usuario_descrip='Almacenero')
+    
+    context = {
+        'breadcrumbs': [['Reporte compras', '']],
+        'menu_padre': 'reportes',
+        'menu_hijo': 'reporte_compras',
+        'proveedores': proveedores,
+        'almacenistas': almacenistas,
+    }
+
+    return render(request, 'tienda/reporte_compras.html', context)
