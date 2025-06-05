@@ -356,9 +356,9 @@ class TblUsuario(AbstractUser):
     usuario_paterno = models.CharField(max_length=45)
     usuario_materno = models.CharField(max_length=45)
     usuario_fechanac = models.DateField()
-    usuario_email = models.CharField(max_length=45)
+    usuario_email = models.CharField(max_length=255)
     usuario_sexo = models.CharField(max_length=45)
-    usuario_direccion = models.CharField(max_length=45)
+    usuario_direccion = models.CharField(max_length=255)
     tipo_usuario = models.ForeignKey('TblTipoUsuario', on_delete=models.DO_NOTHING)
     cargo = models.ForeignKey('TblCargo', on_delete=models.DO_NOTHING)
 
