@@ -32,6 +32,7 @@
                         <p><strong>Motor:</strong> {{ producto.prod_motor }}</p>
                         <p><strong>Categoría:</strong> {{ producto.prod_categoria }}</p>
                         <p><strong>Descuento:</strong> {{ descuento_porcentaje }}%</p>
+                        <p><strong>Precio vigente:</strong> S/ {{ precio_vigente|floatformat:2 }}</p>
                         <p><strong>Descripción:</strong><br>{{ producto.prod_descripcion|linebreaks }}</p>
                         <p><strong>Fecha de registro:</strong> {{ producto.prod_fecha_registro|date:"Y-m-d H:i:s" }}</p>
                     </div>

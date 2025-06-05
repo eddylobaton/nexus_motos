@@ -349,12 +349,19 @@ def detalle_articulo(request, producto_id):
     producto = get_object_or_404(TblProducto, pk=producto_id)
     descuento_porcentaje = int(producto.prod_porcenta_dcto)
 
+    # Obtener el stock desde el Kardex
+    try:
+        precio_vigente = producto.tblkardex.kardex_precio_vigente
+    except TblKardex.DoesNotExist:
+        precio_vigente = 0
+
     context = {
         'breadcrumbs': [['Artículos','/lista_articulos/'],['Detalle de artículo','']],
         'menu_padre': 'almacen',
         'menu_hijo': 'articulos',
         'producto': producto,
         'descuento_porcentaje': descuento_porcentaje,
+        'precio_vigente': precio_vigente,
     }
 
     return render(request, 'tienda/detalle_articulo.html', context)
@@ -1224,9 +1231,7 @@ def verificar_proveedor(request):
 def reporte_compras(request):
     proveedores = TblProveedor.objects.all()
     almacenistas = TblUsuario.objects.filter(tipo_usuario__tipo_usuario_descrip='Almacenero')
-    print("almacenistasssssss")
-    print(almacenistas[0].__dict__)
-
+    
     context = {
         'breadcrumbs': [['Reporte compras', '']],
         'menu_padre': 'reportes',
