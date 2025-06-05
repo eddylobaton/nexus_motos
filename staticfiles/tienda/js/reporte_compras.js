@@ -4,6 +4,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const tbody = document.querySelector("#tabla-compras tbody");
     const btnBuscar = document.getElementById("btn-buscar");
 
+    let dataTable = null; // Guardar instancia de DataTable
+
     form.addEventListener("submit", async function (e) {
         e.preventDefault();
 
@@ -21,7 +23,6 @@ document.addEventListener("DOMContentLoaded", function () {
         // Mostrar spinner y desactivar botón
         spinner.classList.remove("d-none");
         btnBuscar.disabled = true;
-        
         tbody.innerHTML = "";
 
         try {
@@ -30,23 +31,47 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const data = await response.json();
 
+            // Validación cuando no hay resultados
             if (data.compras.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7">No se encontraron compras.</td></tr>';
-            } else {
-                data.compras.forEach(compra => {
-                    const fila = `
-                        <tr>
-                            <td>${compra.fecha}</td>
-                            <td>${compra.usuario}</td>
-                            <td>${compra.proveedor}</td>
-                            <td>${compra.tipo_doc}</td>
-                            <td>${compra.numero_doc}</td>
-                            <td>${compra.costo_total.toFixed(2)}</td>
-                            <td>${compra.igv.toFixed(2)}</td>
-                        </tr>`;
-                    tbody.insertAdjacentHTML("beforeend", fila);
-                });
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center">No se encontraron compras.</td></tr>';
+
+                // Destruir DataTable si ya existe
+                if (dataTable) {
+                    dataTable.clear().destroy();
+                    dataTable = null;
+                }
+
+                return;
             }
+
+            // Si hay datos, construir filas
+            data.compras.forEach(compra => {
+                const fila = `
+                    <tr>
+                        <td>${compra.fecha}</td>
+                        <td>${compra.usuario}</td>
+                        <td>${compra.proveedor}</td>
+                        <td>${compra.tipo_doc}</td>
+                        <td>${compra.numero_doc}</td>
+                        <td>${compra.costo_total.toFixed(2)}</td>
+                        <td>${compra.igv.toFixed(2)}</td>
+                    </tr>`;
+                tbody.insertAdjacentHTML("beforeend", fila);
+            });
+
+            // Destruir tabla previa si existe antes de crear una nueva
+            if (dataTable) {
+                dataTable.destroy();
+            }
+
+            // Inicializar DataTable
+            dataTable = $('#tabla-compras').DataTable({
+                dom: 'Bfrtip',
+                buttons: ['excel', 'csv', 'pdf'],
+                responsive: true,
+                destroy: true
+            });
+            
         } catch (err) {
             alert(err.error || "Error al buscar compras.");
         } finally {
@@ -56,14 +81,4 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // Inicializar DataTable solo una vez (si usas fetch, mejor no reinicializarlo)
-    $('#tabla-compras').DataTable({
-        dom: 'Bfrtip',
-        buttons: ['excelHtml5', 'csvHtml5', 'pdfHtml5'],
-        responsive: true,
-        destroy: true, // Permite destruir si recargas
-        language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
-        }
-    });
 });

@@ -286,8 +286,8 @@ class TblProveedor(models.Model):
     proveedor_nombre = models.CharField(max_length=100)
     proveedor_ruc = models.CharField(max_length=45)
     proveedor_telefono = models.CharField(max_length=45)
-    proveedor_direccion = models.CharField(max_length=45)
-    proveedor_email = models.CharField(max_length=45)
+    proveedor_direccion = models.CharField(max_length=255)
+    proveedor_email = models.CharField(max_length=255)
     proveedor_prueba = models.CharField(max_length=45, blank=True, null=True)
     proveedor_fecha = models.DateTimeField(default=timezone.now)
 
