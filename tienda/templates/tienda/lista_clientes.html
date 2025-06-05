@@ -38,7 +38,6 @@
                                         <th class="text-center">Ap. Materno</th>
                                         <th class="text-center">Teléfono</th>
                                         <th class="text-center">Email</th>
-                                        <th class="text-center">Dirección</th>
                                         <th class="text-center">Acciones</th>
                                     </tr>
                                 </thead>
@@ -52,7 +51,6 @@
                                         <td>{{ clientes.cliente_materno }}</td>
                                         <td>{{ clientes.cliente_telefono }}</td>
                                         <td>{{ clientes.cliente_email }}</td>
-                                        <td>{{ clientes.cliente_direccion }}</td>
                                         <td>
                                             <a href="{% url 'detalle_cliente' clientes.cliente_id %}" class="btn btn-sm btn-icon btn-outline-primary" title="Ver"><i class="bx bx-show"></i></a>
                                             <a href="{% url 'editar_cliente' clientes.cliente_id %}" class="btn btn-sm btn-icon btn-outline-success" title="Editar"><i class="bx bx-pencil"></i></a>

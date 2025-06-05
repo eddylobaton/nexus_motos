@@ -1,35 +1,41 @@
-{% extends 'tienda/base_tres.html'%} 
+{% extends 'tienda/base2.html'%}
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'tienda/css/detalle_usuario_estilos.css' %}"> 
+<!-- <link rel="stylesheet" href="{% static 'tienda/css/detalle_usuario_estilos.css' %}">  -->
 {% endblock %} 
 
 {% block content %}
-
-
-<div class="card shadow-lg">
-    <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="card-title mb-0">Detalle de usuario</h5>
-            <div>
-                <a href="{% url 'lista_usuarios' %}" class="btn btn-secondary">
-                    <i class="bi bi-arrow-left"></i> Volver
-                </a>
+<div class="row">
+    <div class="col-md-12 col-lg-12 col-xl-12">
+        <div class="card mb-4">
+            <div class="card-header">
+              <div class="card-title header-elements">
+                <h4 class="m-0 me-2 text-primary">Detalle usuario</h4>
+                <div class="card-title-elements ms-auto">
+                    <div class="row">
+                        <div class="gap-2 col-lg-12 text-end">
+                            <a href="{% url 'lista_usuarios' %}" class="btn btn-secondary">
+                                <span class="tf-icon bx bx-left-arrow-alt bx-18px me-1"></span> Regresar
+                            </a>
+                        </div>
+                    </div>    
+                </div>
+              </div>
             </div>
-        </div>
-        <hr size="3px" color="black">
-        <div class="row">
-            <!-- Columna de datos -->
-            <div class="col-md-6 col-12 mb-4">
-                <h3>{{ usuario.usuario_nombre}} {{usuario.usuario_paterno}} {{ usuario.usuario_materno}}</h3>
-                <p><strong>Tipo de documento:</strong> {{ usuario.usuario_tipodocumento }}</p>
-                <p><strong>Número de documento:</strong> {{ usuario.usuario_nrodocumento }}</p>
-                <p><strong>Fecha de nacimiento:</strong> {{ usuario.usuario_fechanac }}</p>
-                <p><strong>Email:</strong> {{ usuario.usuario_email }}</p>
-                <p><strong>Sexo:</strong> {{ usuario.usuario_sexo }}</p>
-                <p><strong>Tipo usuario:</strong> {{ usuario.tipo_usuario }}</p>
-                <p><strong>Cargo:</strong> {{ usuario.cargo }}</p>              
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 col-12 mb-4">
+                        <h3>{{ usuario.usuario_nombre}} {{usuario.usuario_paterno}} {{ usuario.usuario_materno}}</h3>
+                        <p><strong>Tipo de documento:</strong> {{ usuario.usuario_tipodocumento }}</p>
+                        <p><strong>Número de documento:</strong> {{ usuario.usuario_nrodocumento }}</p>
+                        <p><strong>Fecha de nacimiento:</strong> {{ usuario.usuario_fechanac|date:"d/m/Y" }}</p>
+                        <p><strong>Email:</strong> {{ usuario.usuario_email }}</p>
+                        <p><strong>Sexo:</strong> {{ usuario.usuario_sexo }}</p>
+                        <p><strong>Tipo usuario:</strong> {{ usuario.tipo_usuario }}</p>
+                        <p><strong>Cargo:</strong> {{ usuario.cargo }}</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

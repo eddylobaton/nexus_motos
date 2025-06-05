@@ -169,7 +169,7 @@ def consultar_dni(request):
         return JsonResponse({'success': False, 'error': 'DNI no proporcionado.'})
     
     try:
-        token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzODc4OCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImNvbnN1bHRvciJ9.stX-2-MmVboX45wjocJNKOrasdsrasIihHbc0iGoNiU'
+        token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzODgxMyIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImNvbnN1bHRvciJ9.t2fH0zWmEWyR1_hfVRGS_fGJvAdobiIC41_I9dBQ7ZM'
         url = f"https://api.factiliza.com/v1/dni/info/{dni}"
         headers = {'Authorization': f'Bearer {token}'}
         response = requests.get(url, headers=headers)
@@ -1188,7 +1188,15 @@ def agregar_usuario(request):
 @login_required
 def detalle_usuario(request, id):
     usuario = get_object_or_404(TblUsuario, pk=id)
-    return render(request, 'tienda/detalle_usuario.html', {'usuario': usuario})
+    
+    context = {
+        'breadcrumbs': [['Usuarios','/lista_usuarios/'],['Detalle de usuario','']],
+        'menu_padre': 'accesos',
+        'menu_hijo': 'usuarios',
+        'usuario': usuario,
+    }
+
+    return render(request, 'tienda/detalle_usuario.html', context)
 
 @login_required
 def verificar_articulo_existe(request):
@@ -1219,10 +1227,15 @@ def reporte_compras(request):
     print("almacenistasssssss")
     print(almacenistas[0].__dict__)
 
-    return render(request, 'tienda/reporte_compras.html', {
+    context = {
+        'breadcrumbs': [['Reporte compras', '']],
+        'menu_padre': 'reportes',
+        'menu_hijo': 'reporte_compras',
         'proveedores': proveedores,
-        'almacenistas': almacenistas
-    })
+        'almacenistas': almacenistas,
+    }
+
+    return render(request, 'tienda/reporte_compras.html', context)
 
 @login_required
 def filtrar_compras(request):
