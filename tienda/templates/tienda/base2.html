@@ -140,9 +140,9 @@ data-assets-path="{% static 'assets/' %}" data-template="vertical-menu-template-
                       <div data-i18n="Basic">Compras</div>
                     </a>
                   </li>
-                  {% if request.user.tipo_usuario_id == 4 %}
+                  {% if request.user.tipo_usuario_id == 1 %}
                   <li class="menu-item {% if menu_hijo %}{% if menu_hijo == 'reporte_salidas' %}active{% endif %}{% endif %}">
-                    <a href="#" class="menu-link">
+                    <a href="{% url 'reporte_salidas' %}" class="menu-link">
                       <div data-i18n="Basic">Salidas</div>
                     </a>
                   </li>

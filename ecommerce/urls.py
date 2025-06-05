@@ -77,4 +77,6 @@ urlpatterns = [
     #REPORTES-----------
     path('reporte_compras/', views.reporte_compras, name='reporte_compras'),
     path('filtrar-compras/', views.filtrar_compras, name='filtrar_compras'),
+    path('reporte_salidas/', views.reporte_salidas, name='reporte_salidas'),
+    path('filtrar-salidas/', views.filtrar_salidas, name='filtrar_salidas'),
 ]

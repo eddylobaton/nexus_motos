@@ -1281,15 +1281,50 @@ def filtrar_compras(request):
 
 @login_required
 def reporte_salidas(request):
-    proveedores = TblCliente.objects.all()
+    clientes = TblCliente.objects.all()
     almacenistas = TblUsuario.objects.filter(tipo_usuario__tipo_usuario_descrip='Almacenero')
     
     context = {
-        'breadcrumbs': [['Reporte compras', '']],
+        'breadcrumbs': [['Reporte salidas', '']],
         'menu_padre': 'reportes',
-        'menu_hijo': 'reporte_compras',
-        'proveedores': proveedores,
+        'menu_hijo': 'reporte_salidas',
+        'clientes': clientes,
         'almacenistas': almacenistas,
     }
 
-    return render(request, 'tienda/reporte_compras.html', context)
+    return render(request, 'tienda/reporte_salidas.html', context)
+
+@login_required
+def filtrar_salidas(request):
+    fecha_inicio = request.GET.get('fecha_inicio')
+    fecha_fin = request.GET.get('fecha_fin')
+    usuario_id = request.GET.get('usuario')
+
+    # Validar que si se proporciona una fecha, estén ambas
+    if (fecha_inicio and not fecha_fin) or (fecha_fin and not fecha_inicio):
+        return JsonResponse({'error': 'Debe seleccionar un rango de fechas completo.'}, status=400)
+
+    filtros = Q()
+    if fecha_inicio and fecha_fin:
+        fi = datetime.strptime(fecha_inicio, '%Y-%m-%d')
+        ff = datetime.strptime(fecha_fin, '%Y-%m-%d')
+        filtros &= Q(salida_fecha__range=[fi, ff])
+    if usuario_id != "":
+        filtros &= Q(usuario_id=usuario_id)
+
+    salidas = TblSalida.objects.filter(filtros).select_related('usuario', 'tipo_doc_almacen')
+
+    data = []
+    for c in salidas:
+        data.append({
+            'fecha': c.salida_fecha.strftime('%Y-%m-%d'),
+            'usuario': c.usuario.usuario_nombre,
+            'tipo_doc': c.tipo_doc_almacen.tipo_doc_almacen_descripcion,
+            'numero_doc': c.salida_num_doc,
+            'motivo': c.salida_motivo,
+            'costo_total': float(c.salida_costo_total),
+            'igv': float(c.salida_igv)
+        })
+
+    return JsonResponse({'salidas': data})
+
