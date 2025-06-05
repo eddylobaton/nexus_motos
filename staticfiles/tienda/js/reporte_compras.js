@@ -1,10 +1,24 @@
 document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("form-filtros");
     const spinner = document.getElementById("spinner");
-    const tbody = document.querySelector("#tabla-compras tbody");
     const btnBuscar = document.getElementById("btn-buscar");
 
-    let dataTable = null; // Guardar instancia de DataTable
+    // ⚠️ Inicializar correctamente DataTable una sola vez
+    const tabla = $('#tabla-compras').DataTable({
+        dom: 'Bfrtip',
+        buttons: ['excel', 'csv', 'pdf'],
+        responsive: true,
+        data: [], // inicial vacío
+        columns: [
+            { title: "Fecha" },
+            { title: "Usuario" },
+            { title: "Proveedor" },
+            { title: "Tipo Doc" },
+            { title: "Número Doc" },
+            { title: "Costo Total" },
+            { title: "IGV" }
+        ]
+    });
 
     form.addEventListener("submit", async function (e) {
         e.preventDefault();
@@ -20,10 +34,8 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // Mostrar spinner y desactivar botón
         spinner.classList.remove("d-none");
         btnBuscar.disabled = true;
-        tbody.innerHTML = "";
 
         try {
             const response = await fetch(`/filtrar-compras/?${params}`);
@@ -31,54 +43,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const data = await response.json();
 
-            // Validación cuando no hay resultados
-            if (data.compras.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="text-center">No se encontraron compras.</td></tr>';
+            // 🔄 Limpiar y agregar nuevas filas con la API de DataTables
+            tabla.clear();
 
-                // Destruir DataTable si ya existe
-                if (dataTable) {
-                    dataTable.clear().destroy();
-                    dataTable = null;
-                }
-
-                return;
+            if (data.compras.length > 0) {
+                const filas = data.compras.map(compra => ([
+                    compra.fecha,
+                    compra.usuario,
+                    compra.proveedor,
+                    compra.tipo_doc,
+                    compra.numero_doc,
+                    compra.costo_total.toFixed(2),
+                    compra.igv.toFixed(2)
+                ]));
+                tabla.rows.add(filas);
             }
 
-            // Si hay datos, construir filas
-            data.compras.forEach(compra => {
-                const fila = `
-                    <tr>
-                        <td>${compra.fecha}</td>
-                        <td>${compra.usuario}</td>
-                        <td>${compra.proveedor}</td>
-                        <td>${compra.tipo_doc}</td>
-                        <td>${compra.numero_doc}</td>
-                        <td>${compra.costo_total.toFixed(2)}</td>
-                        <td>${compra.igv.toFixed(2)}</td>
-                    </tr>`;
-                tbody.insertAdjacentHTML("beforeend", fila);
-            });
+            tabla.draw(); // mostrar
 
-            // Destruir tabla previa si existe antes de crear una nueva
-            if (dataTable) {
-                dataTable.destroy();
-            }
-
-            // Inicializar DataTable
-            dataTable = $('#tabla-compras').DataTable({
-                dom: 'Bfrtip',
-                buttons: ['excel', 'csv', 'pdf'],
-                responsive: true,
-                destroy: true
-            });
-            
         } catch (err) {
             alert(err.error || "Error al buscar compras.");
         } finally {
-            // Ocultar spinner y reactivar botón
             spinner.classList.add("d-none");
             btnBuscar.disabled = false;
         }
     });
-
 });

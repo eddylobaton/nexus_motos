@@ -1250,7 +1250,9 @@ def filtrar_compras(request):
 
     filtros = Q()
     if fecha_inicio and fecha_fin:
-        filtros &= Q(entrada_fecha__range=[fecha_inicio, fecha_fin])
+        fi = datetime.strptime(fecha_inicio, '%Y-%m-%d')
+        ff = datetime.strptime(fecha_fin, '%Y-%m-%d')
+        filtros &= Q(entrada_fecha__range=[fi, ff])
     if proveedor_id != "":
         filtros &= Q(proveedor_id=proveedor_id)
     if usuario_id != "":

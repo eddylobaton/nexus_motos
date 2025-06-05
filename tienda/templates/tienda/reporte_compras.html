@@ -86,17 +86,7 @@
                                     </tr>
                                 </thead>
                                 <tbody class="table-border-bottom-0">
-                                    {% for compra in compras %}
-                                    <tr>
-                                        <td>{{ compra.entrada_fecha }}</td>
-                                        <td>{{ compra.usuario__usuario_nombre }}</td>
-                                        <td>{{ compra.proveedor__proveedor_nombre }}</td>
-                                        <td>{{ compra.tipo_doc_almacen__tipo_doc_almacen_descripcion }}</td>
-                                        <td>{{ compra.entrada_num_doc }}</td>
-                                        <td>{{ compra.entrada_costo_total }}</td>
-                                        <td>{{ compra.entrada_igv }}</td>
-                                    </tr>
-                                    {% endfor %}
+                                    
                                 </tbody>
                             </table>
                         </div>
