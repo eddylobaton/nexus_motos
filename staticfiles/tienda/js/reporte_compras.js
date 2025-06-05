@@ -1,4 +1,14 @@
 document.addEventListener("DOMContentLoaded", function () {
+    const fechaInicioInput = document.getElementById("fecha_inicio");
+    const fechaFinInput = document.getElementById("fecha_fin");
+
+    fechaInicioInput.addEventListener("change", function () {
+        fechaFinInput.min = this.value;
+        if (fechaFinInput.value < this.value) {
+            fechaFinInput.value = this.value;
+        }
+    });
+
     const form = document.getElementById("form-filtros");
     const spinner = document.getElementById("spinner");
     const btnBuscar = document.getElementById("btn-buscar");
