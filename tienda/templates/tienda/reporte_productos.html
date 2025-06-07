@@ -1,0 +1,68 @@
+{% extends 'tienda/base2.html'%}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'assets/vendor/libs/DataTables/DataTables-1.13.8/css/dataTables.bootstrap5.min.css' %}" />
+<link rel="stylesheet" href="{% static 'tienda/css/lista_articulos_estilos.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 col-lg-12 col-xl-12">
+        <div class="card mb-4">
+            <div class="card-header">
+              <div class="card-title header-elements">
+                <h4 class="m-0 me-2 text-primary">Reporte Precio Productos</h4>
+              </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12 mb-4 order-0">
+                        <div class="table-responsive text-nowrap">
+                            <table id="productos-table" class="table table-bordered text-center w-100">
+                                <thead class="table-primary">
+                                    <tr role="row">
+                                        <th class="text-center">Marca</th>
+                                        <th class="text-center">Modelo</th>
+                                        <th class="text-center">Stock</th>
+                                        <th class="text-center">Precio venta</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="table-border-bottom-0">
+                                    {% for producto in productos %}
+                                    <tr>
+                                        <td>{{ producto.prod_marca }}</td>
+                                        <td>{{ producto.prod_modelo }}</td>
+                                        <td>
+                                            <span>{{ producto.stock_actual }}</span>
+                                            {% if producto.stock_actual == 0 %}
+                                                <span class="badge bg-label-danger me-1 badge-stock">Agotado</span>
+                                            {% elif producto.stock_actual <= 5 %}
+                                                <span class="badge bg-label-warning me-1 badge-stock">Por agotar</span>
+                                            {% else %}
+                                                <span class="badge bg-label-success me-1 badge-stock">Disponible</span> <!-- badge bg-success text-white ms-2  -->
+                                            {% endif %}
+                                            
+                                        </td>
+                                        <td> S/ {{ producto.precio_vigente|floatformat:2 }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>            
+
+{% endblock%}
+
+{% block extra_js %}
+<script src="{% static 'assets/vendor/libs/DataTables/DataTables-1.13.8/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/vendor/libs/DataTables/DataTables-1.13.8/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/vendor/libs/DataTables/Buttons-2.4.2/js/dataTables.buttons.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{% static 'tienda/js/lista_articulos.js' %}"></script>
+{% endblock %}

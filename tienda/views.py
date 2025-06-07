@@ -1576,3 +1576,21 @@ def buscar_series_productos(request):
             })
 
         return JsonResponse({'datos': datos})
+
+@login_required
+def reporte_productos(request):
+    productos = TblProducto.objects.filter(tblkardex__isnull=False).select_related('tblkardex')
+
+    for producto in productos:
+        producto.descuento_porcentaje = int(producto.prod_porcenta_dcto or 0)
+        producto.stock_actual = producto.tblkardex.kardex_stock_actual
+        producto.precio_vigente = float(producto.tblkardex.kardex_precio_vigente or 0)*1.2
+
+    context = {
+        'breadcrumbs': [['reportes', '']],
+        'menu_padre': 'reportes',
+        'menu_hijo': 'reporte_productos',
+        'productos': productos,
+    }
+
+    return render(request, 'tienda/reporte_productos.html', context)

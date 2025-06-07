@@ -84,4 +84,5 @@ urlpatterns = [
     path('buscar_movimientos/', views.buscar_movimientos, name='buscar_movimientos'),
     path('reporte_series_productos/', views.reporte_series_productos, name='reporte_series_productos'),
     path('buscar_series_productos/', views.buscar_series_productos, name='buscar_series_productos'),
+    path('reporte_productos/', views.reporte_productos, name='reporte_productos'),
 ]
