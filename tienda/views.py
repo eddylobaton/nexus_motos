@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 
 from django.conf import settings
 from .forms import LoginForm, RegistroUsuarioForm, ArticuloForm, ProveedorForm, ClienteForm, EditarUsuarioForm
-from .models import TblUsuario, TblProducto, TblProveedor, TblCliente, TblVenta, TblDetVenta, TblEntrada,TblTipoDocAlmacen, TblDetEntrada, TblMetodoPago, TblSalida, TblDetSalida, TblFinanciamiento, TblDetFinanciamiento, TblTipoUsuario, TblKardex
+from .models import TblUsuario, TblProducto, TblProveedor, TblCliente, TblVenta, TblDetVenta, TblEntrada,TblTipoDocAlmacen, TblDetEntrada, TblMetodoPago, TblSalida, TblDetSalida, TblFinanciamiento, TblDetFinanciamiento, TblTipoUsuario, TblKardex, TblProductoSerie
 from django.contrib import messages
 from django.core.paginator import Paginator
 from datetime import datetime
@@ -29,7 +29,7 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_GET, require_POST
 
 from django.contrib.auth import get_user_model
-from django.utils.dateparse import parse_datetime
+from django.utils.dateparse import parse_datetime, parse_date
 
 
 User = get_user_model()
@@ -557,6 +557,15 @@ def lista_ingresos(request):
 
     return render(request, 'tienda/lista_ingresos.html', context)
 
+@login_required
+def validar_serie(request):
+    try:
+        serie = request.GET.get('serie', '').strip()
+        existe = TblProductoSerie.objects.filter(prod_ser_serie=serie).exists()
+        return JsonResponse({'existe': existe})
+    except Exception as e:
+        print(f'Error al consultar serie: {e}')
+
 @transaction.atomic
 @login_required
 def agregar_ingresos(request):
@@ -574,18 +583,16 @@ def agregar_ingresos(request):
             articulos_json = request.POST.get("articulos")  # Este es un JSON con los productos
             articulos = json.loads(articulos_json)
 
+            fch_act = timezone.now()
+
             if not articulos:
                 messages.error(request, "Debe agregar al menos un producto.")
                 return redirect("agregar_ingresos")
 
-            for art in articulos:
-                if art["cantidad"] <= 0 or art["precio"] <= 0:
-                    messages.error(request, "Cantidad y precio deben ser mayores a cero.")
-                    return redirect("agregar_ingresos")
 
             # Guardar entrada
             entrada = TblEntrada.objects.create(
-                entrada_fecha=timezone.now(),  #entrada_fecha,
+                entrada_fecha=fch_act,  #fch actual,
                 entrada_num_doc=entrada_num_doc,
                 entrada_subtotal=entrada_subtotal,
                 entrada_costo_igv=entrada_monto_igv,
@@ -598,13 +605,40 @@ def agregar_ingresos(request):
 
             # Guardar detalle por producto
             for art in articulos:
-                TblDetEntrada.objects.create(
+                if art["cantidad"] <= 0 or art["precio"] <= 0:
+                    messages.error(request, "Cantidad y precio deben ser mayores a cero.")
+                    return redirect("agregar_ingresos")
+                
+                # Obtener y limpiar series para este artículo específico
+                series = request.POST.getlist(f'serie_{art["id"]}[]')
+                series = [s.strip().upper() for s in series if s.strip()]
+
+                # Validar cantidad de series
+                if len(series) != art["cantidad"]:
+                    messages.error(request, f"Debe ingresar {art['cantidad']} series para el producto {art['id']}.")
+                    return redirect("agregar_ingresos")
+                
+                # Validar duplicados en BD
+                for serie in series:
+                    if TblProductoSerie.objects.filter(prod_ser_serie=serie).exists():
+                        messages.error(request, f"La serie '{serie}' ya existe.")
+                        return redirect("agregar_ingresos")
+
+                detEntrada = TblDetEntrada.objects.create(
                     entrada=entrada,
                     prod_id=art["id"],
                     det_entrada_cantidad=art["cantidad"],
                     det_entrada_precio_costo=art["precio"],
                     det_entrada_sub_total=art["subtotal"]
                 )
+
+                for serie in series:
+                    TblProductoSerie.objects.create(
+                        prod_ser_serie=serie,
+                        prod_ser_estado=1,
+                        prod_ser_fecha_sit=fch_act,
+                        det_entrada=detEntrada
+                    )
 
                 # Llamar al procedimiento almacenado
                 with connection.cursor() as cursor:
@@ -772,10 +806,12 @@ def agregar_venta(request):
 
             tipo_doc_obj = TblTipoDocAlmacen.objects.get(tipo_doc_almacen_descripcion=tipo_comprobante)
 
+            fch_act = timezone.now()
+
             # 1. Guardar TblVenta
             try:
                 venta = TblVenta.objects.create(
-                    venta_fecha_venta=timezone.now(),
+                    venta_fecha_venta=fch_act,
                     venta_tipo_comprobante=tipo_comprobante,
                     venta_nro_documento=nro_documento,
                     venta_monto_efectivo=monto_efectivo,
@@ -812,7 +848,7 @@ def agregar_venta(request):
             # 3. Guardar TblSalida
             try:
                 salida = TblSalida.objects.create(
-                    salida_fecha=timezone.now(),
+                    salida_fecha=fch_act,
                     salida_num_doc=nro_documento,
                     salida_subtotal=subtotal,
                     salida_igv=igv,
@@ -820,6 +856,7 @@ def agregar_venta(request):
                     salida_costo_total=total,
                     salida_motivo='VENTA',
                     tipo_doc_almacen_id=tipo_doc_obj.tipo_doc_almacen_id,
+                    venta=venta,
                     usuario_id=usuario_id
                 )
             except Exception as e:
@@ -833,13 +870,30 @@ def agregar_venta(request):
                     subtotal_item = float(item['subtotal'])
                     precio_salida = float(subtotal_item / cantidad if cantidad else 0)
 
-                    TblDetSalida.objects.create(
+                    # Verificar series disponibles
+                    series_disponibles = TblProductoSerie.objects.filter(
+                        det_entrada__prod_id=item['id'],
+                        prod_ser_estado=1
+                    ).order_by('prod_ser_fecha_sit')[:cantidad]
+
+                    if series_disponibles.count() < cantidad:
+                        messages.error(request, f"Stock insuficiente para el producto ID {item['id']}.")
+                        raise Exception(f"Stock insuficiente para el producto ID {item['id']}.")
+
+                    det_salida = TblDetSalida.objects.create(
                         salida=salida,
                         prod_id=item['id'],
                         det_salida_cantidad=cantidad,
                         det_salida_sub_total=subtotal_item,
                         det_salida_precio_salida=precio_salida
                     )
+
+                    # Actualizar series: cambiar estado, fecha, y asociar det_salida
+                    for serie in series_disponibles:
+                        serie.prod_ser_estado = 2
+                        serie.prod_ser_fecha_sit = fch_act
+                        serie.det_salida = det_salida
+                        serie.save()
                     
                     # Llamar al procedimiento almacenado
                     with connection.cursor() as cursor:
@@ -852,7 +906,7 @@ def agregar_venta(request):
                         ])
 
             except Exception as e:
-                print("Error al guardar TblDetSalida:", e)
+                print("Error al guardar TblDetSalida o actualizar series:", e)
                 raise
 
             # 5. Si hay financiamiento
@@ -1033,7 +1087,7 @@ def detalle_venta(request, venta_id):
         return render(request, 'tienda/detalle_venta.html', context)
     except Exception as e:
         # Mostrar el error solo en la consola
-        print("Error en vista detalle_ingreso:")
+        print("Error en vista detalle_venta:")
         print(traceback.format_exc())
         messages.error(request, f"Ocurrió un error: {str(e)}")
         return redirect("lista_ventas")
@@ -1257,7 +1311,7 @@ def filtrar_compras(request):
     if fecha_inicio and fecha_fin:
         fi = datetime.strptime(fecha_inicio, '%Y-%m-%d')
         ff = datetime.strptime(fecha_fin, '%Y-%m-%d')
-        filtros &= Q(entrada_fecha__range=[fi, ff])
+        filtros &= Q(entrada_fecha__date__range=[fi, ff])
     if proveedor_id != "":
         filtros &= Q(proveedor_id=proveedor_id)
     if usuario_id != "":
@@ -1308,7 +1362,7 @@ def filtrar_salidas(request):
     if fecha_inicio and fecha_fin:
         fi = datetime.strptime(fecha_inicio, '%Y-%m-%d')
         ff = datetime.strptime(fecha_fin, '%Y-%m-%d')
-        filtros &= Q(salida_fecha__range=[fi, ff])
+        filtros &= Q(salida_fecha__date__range=[fi, ff])
     if usuario_id != "":
         filtros &= Q(usuario_id=usuario_id)
 
@@ -1323,8 +1377,137 @@ def filtrar_salidas(request):
             'numero_doc': c.salida_num_doc,
             'motivo': c.salida_motivo,
             'costo_total': float(c.salida_costo_total),
-            'igv': float(c.salida_igv)
+            'total_igv': float(c.salida_costo_igv)
         })
 
     return JsonResponse({'salidas': data})
 
+@login_required
+def reporte_mov_productos(request):
+    try:
+        productos = TblProducto.objects.filter(tbldetentrada__isnull=False).distinct()
+        context = {
+            'breadcrumbs': [['Reportes', '']],
+            'menu_padre': 'reportes',
+            'menu_hijo': 'reporte_mov_productos',
+            'productos': productos,
+        }
+
+        return render(request, 'tienda/reporte_mov_productos.html', context)
+    except Exception as e:
+        # Mostrar el error solo en la consola
+        print("Error en vista reporte:")
+        print(traceback.format_exc())
+        messages.error(request, f"Ocurrió un error: {str(e)}")
+        return redirect("home")
+
+
+def buscar_movimientos(request):
+    if request.method == 'POST':
+        data = []
+        fecha_inicio = request.POST.get('fecha_inicio')
+        fecha_fin = request.POST.get('fecha_fin')
+        producto_id = request.POST.get('producto_id')
+
+        print(fecha_inicio)
+        print(fecha_fin)
+        print(producto_id)
+
+        filtro_fecha = Q()
+        if fecha_inicio:
+            filtro_fecha &= Q(det_entrada__entrada__entrada_fecha__gte=fecha_inicio) | Q(det_salida__salida__salida_fecha__gte=fecha_inicio)
+        if fecha_fin:
+            filtro_fecha &= Q(det_entrada__entrada__entrada_fecha__lte=fecha_fin) | Q(det_salida__salida__salida_fecha__lte=fecha_fin)
+
+        productos = TblProducto.objects.filter(tbldetentrada__isnull=False).distinct()
+        print(productos)
+        
+        if producto_id and producto_id != '0':
+            productos = productos.filter(prod_id=producto_id)
+
+        for producto in productos:
+            print(producto)
+            movimientos = []
+
+            # ENTRADAS
+            entradas = TblDetEntrada.objects.filter(prod_id=producto)
+            if fecha_inicio:
+                entradas = entradas.filter(entrada__entrada_fecha__date__gte=fecha_inicio)
+            if fecha_fin:
+                entradas = entradas.filter(entrada__entrada_fecha__date__lte=fecha_fin)
+
+            print(entradas)
+            for e in entradas:
+                print(e.entrada.entrada_fecha)
+                movimientos.append({
+                    'fecha_mov': e.entrada.entrada_fecha,
+                    'tipo_mov': 'ENTRADA',
+                    'tipo_doc': e.entrada.tipo_doc_almacen.tipo_doc_almacen_descripcion,
+                    'num_doc': e.entrada.entrada_num_doc,
+                    'cant_entrada': e.det_entrada_cantidad,
+                    'precio_entrada': float(e.det_entrada_precio_costo),
+                    'cant_salida': 0,
+                    'precio_salida': 0,
+                })
+
+            print(movimientos)
+
+            # SALIDAS
+            salidas = TblDetSalida.objects.filter(prod_id=producto)
+            if fecha_inicio:
+                salidas = salidas.filter(salida__salida_fecha__date__gte=fecha_inicio)
+            if fecha_fin:
+                salidas = salidas.filter(salida__salida_fecha__date__lte=fecha_fin)
+
+            for s in salidas:
+                movimientos.append({
+                    'fecha_mov': s.salida.salida_fecha,
+                    'tipo_mov': 'SALIDA',
+                    'tipo_doc': s.salida.tipo_doc_almacen.tipo_doc_almacen_descripcion,
+                    'num_doc': s.salida.salida_num_doc,
+                    'cant_entrada': 0,
+                    'precio_entrada': 0,
+                    'cant_salida': s.det_salida_cantidad,
+                    'precio_salida': float(s.det_salida_precio_salida),
+                })
+
+            print(movimientos)
+            # Ordenamos todos los movimientos por fecha
+            movimientos.sort(key=lambda x: x['fecha_mov'])
+
+            # Cálculo del stock acumulado
+            saldo = 0
+            movimientos_final = []
+            for mov in movimientos:
+                saldo += mov['cant_entrada'] - mov['cant_salida']
+                movimientos_final.append({
+                    'producto_modelo': producto.prod_modelo,
+                    'producto_marca': producto.prod_marca,
+                    'fecha_mov': mov['fecha_mov'].strftime('%Y-%m-%d %H:%M'),
+                    'tipo_mov': mov['tipo_mov'],
+                    'tipo_doc': mov['tipo_doc'],
+                    'num_doc': mov['num_doc'],
+                    'cant_entrada': mov['cant_entrada'] if mov['cant_entrada'] != 0 else '',
+                    'precio_entrada': mov['precio_entrada'] if mov['cant_entrada'] != 0 else '',
+                    'cant_salida': mov['cant_salida'] if mov['cant_salida'] != 0 else '',
+                    'precio_salida': mov['precio_salida'] if mov['cant_salida'] != 0 else '',
+                    'saldo': saldo
+                })
+
+            data.append({'producto': f"{producto.prod_modelo} - {producto.prod_marca}", 'movimientos': movimientos_final})
+
+        return JsonResponse({'data': data})
+    
+def reporte_series_productos(request):
+    productos = TblProducto.objects.filter(
+        tbldetentrada__isnull=False
+    ).distinct()
+
+    context = {
+        'breadcrumbs': [['Reportes', '']],
+        'menu_padre': 'reportes',
+        'menu_hijo': 'reporte_mov_productos',
+        'productos': productos,
+    }
+
+    return render(request, 'tienda/reporte_mov_productos.html', context)

@@ -25,8 +25,10 @@ document.addEventListener("DOMContentLoaded", function () {
             { title: "Tipo Doc" },
             { title: "Número Doc" },
             { title: "Motivo" },
-            { title: "Costo Total" },
-            { title: "IGV" }
+            { title: "Costo total" },
+            { title: "Utilidad bruta" },
+            { title: "Utilidad neta" },
+            { title: "Total IGV" }
         ]
     });
 
@@ -53,7 +55,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const data = await response.json();
 
-            // 🔄 Limpiar y agregar nuevas filas con la API de DataTables
+            // Limpiar y agregar nuevas filas con la API de DataTables
             tabla.clear();
 
             if (data.salidas.length > 0) {
@@ -64,7 +66,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     salida.numero_doc,
                     salida.motivo,
                     salida.costo_total.toFixed(2),
-                    salida.igv.toFixed(2)
+                    (parseFloat(salida.costo_total)-(parseFloat(salida.costo_total)/1.2)).toFixed(2),
+                    ((parseFloat(salida.costo_total)-(parseFloat(salida.costo_total)/1.2))/1.18).toFixed(2),
+                    salida.total_igv.toFixed(2)
                 ]));
                 tabla.rows.add(filas);
             }

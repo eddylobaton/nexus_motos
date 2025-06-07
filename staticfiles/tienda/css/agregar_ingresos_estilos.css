@@ -63,3 +63,7 @@ select[readonly] {
     cursor: not-allowed;        /* ícono de cursor deshabilitado */
     pointer-events: none;       /* previene foco o selección */
 }
+
+.serie-input {
+  text-transform: uppercase !important;
+}

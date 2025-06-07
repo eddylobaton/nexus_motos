@@ -137,16 +137,21 @@ data-assets-path="{% static 'assets/' %}" data-template="vertical-menu-template-
               <ul class="menu-sub">
                   <li class="menu-item {% if menu_hijo %}{% if menu_hijo == 'reporte_compras' %}active{% endif %}{% endif %}">
                     <a href="{% url 'reporte_compras' %}" class="menu-link">
-                      <div data-i18n="Basic">Compras</div>
+                      <div data-i18n="Basic">Rep. Compras</div>
                     </a>
                   </li>
                   {% if request.user.tipo_usuario_id == 1 %}
                   <li class="menu-item {% if menu_hijo %}{% if menu_hijo == 'reporte_salidas' %}active{% endif %}{% endif %}">
                     <a href="{% url 'reporte_salidas' %}" class="menu-link">
-                      <div data-i18n="Basic">Salidas</div>
+                      <div data-i18n="Basic">Rep. Salidas</div>
                     </a>
                   </li>
                   {% endif %}
+                  <li class="menu-item {% if menu_hijo %}{% if menu_hijo == 'reporte_mov_productos' %}active{% endif %}{% endif %}">
+                    <a href="{% url 'reporte_mov_productos' %}" class="menu-link">
+                      <div data-i18n="Basic">Rep. Mov. Prod.</div>
+                    </a>
+                  </li>
               </ul>
           </li>
           {% endif %}

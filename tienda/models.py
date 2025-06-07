@@ -281,6 +281,19 @@ class TblProducto(models.Model):
         db_table = 'tbl_producto'
 
 
+class TblProductoSerie(models.Model):
+    prod_ser_id = models.AutoField(primary_key=True)
+    prod_ser_serie = models.CharField(max_length=40)
+    prod_ser_estado = models.IntegerField()
+    prod_ser_fecha_sit = models.DateTimeField()
+    det_entrada = models.ForeignKey('TblDetEntrada', models.DO_NOTHING)
+    det_salida = models.ForeignKey('TblDetSalida', models.DO_NOTHING, null=True, blank=True)
+
+    class Meta:
+        managed = False
+        db_table = 'tbl_producto_serie'
+
+
 class TblProveedor(models.Model):
     proveedor_id = models.AutoField(primary_key=True)
     proveedor_nombre = models.CharField(max_length=100)

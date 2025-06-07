@@ -1,0 +1,69 @@
+{% extends 'tienda/base2.html'%}
+{% load static %}
+
+{% block title %} - Reporte Mov. Prod.{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'assets/vendor/libs/DataTables/DataTables-1.13.8/css/dataTables.bootstrap5.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/vendor/libs/DataTables/Buttons-2.4.2/css/buttons.bootstrap5.min.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 col-lg-12 col-xl-12">
+        <div class="card mb-4">
+            <div class="card-header">
+              <div class="card-title header-elements">
+                <h4 class="m-0 me-2 text-primary">Reporte Movimiento Producto</h4>
+              </div>
+            </div>
+            <div class="card-body">
+              <form enctype="multipart/form-data" method="post">
+                {% csrf_token %}
+                <div class="row mb-3">
+                  <div class="col-md-3">
+                    <label>Fecha Inicio:</label>
+                    <input type="date" id="fecha_inicio" class="form-control">
+                  </div>
+                  <div class="col-md-3">
+                    <label>Fecha Fin:</label>
+                    <input type="date" id="fecha_fin" class="form-control">
+                  </div>
+                  <div class="col-md-4">
+                    <label>Producto:</label>
+                    <select id="producto_id" class="form-control">
+                      <option value="0">TODOS</option>
+                      {% for p in productos %}
+                        <option value="{{ p.prod_id }}">{{ p.prod_modelo }} - {{ p.prod_marca }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-md-2">
+                    <label>&nbsp;</label>
+                    <button id="btnBuscar" class="btn btn-primary btn-block" data-url="{% url 'buscar_movimientos' %}">Buscar</button>
+                  </div>
+                </div>
+              </form>
+
+              <div id="tabla_resultado" class="table-responsive"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock%}
+
+{% block extra_js %}
+<script src="{% static 'assets/vendor/libs/DataTables/DataTables-1.13.8/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/vendor/libs/DataTables/DataTables-1.13.8/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/vendor/libs/DataTables/Buttons-2.4.2/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'assets/vendor/libs/DataTables/Buttons-2.4.2/js/buttons.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/vendor/libs/DataTables/JSZip-3.10.1/jszip.min.js' %}"></script>
+<script src="{% static 'assets/vendor/libs/DataTables/pdfmake-0.2.7/pdfmake.min.js' %}"></script>
+<script src="{% static 'assets/vendor/libs/DataTables/pdfmake-0.2.7/vfs_fonts.js' %}"></script>
+<script src="{% static 'assets/vendor/libs/DataTables/Buttons-2.4.2/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'assets/vendor/libs/DataTables/Buttons-2.4.2/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'assets/vendor/libs/DataTables/Buttons-2.4.2/js/buttons.colVis.min.js' %}"></script>
+
+<script src="{% static 'tienda/js/reporte_mov_productos.js' %}"></script>
+{% endblock %}

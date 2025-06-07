@@ -37,6 +37,7 @@ urlpatterns = [
     # INGRESOS-------------------
     path('lista_ingresos/',views.lista_ingresos, name= 'lista_ingresos'),
     path('agregar_ingresos/',views.agregar_ingresos, name= 'agregar_ingresos'),
+    path('validar_serie/', views.validar_serie, name='validar_serie'),
     path('ingreso/<int:ingreso_id>/', views.detalle_ingreso, name='detalle_ingreso'),
 
     # PROVEEDOR-------------------
@@ -79,4 +80,6 @@ urlpatterns = [
     path('filtrar-compras/', views.filtrar_compras, name='filtrar_compras'),
     path('reporte_salidas/', views.reporte_salidas, name='reporte_salidas'),
     path('filtrar-salidas/', views.filtrar_salidas, name='filtrar_salidas'),
+    path('reporte_mov_productos/', views.reporte_mov_productos, name='reporte_mov_productos'),
+    path('buscar_movimientos/', views.buscar_movimientos, name='buscar_movimientos'),
 ]

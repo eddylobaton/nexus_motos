@@ -102,24 +102,75 @@
         <td>${modelo}</td>
         <td>${marca}</td>
         <td>${categoria}</td>
-        <td><input type="number" class="form-control cantidad" min="1" value="1" step="1" id="cant_${id}" required></td>
+        <td><input type="number" class="form-control cantidad" min="1" value="1" step="1" id="cant_${id}" data-product-id="${id}" required></td>
         <td><input type="number" class="form-control precio" min="0" value="0" step="0.01" id="precio_${id}" required></td>
+        <td><div class="serie-container mt-2" id="serie_container_${id}">
+            <div>
+              <input type="text" maxlength="40" class="form-control serie-input mb-1" name="serie_${id}[]" placeholder="Serie 1" data-product-id="${id}">
+              <small class="text-danger mensaje-serie"></small>
+              </div>
+            </div>
+        </td>
         <td><span id="sub_${id}">0.00</span></td>
         <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarArticulo(${id})"><i class="bx bx-x"></i></button></td>
       </tr>`;
     document.querySelector("#tablaArticulos tbody").insertAdjacentHTML("beforeend", fila);
     document.querySelector(`#prod_${id} button`).disabled = true;
+    const $inputCantidad = $(`#cant_${id}`);
+    // Disparar manualmente el evento 'input'
+    $inputCantidad.trigger('input');
   }
 
   $(document).on('input', '.cantidad', function () {
     const $input = $(this);
-    const cantidad = parseInt($input.val());
+    const cantidad = parseInt($input.val()) || 0;
     const id = $input.attr('id').split('_')[1];
+    const container = document.getElementById(`serie_container_${id}`);
+    container.innerHTML = ""; // Limpiar anteriores
 
     if (isNaN(cantidad) || cantidad < 1) {
         $input.addClass('is-invalid');
     } else {
         $input.removeClass('is-invalid');
+    }
+
+    for (let i = 1; i <= cantidad; i++) {
+      const input = document.createElement("input");
+      input.type = "text";
+      input.maxLength = 40;
+      input.classList.add("form-control", "serie-input", "mb-1");
+      input.name = `serie_${id}[]`;
+      input.placeholder = `Serie ${i}`;
+      input.dataset.productId = id;
+
+      const msg = document.createElement("small");
+      msg.classList.add("text-danger", "mensaje-serie");
+
+      const wrapper = document.createElement("div");
+      wrapper.appendChild(input);
+      wrapper.appendChild(msg);
+
+      container.appendChild(wrapper);
+
+      // Validación al salir del input
+      input.addEventListener("blur", function () {
+          const valor = input.value.trim().toUpperCase();
+          if (valor.length > 0) {
+              fetch(`/validar_serie/?serie=${valor}`)
+                  .then(res => res.json())
+                  .then(data => {
+                      if (data.existe) {
+                          input.classList.add("is-invalid");
+                          msg.textContent = "Ya existe";
+                          console.log("exis");
+                      } else {
+                          input.classList.remove("is-invalid");
+                          msg.textContent = "";
+                          console.log("no exis");
+                      }
+                  });
+          }
+      });
     }
 
     actualizarSubtotal(id);
@@ -158,6 +209,7 @@
         e.preventDefault();
     }
   });
+
 
   function actualizarSubtotal(id) {
     let cant = parseFloat(document.getElementById(`cant_${id}`).value) || 0;
@@ -198,6 +250,7 @@
   document.getElementById("formEntrada").addEventListener("submit", function(e) {
     e.preventDefault();
 
+    let valid = true;
     const numDoc = numDocInput.value.trim();
     if (!numDoc) {
       alert("Debe ingresar número de documento.");
@@ -217,6 +270,42 @@
         alert("La cantidad y el precio deben ser mayores a cero.");
         return;
       }
+    }
+
+    const serieInputs = document.querySelectorAll(".serie-input");
+    const seriesSet = new Set();
+
+    for (const input of serieInputs) {
+        const valor = input.value.trim().toUpperCase(); // Convertir a mayúsculas
+        const mensaje = input.parentElement.querySelector(".mensaje-serie");
+
+        // Vacío
+        if (valor === "") {
+            input.classList.add("is-invalid");
+            if (mensaje) mensaje.textContent = "Campo obligatorio";
+            valid = false;
+            continue;
+        }
+
+        // Repetido localmente
+        if (seriesSet.has(valor)) {
+            input.classList.add("is-invalid");
+            if (mensaje) mensaje.textContent = "Serie repetida en la lista";
+            valid = false;
+            continue;
+        } else {
+            seriesSet.add(valor);
+        }
+
+        // Ya marcado como inválido por el validador remoto (por duplicado en BD)
+        if (input.classList.contains("is-invalid")) {
+            valid = false;
+        }
+    }
+
+    if (!valid) {
+        alert("Por favor, corrige los errores en los campos de serie:\n- Verifica que estén llenos\n- Que no se repitan\n- Que no existan en el sistema.");
+        return;
     }
   
     const inputHidden = document.createElement("input");
