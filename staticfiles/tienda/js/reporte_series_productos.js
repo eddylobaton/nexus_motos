@@ -24,6 +24,8 @@ $(document).ready(function () {
             { data: 'num_doc_salida' },
             { data: 'tipo_doc_salida' }
         ],
+        // Desactivar orden inicial para que no mueva las filas separadoras
+        order: [],
         rowCallback: function (row, data, index) {
             if (data.separador) {
                 // Reemplaza completamente la fila con el separador

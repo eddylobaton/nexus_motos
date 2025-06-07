@@ -152,7 +152,11 @@ data-assets-path="{% static 'assets/' %}" data-template="vertical-menu-template-
                       <div data-i18n="Basic">Rep. Mov. Prod.</div>
                     </a>
                   </li>
-                  
+                  <li class="menu-item {% if menu_hijo %}{% if menu_hijo == 'reporte_series_productos' %}active{% endif %}{% endif %}">
+                    <a href="{% url 'reporte_series_productos' %}" class="menu-link">
+                      <div data-i18n="Basic">Rep. Ser. Prod.</div>
+                    </a>
+                  </li>
               </ul>
           </li>
           {% endif %}
