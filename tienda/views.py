@@ -351,7 +351,7 @@ def detalle_articulo(request, producto_id):
 
     # Obtener el stock desde el Kardex
     try:
-        precio_vigente = producto.tblkardex.kardex_precio_vigente
+        precio_vigente = float(producto.tblkardex.kardex_precio_vigente)*1.2
     except TblKardex.DoesNotExist:
         precio_vigente = 0
 
@@ -1506,8 +1506,73 @@ def reporte_series_productos(request):
     context = {
         'breadcrumbs': [['Reportes', '']],
         'menu_padre': 'reportes',
-        'menu_hijo': 'reporte_mov_productos',
+        'menu_hijo': 'reporte_series_productos',
         'productos': productos,
     }
 
-    return render(request, 'tienda/reporte_mov_productos.html', context)
+    return render(request, 'tienda/reporte_series_productos.html', context)
+
+
+def buscar_series_productos(request):
+    if request.method == 'POST':
+        fecha_inicio = request.POST.get('fecha_inicio')
+        fecha_fin = request.POST.get('fecha_fin')
+        producto_id = request.POST.get('producto_id')
+
+        series = TblProductoSerie.objects.select_related(
+            'det_entrada__entrada',
+            'det_entrada__prod',
+            'det_entrada__entrada__tipo_doc_almacen',
+            'det_salida__salida',
+            'det_salida__salida__tipo_doc_almacen',
+        )
+
+        # Filtro por producto si no es '0'
+        if producto_id and producto_id != '0':
+            series = series.filter(det_entrada__prod__prod_id=producto_id)
+
+        # Filtro por fechas
+        if fecha_inicio:
+            series = series.filter(det_entrada__entrada__entrada_fecha__date__gte=fecha_inicio)
+        if fecha_fin:
+            series = series.filter(det_entrada__entrada__entrada_fecha__date__lte=fecha_fin)
+
+        # Ordenar por fecha de entrada, luego por fecha de cambio de estado
+        series = series.order_by('det_entrada__entrada__entrada_fecha', 'prod_ser_fecha_sit')
+
+        datos = []
+        productos_agregados = set()
+
+        for serie in series:
+            prod = serie.det_entrada.prod
+
+            # Fila separadora solo si es un nuevo producto
+            if prod.prod_id not in productos_agregados:
+                datos.append({
+                    'separador': True,
+                    'producto': f"{prod.prod_nombre} - {prod.prod_modelo} - {prod.prod_marca}",
+                    'serie': '',
+                    'situacion': '',
+                    'fecha_entrada': '',
+                    'num_doc_entrada': '',
+                    'tipo_doc_entrada': '',
+                    'fecha_salida': '',
+                    'num_doc_salida': '',
+                    'tipo_doc_salida': '',
+                })
+                productos_agregados.add(prod.prod_id)
+
+            # Fila de serie
+            datos.append({
+                'separador': False,
+                'serie': serie.prod_ser_serie,
+                'situacion': serie.prod_ser_estado,
+                'fecha_entrada': serie.det_entrada.entrada.entrada_fecha.strftime('%Y-%m-%d %H:%M'),
+                'num_doc_entrada': serie.det_entrada.entrada.entrada_num_doc,
+                'tipo_doc_entrada': serie.det_entrada.entrada.tipo_doc_almacen.tipo_doc_almacen_descripcion,
+                'fecha_salida': serie.det_salida.salida.salida_fecha.strftime('%Y-%m-%d %H:%M') if serie.det_salida else '',
+                'num_doc_salida': serie.det_salida.salida.salida_num_doc if serie.det_salida else '',
+                'tipo_doc_salida': serie.det_salida.salida.tipo_doc_almacen.tipo_doc_almacen_descripcion if serie.det_salida else '',
+            })
+
+        return JsonResponse({'datos': datos})

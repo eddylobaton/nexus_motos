@@ -82,4 +82,6 @@ urlpatterns = [
     path('filtrar-salidas/', views.filtrar_salidas, name='filtrar_salidas'),
     path('reporte_mov_productos/', views.reporte_mov_productos, name='reporte_mov_productos'),
     path('buscar_movimientos/', views.buscar_movimientos, name='buscar_movimientos'),
+    path('reporte_series_productos/', views.reporte_series_productos, name='reporte_series_productos'),
+    path('buscar_series_productos/', views.buscar_series_productos, name='buscar_series_productos'),
 ]
