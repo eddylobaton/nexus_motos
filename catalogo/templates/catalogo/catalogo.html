@@ -1,0 +1,43 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Catálogo de Productos</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <style>
+        .producto-card {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .producto-card img {
+            max-width: 100%;
+            height: auto;
+            max-height: 200px;
+            object-fit: contain;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mt-4">
+        <h2 class="mb-4">Catálogo de Productos</h2>
+        <div class="row"> {% for producto in productos %} <div class="col-md-3">
+                <div class="producto-card"> <img src="{% static 'tienda/img/' %}{{ producto.prod_imagen }}"
+                        alt="{{ producto.prod_nombre }}">
+                    <h5 class="mt-2">{{ producto.prod_nombre }}</h5>
+                    <p>{{ producto.prod_marca }} - {{ producto.prod_modelo }}</p> {% if producto.prod_porcenta_dcto and producto.prod_porcenta_dcto > 0 %}<span class="badge bg-success">Descuento: {{producto.prod_porcenta_dcto }}%</span>{% endif %}
+                </div>
+            </div> {% endfor %} </div>
+    </div>
+</body>
+
+</html>
